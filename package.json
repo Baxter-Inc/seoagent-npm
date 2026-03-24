@@ -4,22 +4,14 @@
   "description": "AI SEO agent for Claude Code — persistent audits, keyword strategy, content planning, and optimized writing",
   "type": "module",
   "bin": {
-    "seoagent": "./cli/index.js"
+    "seoagent": "./index.js"
   },
   "files": [
-    "cli",
+    "index.js",
     "skills"
   ],
-  "scripts": {
-    "build": "rm -rf dist && tsup",
-    "dev": "tsup src/index.ts --format esm --watch"
-  },
   "dependencies": {
     "commander": "^12.0.0"
-  },
-  "devDependencies": {
-    "tsup": "^8.0.0",
-    "typescript": "^5.4.0"
   },
   "keywords": [
     "seo",
