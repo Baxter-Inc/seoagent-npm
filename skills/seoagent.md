@@ -1,8 +1,7 @@
 ---
 name: seoagent
 description: "AI SEO agent for technical audits, keyword strategy, content planning, and optimized article writing. Use whenever the user mentions SEO, rankings, keywords, meta tags, search traffic, content strategy, audit, organic traffic, Google, search console, site architecture, schema markup, AI search optimization, or asks 'why am I not ranking.' Replaces separate seo-audit, content-strategy, programmatic-seo, ai-seo, site-architecture, and schema-markup skills with one unified, persistent workflow."
-metadata:
-  version: 0.1.0
+allowed-tools: Read, Write, WebFetch, WebSearch
 ---
 
 # SEOAgent — Persistent AI SEO Agent
