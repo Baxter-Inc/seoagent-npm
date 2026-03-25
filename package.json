@@ -1,5 +1,5 @@
 {
-  "name": "seoagent",
+  "name": "@usebaxter/seoagent",
   "version": "0.0.0",
   "description": "AI SEO agent for Claude Code — persistent audits, keyword strategy, content planning, and optimized writing",
   "type": "module",

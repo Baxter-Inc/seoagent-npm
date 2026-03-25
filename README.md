@@ -18,8 +18,9 @@ SEOAgent fixes this with one unified skill that persists all work:
 
 ## Quick Start
 
+
 ```bash
-npx seoagent init
+npx @usebaxter/seoagent init
 ```
 
 This creates a `.seoagent/` project directory and installs the SEOAgent skill file. Then open Claude Code and ask:
