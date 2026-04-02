@@ -8,16 +8,15 @@ If you use [marketingskills](https://github.com/coreyhaines31/marketingskills) f
 
 SEOAgent fixes this with one unified skill that persists all work:
 
-| | marketingskills | SEOAgent |
-|---|---|---|
-| **State** | Stateless — every session starts over | Persistent `.seoagent/` directory across sessions |
-| **Workflow** | 6 separate skills, no shared context | 1 unified workflow: audit → strategize → plan → write → monitor |
-| **Output** | Unstructured chat text | Structured JSON + human-readable markdown files |
-| **Execution** | Advisory — Claude audits differently each time | Protocols — consistent, comparable results |
-| **Continuity** | None | Roadmap compounds over time, changelog tracks progress |
+|                | marketingskills                                | SEOAgent                                                        |
+| -------------- | ---------------------------------------------- | --------------------------------------------------------------- |
+| **State**      | Stateless — every session starts over          | Persistent `.seoagent/` directory across sessions               |
+| **Workflow**   | 6 separate skills, no shared context           | 1 unified workflow: audit → strategize → plan → write → monitor |
+| **Output**     | Unstructured chat text                         | Structured JSON + human-readable markdown files                 |
+| **Execution**  | Advisory — Claude audits differently each time | Protocols — consistent, comparable results                      |
+| **Continuity** | None                                           | Roadmap compounds over time, changelog tracks progress          |
 
 ## Quick Start
-
 
 ```bash
 npx @usebaxter/seoagent init

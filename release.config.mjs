@@ -5,4 +5,4 @@ export default {
     ['@semantic-release/npm', { access: 'restricted' }],
     '@semantic-release/github',
   ],
-}
+};
