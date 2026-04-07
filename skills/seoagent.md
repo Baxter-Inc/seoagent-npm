@@ -70,6 +70,8 @@ When `.seoagent/project.json` doesn't exist or `site_type` is `unknown`:
 - Single-purpose utility, no auth → `tool`
 - Nonprofit signals in copy or config → `nonprofit`
 
+- **Confirm inferences:** State domain and site type with evidence (which env key, `package.json` field, or dependency pattern). Ask the user to confirm or correct before writing `project.json` — avoid generic industry questions unless the repo has no usable signals.
+
 ### First Session Analysis
 
 When this is the **first session** (`.seoagent/` just created or audit doesn't exist yet), immediately:

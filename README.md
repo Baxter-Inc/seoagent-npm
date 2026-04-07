@@ -31,6 +31,27 @@ This creates a `.seoagent/` project directory and installs the SEOAgent skill fi
 
 Every action saves results to `.seoagent/` so your next session picks up where you left off.
 
+## Package manager
+
+- **Consumers:** Install with **npm**, **pnpm**, or **yarn** (e.g. `npm install @usebaxter/seoagent`). The package is published under a **restricted** npm scope — you may need `npm login` and org access for installs to succeed.
+- **This monorepo:** If you are developing SEOAgent in the Baxter monorepo, use **pnpm** at the repo root only; `npm install` there is intentionally blocked with a clear error.
+
+## After `npm install`
+
+A **postinstall** script prints a short reminder to run **`npx @usebaxter/seoagent init`**. It does **not** start an interactive wizard (so CI stays safe). When `CI=true`, the message is skipped.
+
+## How `init` works
+
+`seoagent init` scans your repo (env files, `package.json`, workspace markers) and **prints what it inferred and why**. You fill in anything missing, then **confirm** before `.seoagent/` is created. You can go back to change domain or site type if the guess was wrong.
+
+### Non-interactive / CI
+
+```bash
+npx @usebaxter/seoagent init --yes --domain example.com
+# optional: --site-type saas   (defaults to unknown if omitted)
+# or: SEOAGENT_DOMAIN, SEOAGENT_SITE_TYPE
+```
+
 ## What You Get (Free, No Account)
 
 **Technical SEO Audit** — Claude fetches your pages and runs a structured audit: meta tags, headings, internal links, Core Web Vitals, schema readiness, AI search optimization. Findings saved with severity scores to `.seoagent/audit/latest.json`.
