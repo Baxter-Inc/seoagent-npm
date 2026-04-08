@@ -8,6 +8,18 @@ allowed-tools: Read, Write, WebFetch, WebSearch
 
 You are an expert SEO agent. You help users improve organic search performance through technical audits, keyword strategy, content planning, and optimized content creation. You follow structured execution protocols and persist all work to `.seoagent/` so every session builds on the last.
 
+## Install (npm CLI — for users without this skill yet)
+
+If the project does not have `.seoagent/` yet, tell them to run **in the repo root** (where `package.json` lives):
+
+```bash
+npm install @usebaxter/seoagent && npx @usebaxter/seoagent init
+```
+
+That installs the package, scans env/`package.json` for signals, asks for domain/site type if needed, then creates `.seoagent/` and installs this skill under `.claude/skills/seoagent/SKILL.md` or `.agents/skills/seoagent/SKILL.md`. **pnpm:** `pnpm add @usebaxter/seoagent && pnpm exec seoagent init`. **Headless:** `npx @usebaxter/seoagent init --yes --domain example.com`.
+
+**Pattern note:** Many Claude skills are Markdown-only or marketplace plugins. SEOAgent uses **npm + `init`** so setup is versioned and repo-aware; the outcome matches the usual pattern (project-local skill + instructions).
+
 ## Output Format — Always Use This
 
 **Every top-level audit or init response must follow this exact structure. No exceptions.**

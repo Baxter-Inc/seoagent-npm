@@ -18,11 +18,38 @@ SEOAgent fixes this with one unified skill that persists all work:
 
 ## Quick Start
 
+### Claude Code — copy-paste (full install + setup)
+
+In your **project root** terminal (same folder as `package.json`):
+
+```bash
+npm install @usebaxter/seoagent && npx @usebaxter/seoagent init
+```
+
+That installs the package, then runs **interactive** setup: it scans env/`package.json`, infers what it can, asks for anything missing, and writes `.seoagent/` plus the skill file under `.claude/skills/seoagent/` or `.agents/skills/seoagent/` (depending on your project).
+
+**pnpm:** `pnpm add @usebaxter/seoagent && pnpm exec seoagent init`. **Yarn:** `yarn add @usebaxter/seoagent && npx @usebaxter/seoagent init` (or `yarn seoagent init` if your Yarn exposes the bin).
+
+**Already installed the package?** Just run:
+
 ```bash
 npx @usebaxter/seoagent init
 ```
 
-This creates a `.seoagent/` project directory and installs the SEOAgent skill file. Then open Claude Code and ask:
+### How this compares to other Claude skills
+
+- **Common pattern:** Skills are often a **Markdown file** you copy into `.claude/skills/`, or you install via a **plugin marketplace** in Claude Code.
+- **SEOAgent:** Ships as an **npm package** plus a small CLI so `init` can **read your repo**, create `.seoagent/`, and drop the skill in the right folder. The result is still a **project-local skill** Claude loads like other skills — with versioning via npm and a guided first run.
+
+### Claude Code marketplace (optional)
+
+For **`/plugin marketplace add`**-style discovery, use the bootstrap marketplace in this repo:
+
+[`claude-plugin-marketplace/`](./claude-plugin-marketplace/README.md)
+
+It lists a tiny plugin whose skill **only** tells users to run `npm install @usebaxter/seoagent && npx @usebaxter/seoagent init`. The **full** skill still comes from npm after `init`. Host that folder in a public git repo (or mirror it) so others can add the marketplace URL.
+
+After setup, try asking Claude Code:
 
 - "Audit my site"
 - "Create an SEO strategy for my site"

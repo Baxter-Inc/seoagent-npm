@@ -5,6 +5,8 @@ if (process.env.CI === 'true' || process.env.CI === '1') {
 }
 
 process.stdout.write(
-  '\n  @usebaxter/seoagent — Next step: npx @usebaxter/seoagent init\n' +
-    '  (Creates .seoagent/ and installs the Claude skill.)\n\n'
+  '\n  @usebaxter/seoagent — Run setup (installs skill + .seoagent/):\n' +
+    '    npx @usebaxter/seoagent init\n' +
+    '  Or one line from project root:\n' +
+    '    npm install @usebaxter/seoagent && npx @usebaxter/seoagent init\n\n'
 );
