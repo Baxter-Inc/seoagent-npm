@@ -186,6 +186,7 @@ Write to `.seoagent/audit/latest.json`:
 Write human-readable summary to `.seoagent/audit/issues.json` grouping by severity.
 Update `.seoagent/roadmap.md` with audit-derived action items.
 Log to `.seoagent/changelog.md`: `[date] Audit completed: {N} pages, {N} issues found`.
+Append to `.seoagent/sync-log.json` (event_type: `cli_audit_completed`, metadata: `{ pages_audited, issues_critical, issues_high, issues_medium, issues_low }`). Run Cloud Sync Procedure.
 
 ---
 
@@ -258,6 +259,7 @@ Write discovery summary to `.seoagent/strategy/discovery.json`:
 ```
 
 Update `.seoagent/roadmap.md` with strategy-derived content priorities.
+Append to `.seoagent/sync-log.json` (event_type: `cli_strategy_created` for new strategy or `cli_strategy_updated` for updates, metadata: `{ clusters_count, total_articles, top_opportunities }`). Run Cloud Sync Procedure.
 
 ### Prioritization Scoring
 
@@ -337,6 +339,7 @@ Write to `.seoagent/briefs/{article-slug}.json`:
 ```
 
 Update `.seoagent/roadmap.md` to reflect brief status.
+Append to `.seoagent/sync-log.json` (event_type: `cli_brief_created`, metadata: `{ slug, cluster, primary_keyword, target_word_count_min, target_word_count_max }`). Run Cloud Sync Procedure.
 
 ---
 
@@ -426,6 +429,8 @@ Update `.seoagent/content/inventory.json`:
 }
 ```
 
+Append to `.seoagent/sync-log.json` (event_type: `cli_article_drafted` for new articles or `cli_content_rewrite_completed` for rewrites, metadata: `{ slug, title, cluster, word_count, brief }`). Run Cloud Sync Procedure.
+
 ---
 
 ## Phase 5: Monitoring & Re-Audit
@@ -442,6 +447,7 @@ Update `.seoagent/content/inventory.json`:
 2. Compare with `.seoagent/audit/latest.json` — identify fixed issues, new issues, regressions
 3. Write new audit to `.seoagent/audit/latest.json` (overwrite)
 4. Archive the comparison in `.seoagent/changelog.md`
+5. Append to `.seoagent/sync-log.json` (event_type: `cli_reaudit_completed`, metadata: `{ pages_audited, new_issues, fixed_issues, regressions }`). Run Cloud Sync Procedure.
 
 ---
 
@@ -525,6 +531,38 @@ When the user wants to build pages at scale:
 }
 ```
 
+### `.seoagent/auth.json`
+
+```json
+{
+  "user_token": "YOUR_USER_TOKEN",
+  "website_token": "YOUR_WEBSITE_TOKEN",
+  "api_base": "https://seoagent.com"
+}
+```
+
+Get your tokens from the SEOAgent web app → Settings → Account. This file is gitignored by default — never commit it.
+
+### `.seoagent/sync-log.json`
+
+```json
+{
+  "last_synced_at": null,
+  "entries": [
+    {
+      "id": "1713254400000",
+      "event_type": "cli_audit_completed",
+      "description": "[2026-04-16] Audit completed: 8 pages, 12 issues found",
+      "metadata": { "pages_audited": 8, "issues_critical": 2, "issues_high": 5, "issues_medium": 3, "issues_low": 2 },
+      "occurred_at": "2026-04-16T10:00:00Z",
+      "synced": false
+    }
+  ]
+}
+```
+
+Use `Date.now().toString()` as the entry `id`. Append entries; never overwrite existing ones. Only update the `synced` flag and `last_synced_at` after a successful cloud sync.
+
 ### `.seoagent/context.md`
 ```markdown
 # Business Context
@@ -592,6 +630,59 @@ Last updated: 2026-03-20
 
 ---
 
+## Cloud Sync
+
+When you complete a major Phase action, sync your changelog to the SEOAgent cloud. This gives the user a unified activity log visible in the SEOAgent web app — they can see what the CLI did alongside what the automated pipeline did.
+
+### Setup (one-time, user-initiated)
+
+Tell the user: "To sync your CLI activity to the SEOAgent dashboard, create `.seoagent/auth.json` with your tokens from the SEOAgent web app → Settings → Account."
+
+`.seoagent/auth.json` format:
+
+```json
+{
+  "user_token": "YOUR_USER_TOKEN",
+  "website_token": "YOUR_WEBSITE_TOKEN",
+  "api_base": "https://seoagent.com"
+}
+```
+
+### Sync Procedure (run after every major Phase completion)
+
+Execute these steps silently after writing to `.seoagent/sync-log.json`:
+
+1. Read `.seoagent/auth.json` — if file doesn't exist, **skip sync entirely** (non-fatal)
+2. Read `.seoagent/sync-log.json`, filter entries where `synced = false`
+3. If no unsynced entries, stop
+4. Use WebFetch to POST to `{auth.api_base}/api/seoagent/sync-changelog`:
+   ```json
+   {
+     "user_token": "<auth.user_token>",
+     "website_token": "<auth.website_token>",
+     "domain": "<project.domain from project.json>",
+     "entries": [ /* unsynced entries */ ]
+   }
+   ```
+5. On HTTP 200: write back `sync-log.json` with all sent entries marked `synced: true`, update `last_synced_at`
+6. On any error: **skip silently** — never show sync failures to the user; sync is best-effort
+
+### Event Types
+
+| Trigger | `event_type` |
+|---|---|
+| Phase 1 audit complete | `cli_audit_completed` |
+| Phase 1 re-audit (Phase 5) | `cli_reaudit_completed` |
+| Phase 2 new strategy | `cli_strategy_created` |
+| Phase 2 strategy updated | `cli_strategy_updated` |
+| Phase 2 cluster direction changed | `cli_cluster_strategy_updated` |
+| Phase 3 brief created | `cli_brief_created` |
+| Phase 4 article drafted | `cli_article_drafted` |
+| Phase 4 rewrite of existing article | `cli_content_rewrite_completed` |
+| Any meta tag update | `cli_meta_updated` |
+
+---
+
 ## Rules
 
 1. **Always persist output.** Every action writes to `.seoagent/`. Never give SEO advice without saving it.
@@ -601,7 +692,7 @@ Last updated: 2026-03-20
 5. **Score everything.** Use severity scores for audit findings, priority scores for content opportunities.
 6. **Always end with choices.** Every response ends with numbered next steps (2-3 max). When user picks one, execute it — don't re-dump the full report.
 7. **Update the roadmap.** After every action, update `.seoagent/roadmap.md` with current priorities.
-8. **Log changes.** After every action, append to `.seoagent/changelog.md`.
+8. **Log changes.** After every action: (a) append to `.seoagent/changelog.md`; (b) append a structured entry to `.seoagent/sync-log.json` with `synced: false`; (c) run the Cloud Sync Procedure.
 9. **WebFetch before reporting missing.** Never say a URL is missing or broken without fetching it live first.
 10. **Use the output template.** Every top-level report follows the operator template: Biggest Issue → Also Worth Fixing → What's Working → What do you want to do?
 11. **Read context before generating.** Before any strategy, brief, or article generation, read `.seoagent/context.md` and use it as business context for tone, audience, and writing style.
