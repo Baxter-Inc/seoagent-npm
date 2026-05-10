@@ -6,7 +6,7 @@ if (process.env.CI === 'true' || process.env.CI === '1') {
 
 process.stdout.write(
   '\n' +
-    '  @usebaxter/seoagent installed.\n' +
+    '  @seoagent-official/seoagent installed.\n' +
     '\n' +
     '  Best path: paste this prompt into Claude Code from your project root:\n' +
     '\n' +
@@ -15,8 +15,8 @@ process.stdout.write(
     '    1. Infer my site domain from package.json ("homepage") or .env files\n' +
     '       (NEXT_PUBLIC_SITE_URL, SITE_URL, NEXT_PUBLIC_URL, NEXTAUTH_URL).\n' +
     '       If you cannot infer it, ask me once.\n' +
-    '    2. Run: npm install --legacy-peer-deps @usebaxter/seoagent && \\\n' +
-    '              npx @usebaxter/seoagent init --yes --domain <inferred>\n' +
+    '    2. Run: npm install --legacy-peer-deps @seoagent-official/seoagent && \\\n' +
+    '              npx @seoagent-official/seoagent init --yes --domain <inferred>\n' +
     '    3. Read .claude/skills/seoagent/SKILL.md and follow its Session\n' +
     '       Initialization protocol. Use Edit (not Write) on existing files.\n' +
     '    4. Confirm site_type from the live homepage; edit project.md if init\n' +
@@ -26,6 +26,6 @@ process.stdout.write(
     '    6. End by asking me whether to continue to keyword strategy.\n' +
     '\n' +
     '  Or terminal-only:\n' +
-    '    npx @usebaxter/seoagent init\n' +
+    '    npx @seoagent-official/seoagent init\n' +
     '\n'
 );

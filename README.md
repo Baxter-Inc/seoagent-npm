@@ -14,7 +14,7 @@ Set up SEOAgent in this project. Do these steps in order, without asking for con
    can't infer it, ask me once.
 
 2. Run in the repo root:
-   npm install --legacy-peer-deps @usebaxter/seoagent && npx @usebaxter/seoagent init --yes --domain <inferred>
+   npm install --legacy-peer-deps @seoagent-official/seoagent && npx @seoagent-official/seoagent init --yes --domain <inferred>
 
 3. Read .claude/skills/seoagent/SKILL.md and follow its "Session Initialization"
    protocol from now on. Use the Edit tool (not Write) to modify project.md,
@@ -37,7 +37,7 @@ That's it. Claude installs the package, scaffolds `.seoagent/`, installs the ski
 ### Or via terminal
 
 ```bash
-npm install @usebaxter/seoagent && npx @usebaxter/seoagent init
+npm install @seoagent-official/seoagent && npx @seoagent-official/seoagent init
 ```
 
 The CLI scans your repo, infers domain + site type, and asks for anything missing. Then open Claude Code and say *"audit my site."*
