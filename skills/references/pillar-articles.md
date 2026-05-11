@@ -120,7 +120,7 @@ If the pillar contains step-by-step processes, also add `HowTo` schema. If it co
 1. Update `.seoagent/strategy/clusters/{cluster-slug}.md` — set the pillar's `status: drafted` in the article table.
 2. Update the cluster file's "Internal Linking" section to confirm the pillar's outbound links.
 3. Append to `.seoagent/changelog.md`: `[date] Pillar drafted: {slug} ({word_count} words)`
-4. Run `seoagent sync`.
+4. Run `npx @seoagent-official/seoagent sync`.
 
 ## When to Rewrite an Existing Pillar
 

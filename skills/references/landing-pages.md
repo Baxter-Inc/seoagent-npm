@@ -159,6 +159,6 @@ images:
 
 ## Persistence
 
-Even though landing pages aren't in `strategy/clusters/`, persist the content to `.seoagent/content/{slug}.md` with `page_type: landing`. Add an entry to `changelog.md`. Run `seoagent sync`.
+Even though landing pages aren't in `strategy/clusters/`, persist the content to `.seoagent/content/{slug}.md` with `page_type: landing`. Add an entry to `changelog.md`. Run `npx @seoagent-official/seoagent sync`.
 
 If the user is editing an existing landing page rather than creating a new one, follow `references/rewrite-protocol.md` instead.

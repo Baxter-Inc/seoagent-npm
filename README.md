@@ -67,7 +67,7 @@ SEOAgent fixes this with one unified skill that persists all work:
 
 **SEO-Optimized Articles** — Articles written from briefs with full SEO frontmatter: meta_title, meta_description, canonical, OpenGraph, Twitter cards, JSON-LD (Article + FAQPage + HowTo as appropriate), image plans. Saved to `.seoagent/content/`.
 
-**Image Generation (Bring Your Own Key)** — Detect `OPENAI_API_KEY`, `FAL_KEY`, or `REPLICATE_API_TOKEN` from your env. Generate hero + inline images with `seoagent generate-image`. You pay the LLM provider directly.
+**Image Generation (Bring Your Own Key)** — Detect `OPENAI_API_KEY`, `FAL_KEY`, or `REPLICATE_API_TOKEN` from your env. Generate hero + inline images with `npx @seoagent-official/seoagent generate-image`. You pay the LLM provider directly.
 
 **Compounding Roadmap** — Prioritized action plan that updates after every action. Saved to `.seoagent/roadmap.md`. Persistent changelog at `.seoagent/changelog.md`.
 
@@ -110,20 +110,25 @@ SEOAgent fixes this with one unified skill that persists all work:
 
 ## CLI Commands
 
+Run via `npx` (works after a local install or as a one-shot fetch):
+
 ```bash
-seoagent init              # Create .seoagent/ project + install skill
-seoagent status            # Show project state summary
-seoagent login             # Connect this CLI to seoagent.com (browser flow)
-seoagent logout            # Remove stored credentials
-seoagent sync              # Push artifacts to dashboard (no-op when not logged in)
-seoagent env-check         # Detect image generation provider (OPENAI/FAL/REPLICATE)
-seoagent generate-image    # Generate an image via your provider
-seoagent upgrade           # Open SEOAgent Cloud pricing page
+npx @seoagent-official/seoagent init              # Create .seoagent/ project + install skill
+npx @seoagent-official/seoagent status            # Show project state summary
+npx @seoagent-official/seoagent login             # Connect this CLI to seoagent.com (browser flow)
+npx @seoagent-official/seoagent logout            # Remove stored credentials
+npx @seoagent-official/seoagent sync              # Push artifacts to dashboard (no-op when not logged in)
+npx @seoagent-official/seoagent env-check         # Detect image generation provider (OPENAI/FAL/REPLICATE)
+npx @seoagent-official/seoagent generate-image    # Generate an image via your provider
+npx @seoagent-official/seoagent upgrade           # Open SEOAgent Cloud pricing page
 ```
+
+> Prefer the shorter `seoagent <cmd>` form? Install globally once:
+> `npm install -g @seoagent-official/seoagent`. After that, bare `seoagent <cmd>` works in any directory.
 
 ## Auto-Sync Hook
 
-`init` writes a `PostToolUse` hook to `.claude/settings.json` so every Write/Edit to `.seoagent/` triggers `seoagent sync` automatically. No-op when not logged in. Merges into existing settings without clobbering them.
+`init` writes a `PostToolUse` hook to `.claude/settings.json` so every Write/Edit to `.seoagent/` triggers `npx @seoagent-official/seoagent sync` automatically. No-op when not logged in. Merges into existing settings without clobbering them.
 
 ## SEOAgent Cloud
 
@@ -137,7 +142,7 @@ The free skill handles audits, strategy, briefs, articles, and persistent state 
 - **Team collaboration** — Invite members, share strategy, coordinate publishing
 - **Cloud dashboard** — See everything Claude Code did at seoagent.com (also free with any account)
 
-Run `seoagent login` for the free dashboard, or `seoagent upgrade` for paid features.
+Run `npx @seoagent-official/seoagent login` for the free dashboard, or `npx @seoagent-official/seoagent upgrade` for paid features.
 
 ## Pattern Note
 

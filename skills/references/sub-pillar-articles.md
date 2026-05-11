@@ -105,7 +105,7 @@ Add `HowTo` schema when the article is an action-oriented step-by-step (title st
 1. Update `.seoagent/strategy/clusters/{cluster-slug}.md` — set this sub_pillar's `status: drafted`.
 2. **Update the pillar's link graph** — if the cluster's pillar exists and is drafted, edit the pillar to add a "Read more →" link to this sub_pillar. (Use `Edit`, not full rewrite.)
 3. Append to `.seoagent/changelog.md`: `[date] Sub-pillar drafted: {slug} ({word_count} words)`
-4. Run `seoagent sync`.
+4. Run `npx @seoagent-official/seoagent sync`.
 
 ## Common Pitfalls
 

@@ -27,5 +27,11 @@ process.stdout.write(
     '\n' +
     '  Or terminal-only:\n' +
     '    npx @seoagent-official/seoagent init\n' +
+    '\n' +
+    '  After init, run subsequent commands as:\n' +
+    '    npx @seoagent-official/seoagent <command>   # e.g. login, sync, status\n' +
+    '\n' +
+    '  Prefer a bare `seoagent` command? Install globally instead:\n' +
+    '    npm install -g @seoagent-official/seoagent\n' +
     '\n'
 );

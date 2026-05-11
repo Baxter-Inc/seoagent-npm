@@ -116,7 +116,7 @@ For "what is" long_tails, the answer paragraph already powers featured snippets 
 1. Update the cluster file — set this long_tail's `status: drafted` in the article table.
 2. **Update the parent sub_pillar** — edit it to add this long_tail to a "Read more" or "Related" section if not already present. (Use `Edit`.)
 3. Append to `.seoagent/changelog.md`: `[date] Long-tail drafted: {slug} ({word_count} words)`
-4. Run `seoagent sync`.
+4. Run `npx @seoagent-official/seoagent sync`.
 
 ## Common Pitfalls
 
