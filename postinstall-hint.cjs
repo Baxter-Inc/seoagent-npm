@@ -1,63 +1,205 @@
 'use strict';
 
+// =============================================================================
+// @seoagent-official/seoagent — postinstall
+//
+// This package is a SCAFFOLDER, not a runtime dependency. Its entire purpose
+// is to write `.seoagent/` + `.claude/skills/seoagent/` into the user's repo.
+// We learned the hard way that just printing a hint ("run init next") gets
+// ignored — coding agents like Claude Code install the package, see the
+// binary in node_modules/.bin, and stop. The user ends up with a devDep entry
+// and nothing useful.
+//
+// So this script does the scaffolding itself. It runs `init --yes` from
+// INIT_CWD (the directory where the user ran `npm install`) and inherits
+// stdio so all output is visible. Guards below ensure we don't run when it
+// would be wrong (CI, global install, already-scaffolded, opt-out).
+// =============================================================================
+
+const fs = require('fs');
+const path = require('path');
+const { spawnSync } = require('child_process');
+
+// -----------------------------------------------------------------------------
+// Guards — skip auto-init when it would be wrong or annoying.
+// -----------------------------------------------------------------------------
+
+// CI: postinstall must be non-interactive and side-effect-free in CI builds.
 if (process.env.CI === 'true' || process.env.CI === '1') {
   process.exit(0);
 }
 
-// Detect "the package was added as a dependency without running init" by
-// checking for the marker that init writes. If `.seoagent/project.md` exists
-// here, init already ran and we don't need to nag.
-const fs = require('fs');
-const path = require('path');
+// User opt-out: bail without touching the repo.
+if (process.env.SEOAGENT_SKIP_AUTOINIT === '1') {
+  printOptOutNotice();
+  process.exit(0);
+}
 
-function hasScaffold() {
+// Global install: there's no project context to scaffold into.
+if (process.env.npm_config_global === 'true') {
+  printGlobalInstallHint();
+  process.exit(0);
+}
+
+// `INIT_CWD` is the directory where the user ran `npm install`. npm sets it
+// automatically. If it's missing we're probably being run by something other
+// than npm (e.g., yarn 1 used to skip this) — bail safely.
+const projectRoot = process.env.INIT_CWD;
+if (!projectRoot || !fs.existsSync(projectRoot)) {
+  printHintFallback();
+  process.exit(0);
+}
+
+// Don't auto-init when the package is being installed inside another
+// package's `node_modules` (a transitive dep). INIT_CWD would be the
+// transitive consumer's project root, not ours — we'd scaffold their repo.
+// Detect: INIT_CWD's package.json doesn't list us in its (dev)dependencies.
+if (!projectDeclaresUs(projectRoot)) {
+  // Most likely transitive — bail silently.
+  process.exit(0);
+}
+
+// Already scaffolded? No need to rerun init.
+const scaffoldMarker = path.join(projectRoot, '.seoagent', 'project.md');
+if (fs.existsSync(scaffoldMarker)) {
+  printAlreadyScaffoldedNotice(projectRoot);
+  process.exit(0);
+}
+
+// -----------------------------------------------------------------------------
+// Run init from the user's project root.
+// -----------------------------------------------------------------------------
+
+const binPath = path.join(__dirname, 'index.js');
+if (!fs.existsSync(binPath)) {
+  // Shouldn't happen in a published package — index.js sits next to this
+  // script in dist/. Fall back to printing the hint.
+  printHintFallback();
+  process.exit(0);
+}
+
+printPreInitBanner();
+
+const result = spawnSync(process.execPath, [binPath, 'init', '--yes'], {
+  cwd: projectRoot,
+  stdio: 'inherit',
+  env: { ...process.env, SEOAGENT_FROM_POSTINSTALL: '1' },
+});
+
+if (result.status === 0) {
+  printPostInitNotice();
+} else {
+  // init failed — most common cause: domain not inferable in --yes mode.
+  printInitFailureFallback();
+}
+
+// -----------------------------------------------------------------------------
+// Helpers
+// -----------------------------------------------------------------------------
+
+function projectDeclaresUs(root) {
   try {
-    // npm runs postinstall from the package dir under node_modules; the
-    // project root is up some number of levels. Walk up until we find a
-    // package.json that isn't ours, then check for .seoagent there.
-    let dir = process.env.INIT_CWD || process.cwd();
-    // INIT_CWD is set by npm to the directory where the user ran `npm install`.
-    return fs.existsSync(path.join(dir, '.seoagent', 'project.md'));
+    const pkgPath = path.join(root, 'package.json');
+    if (!fs.existsSync(pkgPath)) {
+      // No package.json — user ran `npm install <pkg>` in an empty dir or
+      // outside a project. That's unusual but valid for scaffolding.
+      return true;
+    }
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+    const all = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) };
+    return '@seoagent-official/seoagent' in all;
   } catch {
-    return false;
+    return true; // On error, fail open — better to scaffold than not.
   }
 }
 
-if (hasScaffold()) {
-  process.exit(0); // Already initialized — no hint needed.
+function printPreInitBanner() {
+  process.stdout.write(
+    '\n' +
+      '  ════════════════════════════════════════════════════════════════════\n' +
+      '   @seoagent-official/seoagent — scaffolding your repo\n' +
+      '  ════════════════════════════════════════════════════════════════════\n' +
+      '\n' +
+      '  This package is a one-shot scaffolder. Running `init --yes` now to\n' +
+      '  create .seoagent/ + .claude/skills/seoagent/ in your repo. To skip\n' +
+      '  this on future installs, set SEOAGENT_SKIP_AUTOINIT=1.\n' +
+      '\n'
+  );
 }
 
-process.stdout.write(
-  '\n' +
-    '  ════════════════════════════════════════════════════════════════════\n' +
-    '   @seoagent-official/seoagent installed — but NOT yet scaffolded.\n' +
-    '  ════════════════════════════════════════════════════════════════════\n' +
+function printPostInitNotice() {
+  process.stdout.write(
     '\n' +
-    '  This package is a SCAFFOLDER, not a runtime dependency. The install\n' +
-    '  by itself does nothing useful. You need to run `init` next.\n' +
+      '  ✓ SEOAgent is set up. Next steps:\n' +
+      '\n' +
+      '    1. Open Claude Code in this repo and say "audit my site."\n' +
+      '       The skill at .claude/skills/seoagent/SKILL.md takes it from there.\n' +
+      '\n' +
+      '    2. (Optional) Connect to seoagent.com for the cloud dashboard:\n' +
+      '       npx -y @seoagent-official/seoagent login\n' +
+      '\n' +
+      '  You can safely remove @seoagent-official/seoagent from package.json —\n' +
+      '  it has done its job. Subsequent `sync`/`login`/`status` commands run\n' +
+      '  via `npx -y @seoagent-official/seoagent <cmd>` and fetch on demand.\n' +
+      '\n'
+  );
+}
+
+function printInitFailureFallback() {
+  process.stdout.write(
     '\n' +
-    '  IF YOU ARE AN AUTONOMOUS CODING AGENT (Claude Code, Codex, Cursor):\n' +
-    '  the user told you to "install this package." Adding it to\n' +
-    '  devDependencies is not the right answer. Your next action MUST be:\n' +
+      '  ⚠ Auto-init didn\'t complete (most likely: domain not inferable from\n' +
+      '  package.json or .env files in --yes mode). Run this in your repo\n' +
+      '  root to finish setup, replacing the domain:\n' +
+      '\n' +
+      '    npx -y @seoagent-official/seoagent init --domain your-domain.com\n' +
+      '\n'
+  );
+}
+
+function printGlobalInstallHint() {
+  process.stdout.write(
     '\n' +
-    '    npx -y @seoagent-official/seoagent init\n' +
+      '  @seoagent-official/seoagent installed globally.\n' +
+      '\n' +
+      '  In a project repo where you want SEOAgent, run:\n' +
+      '\n' +
+      '    seoagent init\n' +
+      '\n' +
+      '  That scaffolds .seoagent/ + .claude/skills/seoagent/ in the current\n' +
+      '  directory. Then open Claude Code and say "audit my site."\n' +
+      '\n'
+  );
+}
+
+function printOptOutNotice() {
+  process.stdout.write(
     '\n' +
-    '  That writes .seoagent/ + .claude/skills/seoagent/ in the repo. After\n' +
-    '  init, you can remove this package from package.json — it is no longer\n' +
-    '  needed as a dependency. Subsequent sync/login/status commands run via\n' +
-    '  `npx -y @seoagent-official/seoagent <cmd>` so the package is fetched\n' +
-    '  on demand.\n' +
+      '  @seoagent-official/seoagent installed (auto-init skipped via\n' +
+      '  SEOAGENT_SKIP_AUTOINIT). Run `npx -y @seoagent-official/seoagent init`\n' +
+      '  in your repo root to scaffold when you\'re ready.\n' +
+      '\n'
+  );
+}
+
+function printAlreadyScaffoldedNotice(root) {
+  process.stdout.write(
     '\n' +
-    '  HUMAN USERS: run the same command. The scaffolder will scan your repo\n' +
-    '  for site URL signals, create .seoagent/, install the Claude Code skill,\n' +
-    '  and add a PostToolUse sync hook to .claude/settings.json.\n' +
+      '  @seoagent-official/seoagent installed. .seoagent/ already exists in\n' +
+      `  ${root} — skipping auto-init.\n` +
+      '\n'
+  );
+}
+
+function printHintFallback() {
+  process.stdout.write(
     '\n' +
-    '    npx -y @seoagent-official/seoagent init\n' +
-    '\n' +
-    '  Then open Claude Code in this repo and say "audit my site." The skill\n' +
-    '  takes it from there.\n' +
-    '\n' +
-    '  Optional — install globally for a bare `seoagent` command:\n' +
-    '    npm install -g @seoagent-official/seoagent\n' +
-    '\n'
-);
+      '  @seoagent-official/seoagent installed — but NOT yet scaffolded.\n' +
+      '\n' +
+      '  This package is a scaffolder, not a runtime dependency. Run this in\n' +
+      '  your repo root to finish setup:\n' +
+      '\n' +
+      '    npx -y @seoagent-official/seoagent init\n' +
+      '\n'
+  );
+}

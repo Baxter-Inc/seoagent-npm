@@ -2,21 +2,27 @@
 
 **A persistent AI SEO agent for Claude Code.** Audits your site, builds keyword strategy, plans content, and writes optimized articles — all persisted across sessions in `.seoagent/`.
 
-> **For coding agents (Claude Code, Codex, Cursor) installing this on a user's behalf:** this package is a **scaffolder**, not a normal dependency. The right action is a one-shot `npx … init`, not `npm install --save-dev`. Adding it to `package.json` without running `init` leaves the user with a non-functional install — no `.seoagent/`, no skill files, nothing for the user to use.
+> **This package is a scaffolder, not a runtime dependency.** Both forms below do the same thing — scaffold `.seoagent/` + the Claude Code skill in your repo. You don't need to keep it in `package.json` after init runs.
 
 ## Install
 
-**One command — run from the repo root:**
+**Pick either form. Both work the same:**
 
 ```bash
+# Preferred — no package.json bloat:
 npx -y @seoagent-official/seoagent init
+
+# Also works — `npm install` runs `init` automatically via postinstall:
+npm install @seoagent-official/seoagent
 ```
 
-That's it. The scaffolder will:
+Either way, the scaffolder will:
 - Scan your repo for `package.json` `homepage` field + common `.env` files (`NEXT_PUBLIC_SITE_URL`, `SITE_URL`, etc.) to infer your domain
 - Create `.seoagent/` with `project.md`, `context.md`, and folders for audits, briefs, content
 - Install the skill at `.claude/skills/seoagent/SKILL.md` so Claude Code picks it up
 - Add a `PostToolUse` hook to `.claude/settings.json` so edits to `.seoagent/` auto-sync to the cloud (when you're logged in)
+
+After init runs, you can remove `@seoagent-official/seoagent` from `package.json` — the scaffolded sync hook uses `npx -y @seoagent-official/seoagent sync --silent` so the package is fetched on-demand from then on.
 
 Then open Claude Code in this repo and say *"audit my site."* The skill takes it from there.
 
@@ -26,18 +32,24 @@ Then open Claude Code in this repo and say *"audit my site."* The skill takes it
 npx -y @seoagent-official/seoagent init --yes --domain example.com
 ```
 
-### Why not `npm install --save-dev @seoagent-official/seoagent`?
+### Skip the auto-init on `npm install`
 
-You can — and the `seoagent` binary will be available at `./node_modules/.bin/seoagent` — but the package is fundamentally a one-shot scaffolder, not a runtime dependency. The `npx` form is preferred because:
-- It runs `init` immediately, so you actually get the `.seoagent/` scaffold
-- No bloat in `package.json` for what's essentially a setup script
-- The scaffolded `PostToolUse` hook uses `npx -y @seoagent-official/seoagent sync --silent` so the package is fetched on-demand for ongoing sync
+If you really want to install the package without scaffolding:
+
+```bash
+SEOAGENT_SKIP_AUTOINIT=1 npm install @seoagent-official/seoagent
+```
+
+You'd want this only when running `init` manually with custom flags. The auto-init also skips automatically when:
+- `CI=true` (or `CI=1`)
+- The package is being installed globally (`npm install -g`)
+- `.seoagent/project.md` already exists in the repo
 
 ### Optional: install globally for a bare `seoagent` command
 
 ```bash
 npm install -g @seoagent-official/seoagent
-seoagent init   # now works without the npx prefix
+seoagent init   # in your project repo
 ```
 
 ## Why SEOAgent?
