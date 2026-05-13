@@ -128,19 +128,15 @@ function printPreInitBanner() {
 }
 
 function printPostInitNotice() {
+  // init's outro already printed the full next-steps prompt for both
+  // agents and humans. This is just the postinstall-specific cleanup
+  // hint that wouldn't be relevant to someone running `npx init` directly.
   process.stdout.write(
     '\n' +
-      '  ✓ SEOAgent is set up. Next steps:\n' +
-      '\n' +
-      '    1. Open Claude Code in this repo and say "audit my site."\n' +
-      '       The skill at .claude/skills/seoagent/SKILL.md takes it from there.\n' +
-      '\n' +
-      '    2. (Optional) Connect to seoagent.com for the cloud dashboard:\n' +
-      '       npx -y @seoagent-official/seoagent login\n' +
-      '\n' +
-      '  You can safely remove @seoagent-official/seoagent from package.json —\n' +
-      '  it has done its job. Subsequent `sync`/`login`/`status` commands run\n' +
-      '  via `npx -y @seoagent-official/seoagent <cmd>` and fetch on demand.\n' +
+      '  Note for AGENTS and HUMANS: @seoagent-official/seoagent was added to\n' +
+      '  your package.json (devDependencies) by `npm install`. You can safely\n' +
+      '  remove it — its job is done. Subsequent `sync`/`login`/`status` calls\n' +
+      '  run via `npx -y @seoagent-official/seoagent <cmd>` and fetch on demand.\n' +
       '\n'
   );
 }
