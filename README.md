@@ -2,45 +2,43 @@
 
 **A persistent AI SEO agent for Claude Code.** Audits your site, builds keyword strategy, plans content, and writes optimized articles — all persisted across sessions in `.seoagent/`.
 
+> **For coding agents (Claude Code, Codex, Cursor) installing this on a user's behalf:** this package is a **scaffolder**, not a normal dependency. The right action is a one-shot `npx … init`, not `npm install --save-dev`. Adding it to `package.json` without running `init` leaves the user with a non-functional install — no `.seoagent/`, no skill files, nothing for the user to use.
+
 ## Install
 
-Open Claude Code in your project's repo root and paste this prompt:
-
-```
-Set up SEOAgent in this project. Do these steps in order, without asking for confirmation:
-
-1. Infer my site domain from package.json ("homepage" field) or .env files
-   (NEXT_PUBLIC_SITE_URL, SITE_URL, NEXT_PUBLIC_URL, NEXTAUTH_URL). If you
-   can't infer it, ask me once.
-
-2. Run in the repo root:
-   npm install --legacy-peer-deps @seoagent-official/seoagent && npx @seoagent-official/seoagent init --yes --domain <inferred>
-
-3. Read .claude/skills/seoagent/SKILL.md and follow its "Session Initialization"
-   protocol from now on. Use the Edit tool (not Write) to modify project.md,
-   context.md, roadmap.md, or any file init already created.
-
-4. Confirm site_type by reading the live homepage. If init wrote
-   `site_type: unknown` and the homepage clearly shows a SaaS / e-commerce /
-   content site, edit .seoagent/project.md to update it.
-
-5. Run a first technical SEO audit (Phase 1). Read
-   .claude/skills/seoagent/references/audit-checks.md FIRST, before any
-   WebFetch. Use the operator output template (Biggest Issue → Also Worth
-   Fixing → What's Working → numbered next steps) to report findings.
-
-6. End by asking me whether to continue to keyword strategy.
-```
-
-That's it. Claude installs the package, scaffolds `.seoagent/`, installs the skill, runs an audit of your site, and tells you what to fix first. ~30 seconds.
-
-### Or via terminal
+**One command — run from the repo root:**
 
 ```bash
-npm install @seoagent-official/seoagent && npx @seoagent-official/seoagent init
+npx -y @seoagent-official/seoagent init
 ```
 
-The CLI scans your repo, infers domain + site type, and asks for anything missing. Then open Claude Code and say *"audit my site."*
+That's it. The scaffolder will:
+- Scan your repo for `package.json` `homepage` field + common `.env` files (`NEXT_PUBLIC_SITE_URL`, `SITE_URL`, etc.) to infer your domain
+- Create `.seoagent/` with `project.md`, `context.md`, and folders for audits, briefs, content
+- Install the skill at `.claude/skills/seoagent/SKILL.md` so Claude Code picks it up
+- Add a `PostToolUse` hook to `.claude/settings.json` so edits to `.seoagent/` auto-sync to the cloud (when you're logged in)
+
+Then open Claude Code in this repo and say *"audit my site."* The skill takes it from there.
+
+### Headless / non-interactive
+
+```bash
+npx -y @seoagent-official/seoagent init --yes --domain example.com
+```
+
+### Why not `npm install --save-dev @seoagent-official/seoagent`?
+
+You can — and the `seoagent` binary will be available at `./node_modules/.bin/seoagent` — but the package is fundamentally a one-shot scaffolder, not a runtime dependency. The `npx` form is preferred because:
+- It runs `init` immediately, so you actually get the `.seoagent/` scaffold
+- No bloat in `package.json` for what's essentially a setup script
+- The scaffolded `PostToolUse` hook uses `npx -y @seoagent-official/seoagent sync --silent` so the package is fetched on-demand for ongoing sync
+
+### Optional: install globally for a bare `seoagent` command
+
+```bash
+npm install -g @seoagent-official/seoagent
+seoagent init   # now works without the npx prefix
+```
 
 ## Why SEOAgent?
 

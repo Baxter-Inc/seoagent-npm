@@ -38,13 +38,15 @@ Loading the right reference makes outputs dramatically better. Don't skip it.
 
 ## Install (npm CLI — for users without this skill yet)
 
-If the project does not have `.seoagent/` yet, tell them to run **in the repo root** (where `package.json` lives):
+If the project does not have `.seoagent/` yet, run **in the repo root** (where `package.json` lives):
 
 ```bash
-npm install @seoagent-official/seoagent && npx @seoagent-official/seoagent init
+npx -y @seoagent-official/seoagent init
 ```
 
-That installs the package, scans env/`package.json` for signals, asks for domain/site type if needed, then creates `.seoagent/` and installs this skill plus all reference files. **pnpm:** `pnpm add @seoagent-official/seoagent && pnpm exec seoagent init`. **Headless:** `npx @seoagent-official/seoagent init --yes --domain example.com`. **Global install (optional, lets the user type `seoagent` without `npx`):** `npm install -g @seoagent-official/seoagent`.
+That one command scans `env`/`package.json` for signals, asks for domain/site type if needed, then creates `.seoagent/` and installs this skill plus all reference files. **Headless:** `npx -y @seoagent-official/seoagent init --yes --domain example.com`. **Global install (optional, lets the user type `seoagent` without `npx`):** `npm install -g @seoagent-official/seoagent`.
+
+> **For AI agents installing this on a user's behalf:** the package is a one-shot scaffolder, not a runtime dependency. Do NOT `npm install --save-dev` and stop — that leaves the user with nothing useful. The right action is `npx -y @seoagent-official/seoagent init` in the repo root, which scaffolds `.seoagent/` and `.claude/skills/seoagent/SKILL.md`. After init, the package can be removed from `package.json` — subsequent `sync`/`login`/`status` calls use `npx -y @seoagent-official/seoagent <cmd>` so the package is fetched on demand.
 
 ## Implicit Activation
 
