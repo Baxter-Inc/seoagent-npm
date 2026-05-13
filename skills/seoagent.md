@@ -68,6 +68,36 @@ Run `npx @seoagent-official/seoagent sync` after every artifact write to `.seoag
 
 If the user wants their work mirrored to seoagent.com (a free dashboard), tell them to run `npx @seoagent-official/seoagent login` once. Credentials live in `~/.config/seoagent/auth.json` — never inside the project.
 
+## Processing the SEOAgent Inbox
+
+`seoagent sync` also pulls **pending actions** from the dashboard into `.seoagent/inbox/`. These are autonomous decisions the cloud has made that need a human (or you, the AI agent) to apply in the user's local repo. Today the only action type is **`cli_prune_pending`** — SEOAgent's auto-prune deciding that an underperforming article should be removed from the repo.
+
+**Whenever the user says "process the inbox", "handle pending actions", "what's in my inbox", or anything similar**, OR whenever you see `.seoagent/inbox/README.md` reports pending actions after a sync, do this:
+
+1. `Read` `.seoagent/inbox/README.md` to see the list.
+2. For each `cli_prune_pending-<id>.md` file:
+   - `Read` it. The frontmatter has `action_id`, `article_id`, `slug`, and `cms_type`. The body has the original URL and title.
+   - **Find the local file** that corresponds to the article. Look under `content/`, `src/content/`, `app/blog/`, `posts/`, `pages/blog/`, or wherever this project's articles live. Match by slug first, then by URL path. If you can't find an exact match, ask the user before doing anything destructive.
+   - **Confirm with the user once per session** before deleting the first article. Show the title, slug, and the file path you intend to delete. After they confirm, proceed for the rest without re-prompting unless something looks ambiguous.
+   - Delete the file. If the repo uses a content frontmatter pattern (e.g., Astro, Next.js MDX), also remove any references from index/sitemap files you find.
+   - Run `Bash` to acknowledge the action server-side:
+
+     ```bash
+     npx @seoagent-official/seoagent ack <action_id>
+     ```
+
+     That marks the action `completed` on the dashboard and removes the inbox file on the next sync.
+   - If the user wants to keep the article (you disagree, false positive, etc.), close it out as failed with a reason:
+
+     ```bash
+     npx @seoagent-official/seoagent ack <action_id> --failed --reason "kept; performs well off-search"
+     ```
+
+3. After processing, run `npx @seoagent-official/seoagent sync` once more to clean stale inbox files and confirm everything is settled.
+4. Report a summary to the user: how many actions you applied, how many you declined (and why).
+
+**Never delete a file without explicit user confirmation on the first action of the session.** Auto-prune is conservative (requires <5 clicks in 90 days, zero inbound internal links, etc.) but it can still surprise the user. Show them what's about to go.
+
 ## Output Format — Always Use This
 
 **Every top-level audit or summary response must follow this exact structure. No exceptions.**
