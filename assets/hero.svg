@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="1200" height="360" role="img" aria-label="SEOAgent — The persistent AI SEO agent for Claude Code">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d0d1f"/>
+      <stop offset="55%" stop-color="#1a1147"/>
+      <stop offset="100%" stop-color="#2d1b69"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.85" cy="0.15" r="0.7">
+      <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.55"/>
+      <stop offset="60%" stop-color="#7c3aed" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="0.6"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="360" rx="20" ry="20" fill="url(#bg)"/>
+  <rect width="1200" height="360" rx="20" ry="20" fill="url(#glow)"/>
+
+  <g opacity="0.18" stroke="#a78bfa" stroke-width="1" fill="none">
+    <path d="M0 280 C 220 240, 420 320, 640 270 S 1020 220, 1200 260"/>
+    <path d="M0 305 C 220 270, 420 345, 640 295 S 1020 250, 1200 285"/>
+    <path d="M0 330 C 220 300, 420 365, 640 320 S 1020 280, 1200 310"/>
+  </g>
+
+  <g transform="translate(70 120)">
+    <circle cx="32" cy="32" r="32" fill="url(#accent)"/>
+    <text x="32" y="44" text-anchor="middle" font-family="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="32" font-weight="800" fill="#0d0d1f">S</text>
+  </g>
+
+  <text x="160" y="170" font-family="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="78" font-weight="800" letter-spacing="-2" fill="#ffffff">
+    SEO<tspan fill="url(#accent)">Agent</tspan>
+  </text>
+
+  <text x="160" y="215" font-family="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="500" fill="#cbd5f5" filter="url(#soft)">
+    The persistent AI SEO agent for Claude Code · Manifest-ready autopilot for audits, briefs &amp; articles
+  </text>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="14" font-weight="600">
+    <g transform="translate(160 255)">
+      <rect width="146" height="32" rx="16" fill="#ffffff" fill-opacity="0.08" stroke="#a78bfa" stroke-opacity="0.35"/>
+      <text x="73" y="21" text-anchor="middle" fill="#e9d5ff">persistent .seoagent/</text>
+    </g>
+    <g transform="translate(316 255)">
+      <rect width="138" height="32" rx="16" fill="#ffffff" fill-opacity="0.08" stroke="#a78bfa" stroke-opacity="0.35"/>
+      <text x="69" y="21" text-anchor="middle" fill="#e9d5ff">hub &amp; spoke clusters</text>
+    </g>
+    <g transform="translate(464 255)">
+      <rect width="120" height="32" rx="16" fill="#ffffff" fill-opacity="0.08" stroke="#a78bfa" stroke-opacity="0.35"/>
+      <text x="60" y="21" text-anchor="middle" fill="#e9d5ff">JSON-LD ready</text>
+    </g>
+    <g transform="translate(594 255)">
+      <rect width="120" height="32" rx="16" fill="#ffffff" fill-opacity="0.08" stroke="#a78bfa" stroke-opacity="0.35"/>
+      <text x="60" y="21" text-anchor="middle" fill="#e9d5ff">image autopilot</text>
+    </g>
+    <g transform="translate(724 255)">
+      <rect width="124" height="32" rx="16" fill="#ffffff" fill-opacity="0.08" stroke="#a78bfa" stroke-opacity="0.35"/>
+      <text x="62" y="21" text-anchor="middle" fill="#e9d5ff">cloud sync hook</text>
+    </g>
+  </g>
+
+  <g transform="translate(940 70)" opacity="0.95">
+    <rect width="190" height="56" rx="10" fill="#ffffff" fill-opacity="0.06" stroke="#a78bfa" stroke-opacity="0.4"/>
+    <text x="20" y="24" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" fill="#a78bfa">$</text>
+    <text x="36" y="24" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" fill="#e9d5ff">npx -y @seoagent-</text>
+    <text x="36" y="42" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" fill="#e9d5ff">official/seoagent init</text>
+  </g>
+</svg>

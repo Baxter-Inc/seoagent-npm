@@ -9,6 +9,7 @@
   "files": [
     "index.js",
     "skills",
+    "assets",
     "postinstall-hint.cjs"
   ],
   "dependencies": {

@@ -1,6 +1,39 @@
-# SEOAgent
+<p align="center">
+  <a href="https://seoagent.com?ref=npm-readme-hero">
+    <img src="https://unpkg.com/@seoagent-official/seoagent/assets/hero.svg" alt="SEOAgent — the persistent AI SEO agent for Claude Code" width="900" />
+  </a>
+</p>
 
-**A persistent AI SEO agent for Claude Code.** Audits your site, builds keyword strategy, plans content, and writes optimized articles — all persisted across sessions in `.seoagent/`.
+<h1 align="center">SEOAgent</h1>
+
+<p align="center">
+  <strong>The persistent AI SEO agent for <a href="https://www.anthropic.com/claude-code">Claude Code</a>.</strong><br/>
+  Audits • Keyword strategy • Content briefs • Optimized articles — all persisted in <code>.seoagent/</code>.
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@seoagent-official/seoagent"><img alt="npm version" src="https://img.shields.io/npm/v/@seoagent-official/seoagent?color=cb3837&label=npm&logo=npm&logoColor=white"></a>
+  <a href="https://www.npmjs.com/package/@seoagent-official/seoagent"><img alt="downloads" src="https://img.shields.io/npm/dm/@seoagent-official/seoagent?color=22c55e&label=downloads"></a>
+  <a href="https://github.com/Baxter-Inc/seoagent-npm/actions"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/Baxter-Inc/seoagent-npm/publish-npm.yml?branch=main&label=CI&logo=github"></a>
+  <a href="https://github.com/Baxter-Inc/seoagent-npm/blob/main/LICENSE"><img alt="license MIT" src="https://img.shields.io/npm/l/@seoagent-official/seoagent?color=3b82f6&label=license"></a>
+  <a href="https://seoagent.com?ref=npm-readme-badge"><img alt="SEOAgent Cloud" src="https://img.shields.io/badge/cloud-seoagent.com-7c3aed?logo=cloudflare&logoColor=white"></a>
+</p>
+
+<p align="center">
+  <img alt="Claude Code" src="https://img.shields.io/badge/CLAUDE%20CODE-5b54f4?style=flat-square&logo=anthropic&logoColor=white">
+  <img alt="TypeScript" src="https://img.shields.io/badge/TYPESCRIPT-3178c6?style=flat-square&logo=typescript&logoColor=white">
+  <img alt="Node 18+" src="https://img.shields.io/badge/NODE%20%E2%89%A5%2018-339933?style=flat-square&logo=node.js&logoColor=white">
+  <img alt="SEO Autopilot" src="https://img.shields.io/badge/SEO-AUTOPILOT-f97316?style=flat-square">
+  <img alt="Images via OpenAI · fal.ai · Replicate" src="https://img.shields.io/badge/IMAGES-OpenAI%20%C2%B7%20fal.ai%20%C2%B7%20Replicate-ec4899?style=flat-square">
+</p>
+
+<p align="center">
+  Built and maintained by <a href="https://seoagent.com?ref=npm-readme-builtby"><strong>SEOAgent.com</strong></a> ·
+  <a href="https://seoagent.com/pricing?ref=npm-readme">Cloud pricing</a> ·
+  <a href="https://seoagent.com?ref=npm-readme-docs">Docs &amp; dashboard</a>
+</p>
+
+---
 
 > **This package is a scaffolder, not a runtime dependency.** Both forms below do the same thing — scaffold `.seoagent/` + the Claude Code skill in your repo. You don't need to keep it in `package.json` after init runs.
 
