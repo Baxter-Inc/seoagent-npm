@@ -19,6 +19,7 @@
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
+const { isDirectInstall } = require('./postinstall-lib.cjs');
 
 // -----------------------------------------------------------------------------
 // Guards — skip auto-init when it would be wrong or annoying.
@@ -53,8 +54,20 @@ if (!projectRoot || !fs.existsSync(projectRoot)) {
 // Don't auto-init when the package is being installed inside another
 // package's `node_modules` (a transitive dep). INIT_CWD would be the
 // transitive consumer's project root, not ours — we'd scaffold their repo.
-// Detect: INIT_CWD's package.json doesn't list us in its (dev)dependencies.
-if (!projectDeclaresUs(projectRoot)) {
+//
+// Detecting "transitive" reliably is harder than it looks: when a user runs
+// `npm install @seoagent-official/seoagent` in a fresh project, npm 7+ runs
+// THIS postinstall BEFORE writing the new dep to INIT_CWD/package.json. So
+// "is our package name in INIT_CWD/package.json" is false-negative-prone and
+// silently kills the captive install moment on every fresh install — which
+// is exactly the case we most need it to fire on.
+//
+// Instead: look at sibling node_modules entries. If ANY of them declares us
+// as a dependency, we're being dragged in transitively → bail. Otherwise
+// we're a direct install (or no one else needs us yet) → proceed.
+// We still consult package.json as a positive signal (e.g. for repeat installs
+// where the dep is already saved), since it strengthens the "direct" conclusion.
+if (!isDirectInstall(projectRoot)) {
   // Most likely transitive — bail silently.
   process.exit(0);
 }
@@ -94,24 +107,10 @@ if (result.status === 0) {
 }
 
 // -----------------------------------------------------------------------------
-// Helpers
+// Helpers — direct-install detection lives in ./postinstall-lib.cjs so it can
+// be unit-tested without firing the side effects above. The print functions
+// stay inline because they don't have meaningful behavior to test.
 // -----------------------------------------------------------------------------
-
-function projectDeclaresUs(root) {
-  try {
-    const pkgPath = path.join(root, 'package.json');
-    if (!fs.existsSync(pkgPath)) {
-      // No package.json — user ran `npm install <pkg>` in an empty dir or
-      // outside a project. That's unusual but valid for scaffolding.
-      return true;
-    }
-    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
-    const all = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) };
-    return '@seoagent-official/seoagent' in all;
-  } catch {
-    return true; // On error, fail open — better to scaffold than not.
-  }
-}
 
 function printPreInitBanner() {
   process.stdout.write(
