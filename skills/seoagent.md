@@ -133,6 +133,8 @@ If the user wants their work mirrored to seoagent.com (a free dashboard), tell t
    - **If yes**: Read it (frontmatter has `domain`, `site_type`, optional `image_provider`). Read `.seoagent/roadmap.md` if present. Summarize in one sentence: "You have an SEO project for {domain}. Next priority: {top item from roadmap}."
    - **If no**: Check the repo for signals to infer domain and site type, then create the project files.
 
+   > **If `domain: unknown`** (happens when `init` ran non-interactively in a repo with no detectable site URL): you MUST resolve the domain before anything else — ask the user directly ("What's your site's URL?"), or infer it from a deploy config / live deployment, then `Edit` `project.md` to set `domain:`. Nothing works without a real domain.
+
    > **If `site_type: unknown`** (often happens when `init --yes` ran without enough signal): WebFetch the homepage and infer the type from the visible content — pricing pages and trial CTAs → `saas`, product listings/cart → `product`, blog-heavy with no auth → `content`, etc. `Edit` `project.md` to update `site_type` **before any audit or strategy work**. Every later phase makes worse decisions when this is `unknown`.
 
 2. **Check for a pull receipt.** If `.seoagent/.pull-receipt.json` exists, a previous `seoagent pull` (manual, autosync hook, or cron) brought down cloud changes that no agent has triaged yet. Handle it **before any SEO work** — see "### Pull Receipt Triage" below — then delete the receipt file.
