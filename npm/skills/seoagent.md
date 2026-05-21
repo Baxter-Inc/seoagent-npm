@@ -143,8 +143,10 @@ The local skill does the full content loop for free — audit, strategy, briefs,
 **Every session starts here.** Before doing any SEO work:
 
 1. Check if `.seoagent/project.md` exists.
-   - **If yes**: Read it (frontmatter has `domain`, `site_type`, optional `image_provider`). Read `.seoagent/roadmap.md` if present. Summarize in one sentence: "You have an SEO project for {domain}. Next priority: {top item from roadmap}."
+   - **If yes**: Read it (frontmatter has `domain`, `site_type`, optional `image_provider`, optional `publishing`). Read `.seoagent/roadmap.md` if present. Summarize in one sentence: "You have an SEO project for {domain}. Next priority: {top item from roadmap}."
    - **If no**: Check the repo for signals to infer domain and site type, then create the project files.
+
+   > **Publishing drift check (quick, only when `publishing.cms` is recorded):** confirm the recorded CMS still has a supporting signal in the repo (its dep in `package.json` or its env var). If that signal is gone — the user moved off it — don't silently trust the stale value: flag it and run **"Re-detecting the publishing target"** (in the Publishing Target Decision section). Skip this check when no `publishing.cms` is set.
 
    > **If `domain: unknown`** (happens when `init` ran non-interactively in a repo with no detectable site URL): you MUST resolve the domain before anything else — ask the user directly ("What's your site's URL?"), or infer it from a deploy config / live deployment, then `Edit` `project.md` to set `domain:`. Nothing works without a real domain.
 
@@ -369,6 +371,7 @@ SEOAgent Cloud *hosting* (option C below) exists only as a convenience for users
 - Phase 1 raised a `critical` `upstream_dependency_unreachable` or `page_renders_empty` finding on a content path (e.g., `/blog`, `/docs`, `/resources`)
 - `project.md` has no `cms` and no `blog_path`, and the user wants to start publishing
 - The user explicitly asks "where should I publish my blog posts?" or "my blog is broken — what now?"
+- **The publishing source changed** — the user tells you they switched/removed their CMS or moved the blog, OR you notice it while working (CMS client code / deps / env vars added or removed, a new `app/blog/**` or `pages/blog/**` route appeared, or the `cms` recorded in `project.md` no longer has any supporting signal in the repo). Go to **"Re-detecting the publishing target"** below — `project.md` is only as good as its last detection, and a stale `cms`/`blog_path` silently misroutes every future article.
 
 Figure out the destination from the codebase first (you usually already know it from `init`'s CMS detection + `blog_path`, and from `pages.md`). Only ask the user if the repo is genuinely ambiguous.
 
@@ -418,6 +421,20 @@ Then:
 3. Run `npx @seoagent-official/seoagent sync`.
 4. Stop. **Do not generate briefs or articles until `setup_status: done`** — when the user confirms the rewrite is live (or the MDX route deploys, or the CMS credentials work), `Edit` `project.md` to set `setup_status: done` and continue to Phase 3.
 
+### Re-detecting the publishing target (when it changes)
+
+`init` detects `cms` + `blog_path` **once**, at install. Nothing re-runs that automatically — so when the user re-architects how content is published (a very common moment: ripping out a broken CMS, moving the blog into the repo, switching CMS), `project.md` goes stale and every later phase trusts the wrong destination. When any "publishing source changed" trigger above fires, re-detect and reconcile **before** writing briefs or articles:
+
+1. **Re-derive from the repo** — the same signals `init` uses:
+   - **CMS** — dependencies in `package.json` (`strapi`/`@strapi/*`, `@sanity/client`/`next-sanity`, `contentful`, `@tryghost/content-api`, `webflow-api`, `@shopify/*`, `payload`/`@payloadcms/*`, `@directus/sdk`, `wpapi`/`wp-graphql`) and CMS env vars (`STRAPI_URL`, `SANITY_PROJECT_ID`, `CONTENTFUL_SPACE_ID`, `GHOST_URL`, `WORDPRESS_API_URL`, …). No CMS signal + local markdown under `content/`, `_posts/`, `src/content/` → `mdx-local`. No signal at all → repo-rendered routes (`mdx_sync`, `cms` omitted).
+   - **blog_path** — the live route file: `app/blog/page.tsx`, `src/app/blog/page.tsx`, `pages/blog/index.tsx`, or the `/articles`, `/posts`, `/learn`, `/resources` equivalents.
+2. **Diff against `project.md`** (`publishing.cms`, `publishing.strategy`, `blog_path`). If they match, do nothing — say "publishing setup unchanged" and move on.
+3. **If they differ, PROPOSE — don't auto-rewrite.** Show the before/after in one line with your evidence: e.g. *"`project.md` says `cms: strapi`, but the Strapi deps + `STRAPI_URL` are gone and `/blog` now renders from `app/blog/[slug]/page.tsx`. Update to `strategy: mdx_sync`, drop `cms`, keep `blog_path: /blog`?"* Wait for the user's yes.
+4. **On confirmation, `Edit` `project.md`:** update `publishing.strategy`, `publishing.cms` (remove the key when there's no CMS — never write the literal `none`), and `blog_path`. **If the `strategy` changed**, the old one-time setup no longer applies → reset `publishing.setup_status: pending` and re-run "After the user picks" (new roadmap task + re-verify the target is live via the Phase 3 Step 0 WebFetch). If only `cms`/`blog_path` shifted within the same strategy, keep `setup_status`.
+5. Append to `changelog.md`: `[date] Publishing re-detected: {old} → {new}`. Run `npx @seoagent-official/seoagent sync`.
+
+If you spot the drift incidentally (mid-audit, mid-edit), surface it as a one-line heads-up + offer rather than blocking — re-detect only when the user agrees, or when you're about to act on the stale target (Phase 3+).
+
 ---
 
 ## Phase 3: Content Brief Generation
@@ -430,7 +447,8 @@ Before generating any brief, verify the publishing target is real and reachable.
 2. **If `publishing` is missing** → load the **Publishing Target Decision** section above and resolve it before continuing.
 3. **If `publishing.setup_status: pending`** → stop and remind the user of their open setup task. Don't write briefs against an unbuilt target.
 4. **If `publishing.setup_status: done`** → WebFetch `https://{domain}{blog_path}` and verify it returns 200 with a non-empty body (apply the `page_renders_empty` check from `audit-checks.md`). If it fails, the previously-confirmed target has regressed — surface a `critical` finding, do not generate briefs, return to the Publishing Target Decision section.
-5. Only when the target verifies, proceed.
+5. **Drift check before trusting `done`** → confirm the recorded `publishing.cms` still has a supporting signal in the repo (dep/env), and that `blog_path`'s route file still exists. If the source moved (CMS removed, blog relocated), run **"Re-detecting the publishing target"** to reconcile `project.md` before writing — a stale target means the article gets published to the wrong place.
+6. Only when the target verifies, proceed.
 
 ### Procedure
 
