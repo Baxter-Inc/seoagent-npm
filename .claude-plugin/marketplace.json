@@ -1,0 +1,17 @@
+{
+  "name": "seoagent-official",
+  "owner": {
+    "name": "SEOAgent"
+  },
+  "metadata": {
+    "description": "SEOAgent — install the npm CLI, then get the full persistent SEO skill in your repo."
+  },
+  "plugins": [
+    {
+      "name": "seoagent-cli-bootstrap",
+      "source": "./plugins/seoagent-cli-bootstrap",
+      "description": "Setup steps for @seoagent-official/seoagent (npm + init). Full workflows live in .seoagent/ after install.",
+      "version": "1.0.0"
+    }
+  ]
+}

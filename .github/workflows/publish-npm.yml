@@ -7,8 +7,17 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # Node.js 20 is deprecated on GitHub runners (forced to Node 24 on
+    # 2026-06-02, removed 2026-09-16). semantic-release-action@v4 still
+    # declares Node 20, so force all JS actions in this job to Node 24 —
+    # the opt-in the deprecation notice recommends, and the same approach
+    # the monorepo's publish-to-seoagent-repo.yml already uses. checkout is
+    # bumped to v5 (Node-24 native) so only the forced flag carries
+    # semantic-release-action.
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           persist-credentials: true

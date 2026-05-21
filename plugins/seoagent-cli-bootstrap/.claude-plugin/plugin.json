@@ -1,0 +1,5 @@
+{
+  "name": "seoagent-cli-bootstrap",
+  "description": "Install SEOAgent via npm and run guided init; full skill + .seoagent/ land in the project.",
+  "version": "1.0.0"
+}
