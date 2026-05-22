@@ -7,13 +7,20 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # `id-token: write` is required for npm Trusted Publishing — npm verifies
+    # the GitHub OIDC token instead of an NPM_TOKEN. `contents: write` lets
+    # @semantic-release/github create the GitHub release.
+    permissions:
+      id-token: write
+      contents: write
+      issues: write
+      pull-requests: write
     # Node.js 20 is deprecated on GitHub runners (forced to Node 24 on
     # 2026-06-02, removed 2026-09-16). semantic-release-action@v4 still
     # declares Node 20, so force all JS actions in this job to Node 24 —
-    # the opt-in the deprecation notice recommends, and the same approach
-    # the monorepo's publish-to-seoagent-repo.yml already uses. checkout is
-    # bumped to v5 (Node-24 native) so only the forced flag carries
-    # semantic-release-action.
+    # the opt-in the deprecation notice recommends. setup-node pins Node 24
+    # so the npm CLI used by @semantic-release/npm is >= 11.5.1, the
+    # minimum that speaks Trusted Publishing.
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
@@ -21,6 +28,10 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
       - uses: cycjimmy/semantic-release-action@v4
         with:
           extra_plugins: |
@@ -30,4 +41,4 @@ jobs:
             @semantic-release/github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: "true"
