@@ -30,8 +30,14 @@ jobs:
           persist-credentials: true
       - uses: actions/setup-node@v4
         with:
+          # No `registry-url` on purpose. Setting it makes setup-node force
+          # token-auth: it writes `_authToken=${NODE_AUTH_TOKEN}` into .npmrc
+          # and defaults NODE_AUTH_TOKEN to a placeholder when no secret is
+          # passed — which then 401s on `npm whoami` and short-circuits the
+          # OIDC handshake we actually want. Leaving it off lets npm 11.5.1+
+          # discover the GitHub Actions OIDC environment and exchange a
+          # short-lived publish token at `npm publish` time.
           node-version: 24
-          registry-url: https://registry.npmjs.org
       - uses: cycjimmy/semantic-release-action@v4
         with:
           extra_plugins: |
