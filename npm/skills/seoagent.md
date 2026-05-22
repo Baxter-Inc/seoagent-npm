@@ -96,6 +96,8 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
 
 - **`cli_prune_pending`** — auto-prune decided an underperforming article should be removed from the repo (destructive — confirm first).
 - **`cli_technical_fix`** — autopilot found an open technical-SEO issue (meta, schema, canonical, internal linking, …) to fix in a page's source. Safe/reversible (edits an existing page).
+- **`cli_new_content`** — autopilot found a content brief with no article written yet. Write + publish the article. Safe (new content).
+- **`cli_content_update`** — autopilot flagged an existing page to revise (declining GSC clicks, low CTR, or stale/thin). Reversible (edits existing content).
 
 **Whenever the user says "process the inbox", "handle pending actions", "what's in my inbox", or anything similar**, OR whenever you see `.seoagent/inbox/README.md` reports pending actions after a sync, do this:
 
@@ -134,8 +136,19 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
      npx @seoagent-official/seoagent ack <action_id> --failed --reason "not applicable; ..."
      ```
 
-4. After processing, run `npx @seoagent-official/seoagent sync` once more to clean stale inbox files and confirm everything is settled.
-5. Report a summary to the user: how many actions you applied, how many you declined (and why).
+4. For each `cli_new_content-<id>.md` file:
+   - `Read` it. The frontmatter has `action_id`, `brief_slug`, `primary_keyword`, `cluster`, and `priority`. The body points at the synced brief.
+   - **Read the full brief** under `.seoagent/` (briefs file or `strategy/` entry matching `brief_slug`) for the outline, word-count target, and internal-link plan.
+   - Write the article following the skill's **content-production protocol** (Phase 4 below), then publish it where this project's content lives (repo `content/` or the connected CMS — you are the publishing engine). Show the user the draft before publishing.
+   - Acknowledge it: `npx @seoagent-official/seoagent ack <action_id>` (or `--failed --reason "skipped; off-strategy"` to decline).
+
+5. For each `cli_content_update-<id>.md` file:
+   - `Read` it. The frontmatter has `action_id`, `reason` (`declining_clicks`|`low_ctr`|`stale_thin`), and `page_url`; the body has the signals.
+   - **Find the page's source** for `page_url`. Apply the revision per `reason`: `declining_clicks` → refresh/expand the content; `low_ctr` → rewrite title + meta description; `stale_thin` → expand and update. Follow the skill's **rewrite/revise protocol**. Reversible edit — show the user the diff (confirm once per session, then proceed).
+   - Acknowledge it: `npx @seoagent-official/seoagent ack <action_id>` (or `--failed --reason "kept as-is; ..."` to decline).
+
+6. After processing, run `npx @seoagent-official/seoagent sync` once more to clean stale inbox files and confirm everything is settled.
+7. Report a summary to the user: how many actions you applied, how many you declined (and why).
 
 **Never delete a file without explicit user confirmation on the first action of the session.** Auto-prune is conservative (requires <5 clicks in 90 days, zero inbound internal links, etc.) but it can still surprise the user. Show them what's about to go. (Technical-fix actions edit an existing page rather than delete, so they only need a diff review, not a destructive-action confirmation.)
 
