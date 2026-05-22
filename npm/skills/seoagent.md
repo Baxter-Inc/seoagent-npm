@@ -92,7 +92,10 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
 
 ## Processing the SEOAgent Inbox
 
-`seoagent sync` also pulls **pending actions** from the dashboard into `.seoagent/inbox/`. These are autonomous decisions the cloud has made that need a human (or you, the AI agent) to apply in the user's local repo. Today the only action type is **`cli_prune_pending`** — SEOAgent's auto-prune deciding that an underperforming article should be removed from the repo.
+`seoagent sync` also pulls **pending actions** from the dashboard into `.seoagent/inbox/`. These are autonomous decisions the cloud has made that need a human (or you, the AI agent) to apply in the user's local repo. The action types today:
+
+- **`cli_prune_pending`** — auto-prune decided an underperforming article should be removed from the repo (destructive — confirm first).
+- **`cli_technical_fix`** — autopilot found an open technical-SEO issue (meta, schema, canonical, internal linking, …) to fix in a page's source. Safe/reversible (edits an existing page).
 
 **Whenever the user says "process the inbox", "handle pending actions", "what's in my inbox", or anything similar**, OR whenever you see `.seoagent/inbox/README.md` reports pending actions after a sync, do this:
 
@@ -115,10 +118,26 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
      npx @seoagent-official/seoagent ack <action_id> --failed --reason "kept; performs well off-search"
      ```
 
-3. After processing, run `npx @seoagent-official/seoagent sync` once more to clean stale inbox files and confirm everything is settled.
-4. Report a summary to the user: how many actions you applied, how many you declined (and why).
+3. For each `cli_technical_fix-<id>.md` file:
+   - `Read` it. The frontmatter has `action_id`, `issue` (`meta`|`schema`|`canonical`|`internal_link`|`other`), `severity`, and `page_url`. The body describes the recommended fix and how to apply it per issue type.
+   - **Find the page's source** that renders `page_url` — the route/template/markdown under `app/`, `pages/`, `src/`, or `content/`. Match by URL path.
+   - Apply the fix in the source (use `Edit`/`Write`): meta → title/description (or the framework's metadata API/frontmatter); schema → JSON-LD; canonical → `<link rel="canonical">`; internal_link → add relevant internal links. These are **safe/reversible** edits to an existing page, so you don't need the hard delete-confirmation prune requires — but still **show the user the diff** (confirm once per session, then proceed).
+   - Acknowledge it server-side:
 
-**Never delete a file without explicit user confirmation on the first action of the session.** Auto-prune is conservative (requires <5 clicks in 90 days, zero inbound internal links, etc.) but it can still surprise the user. Show them what's about to go.
+     ```bash
+     npx @seoagent-official/seoagent ack <action_id>
+     ```
+
+   - If you disagree or it's a false positive, decline it:
+
+     ```bash
+     npx @seoagent-official/seoagent ack <action_id> --failed --reason "not applicable; ..."
+     ```
+
+4. After processing, run `npx @seoagent-official/seoagent sync` once more to clean stale inbox files and confirm everything is settled.
+5. Report a summary to the user: how many actions you applied, how many you declined (and why).
+
+**Never delete a file without explicit user confirmation on the first action of the session.** Auto-prune is conservative (requires <5 clicks in 90 days, zero inbound internal links, etc.) but it can still surprise the user. Show them what's about to go. (Technical-fix actions edit an existing page rather than delete, so they only need a diff review, not a destructive-action confirmation.)
 
 ## Output Format — Always Use This
 
