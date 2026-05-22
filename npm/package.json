@@ -4,7 +4,7 @@
   "description": "Scaffolder for Claude Code's SEOAgent skill. Run once: `npx -y @seoagent-official/seoagent init`. Sets up .seoagent/ for persistent audits, keyword strategy, content planning, and optimized writing. Not a runtime dependency.",
   "type": "module",
   "bin": {
-    "seoagent": "./index.js"
+    "seoagent": "index.js"
   },
   "files": [
     "index.js",
@@ -28,7 +28,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Baxter-Inc/seoagent-npm"
+    "url": "git+https://github.com/Baxter-Inc/seoagent-npm.git"
   },
   "scripts": {
     "postinstall": "node ./postinstall-hint.cjs"
