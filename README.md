@@ -59,16 +59,10 @@ After init runs, you can remove `@seoagent-official/seoagent` from `package.json
 
 Then open Claude Code in this repo and say *"audit my site."* The skill takes it from there.
 
-### Or add it via the Claude Code marketplace
-
-Prefer a one-liner inside Claude Code? Add the marketplace, then install the bootstrap plugin — it walks Claude through running `init` for you:
-
-```
-/plugin marketplace add https://github.com/Baxter-Inc/seoagent-npm
-/plugin install seoagent-cli-bootstrap
-```
-
-The plugin is a thin bootstrap — the full persistent SEO workflow still lands in `.seoagent/` + `.claude/skills/seoagent/` after `init` runs.
+<!-- Claude Code marketplace install is wired (the mirror serves the plugin
+     tree) but intentionally NOT documented here yet — holding promotion
+     until the plugin-install → init flow is validated end-to-end. Restore
+     the marketplace install section once that's confirmed. -->
 
 ### Headless / non-interactive
 
