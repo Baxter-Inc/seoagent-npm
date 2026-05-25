@@ -325,6 +325,7 @@ When `.seoagent/` was just created or no audit exists, immediately:
 5. Tag findings with severity: `critical`, `high`, `medium`, `low`.
 6. Write findings to `.seoagent/audit/latest.md` using markdown checkboxes (`- [ ]` open, `- [x]` fixed).
 7. Persist the URL list to `.seoagent/pages.md` so future audits and link checks reuse it. Include a `rendered` column (yes / empty) so future audits can spot regressions.
+8. **Internal-link pass.** Run the **Internal Link Analysis** below to find orphan pages (no inbound internal links) and fold any orphans into the audit findings (`medium` severity, category internal-linking).
 
 > **If the audit raises any `critical` finding from `upstream_dependency_unreachable` or `page_renders_empty`**, do not proceed to Phase 2. Jump to the **Publishing Target Decision** section below — every keyword, brief, and article generated against a broken publishing path is wasted work.
 
@@ -370,6 +371,28 @@ When the user says "I fixed X":
 3. Run `npx @seoagent-official/seoagent sync`.
 
 > **Rule**: Before reporting any URL is missing or broken, always WebFetch the live URL first. Never assume a 404 from inference alone.
+
+---
+
+## Internal Link Analysis
+
+Orphan pages — pages no other page links to — are hard for crawlers and users to reach and almost always underperform. This is two capabilities: a deterministic **analyze** step and an LLM **suggest** step.
+
+**Run it** whenever the user asks about internal links / orphans / "what's not linked", as part of the Phase 1 audit (step 8), or before publishing a cluster.
+
+1. **Analyze (deterministic).** Run:
+
+   ```bash
+   npx @seoagent-official/seoagent internal-links
+   ```
+
+   This scans the repo's pages + links and writes `.seoagent/internal-links.md` with the orphan list (pages with 0 inbound internal links) and weakly-linked pages (1 inbound). Use `--json` if you want the structured result instead of the file. It reuses the same page inventory as `pages.md`.
+
+2. **Suggest (you).** `Read` `.seoagent/internal-links.md`. For each orphan, propose **1–3 specific internal links**: a topically-related existing page to link **from** + natural anchor text. Pick sources using `.seoagent/pages.md` (the inventory) + your read of the content — link from higher-authority, closely-related pages, not at random. Fill the "Suggested link source" column in the report.
+
+3. **Apply (optional, on approval).** If the user wants, `Edit` the source pages to add the links (a normal internal `<a>` / markdown link with the anchor). These are safe, reversible edits — show the diff. Then `npx @seoagent-official/seoagent sync`.
+
+**Limitation:** the analyzer scans the **repo**, so it can't see links inside CMS-hosted content. If the site's blog is CMS-hosted, note that those inbound links aren't counted (a page flagged "orphan" may be linked from a CMS article). The cloud's crawl-derived data covers that gap; lean on it when GSC/cloud is connected.
 
 ---
 
