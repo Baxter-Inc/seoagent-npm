@@ -98,6 +98,7 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
 - **`cli_technical_fix`** — autopilot found an open technical-SEO issue (meta, schema, canonical, internal linking, …) to fix in a page's source. Safe/reversible (edits an existing page).
 - **`cli_new_content`** — autopilot found a content brief with no article written yet. Write + publish the article. Safe (new content).
 - **`cli_content_update`** — autopilot flagged an existing page to revise (declining GSC clicks, low CTR, or stale/thin). Reversible (edits existing content).
+- **`cli_sitemap_update`** — GSC is connected but can't fetch a sitemap at the site's `/sitemap.xml`. Write/refresh the project's sitemap (from the URL list in the file, which includes CMS-hosted articles) so Google can index it. Safe (adds/updates a sitemap).
 
 **Whenever the user says "process the inbox", "handle pending actions", "what's in my inbox", or anything similar**, OR whenever you see `.seoagent/inbox/README.md` reports pending actions after a sync, do this:
 
@@ -147,8 +148,14 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
    - **Find the page's source** for `page_url`. Apply the revision per `reason`: `declining_clicks` → refresh/expand the content; `low_ctr` → rewrite title + meta description; `stale_thin` → expand and update. Follow the skill's **rewrite/revise protocol**. Reversible edit — show the user the diff (confirm once per session, then proceed).
    - Acknowledge it: `npx @seoagent-official/seoagent ack <action_id>` (or `--failed --reason "kept as-is; ..."` to decline).
 
-6. After processing, run `npx @seoagent-official/seoagent sync` once more to clean stale inbox files and confirm everything is settled.
-7. Report a summary to the user: how many actions you applied, how many you declined (and why).
+6. For each `cli_sitemap_update-<id>.md` file:
+   - `Read` it. The frontmatter has `action_id` + `sitemap_url`; the body lists the URLs SEOAgent knows (crawled + GSC-discovered — this **includes CMS-hosted blog articles your repo doesn't contain**).
+   - **Find how the project serves its sitemap** (framework sitemap like Next.js `app/sitemap.ts` / `next-sitemap` / Astro integration, or a static `public/sitemap.xml`, or none yet). Prefer extending the framework sitemap so it stays current.
+   - **Union** the repo's own routes (which the framework sitemap usually covers) with the URL list in the file (which adds off-repo CMS articles), dedup, and ensure the result is served at `sitemap_url`. Show the user the diff. Deploy if needed — GSC fetches the live URL.
+   - Acknowledge it: `npx @seoagent-official/seoagent ack <action_id>` (or `--failed --reason "sitemap already served"` to decline). SEOAgent re-submits the sitemap to GSC on its schedule.
+
+7. After processing, run `npx @seoagent-official/seoagent sync` once more to clean stale inbox files and confirm everything is settled.
+8. Report a summary to the user: how many actions you applied, how many you declined (and why).
 
 **Never delete a file without explicit user confirmation on the first action of the session.** Auto-prune is conservative (requires <5 clicks in 90 days, zero inbound internal links, etc.) but it can still surprise the user. Show them what's about to go. (Technical-fix actions edit an existing page rather than delete, so they only need a diff review, not a destructive-action confirmation.)
 
