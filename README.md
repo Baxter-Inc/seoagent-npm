@@ -183,7 +183,7 @@ npx @seoagent-official/seoagent upgrade           # Open SEOAgent Cloud pricing 
 
 The free skill handles audits, strategy, briefs, articles, and persistent state using Claude's native capabilities. For teams and production SEO, [SEOAgent Cloud](https://seoagent.com/pricing?ref=readme) adds:
 
-- **Real keyword data** — Actual search volumes, difficulty scores, SERP features
+- **Real keyword data (DataForSEO)** — Actual search volumes, difficulty scores, and opportunity classification (easy-win / striking-distance / competitor-gap). Free login enriches your top ~25 keywords (`keywords`); paid lifts the cap and unlocks discovery of new targets (`--discover`) and competitor-gap analysis (`--competitors`).
 - **Deep crawling** — Firecrawl-powered JS rendering (finds issues in SPAs)
 - **AI-generated images + autopilot** — Hero + inline images created and uploaded to your CMS automatically
 - **GSC integration** — Real clicks, impressions, CTR, position tracking
