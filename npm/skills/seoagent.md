@@ -99,6 +99,7 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
 - **`cli_new_content`** — autopilot found a content brief with no article written yet. Write + publish the article. Safe (new content).
 - **`cli_content_update`** — autopilot flagged an existing page to revise (declining GSC clicks, low CTR, or stale/thin). Reversible (edits existing content).
 - **`cli_sitemap_update`** — GSC is connected but can't fetch a sitemap at the site's `/sitemap.xml`. Write/refresh the project's sitemap (from the URL list in the file, which includes CMS-hosted articles) so Google can index it. Safe (adds/updates a sitemap).
+- **`cli_new_landing_page`** — the keyword engine flagged a high-value keyword (`easy_win` or `competitor_gap`) with no page covering it. Write a dedicated landing page targeting it. Safe (new content).
 
 **Whenever the user says "process the inbox", "handle pending actions", "what's in my inbox", or anything similar**, OR whenever you see `.seoagent/inbox/README.md` reports pending actions after a sync, do this:
 
@@ -154,8 +155,16 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
    - **Union** the repo's own routes (which the framework sitemap usually covers) with the URL list in the file (which adds off-repo CMS articles), dedup, and ensure the result is served at `sitemap_url`. Show the user the diff. Deploy if needed — GSC fetches the live URL.
    - Acknowledge it: `npx @seoagent-official/seoagent ack <action_id>` (or `--failed --reason "sitemap already served"` to decline). SEOAgent re-submits the sitemap to GSC on its schedule.
 
-7. After processing, run `npx @seoagent-official/seoagent sync` once more to clean stale inbox files and confirm everything is settled.
-8. Report a summary to the user: how many actions you applied, how many you declined (and why).
+7. For each `cli_new_landing_page-<id>.md` file:
+   - `Read` it. The frontmatter has `action_id`, `keyword`, `opportunity` (`easy_win` | `competitor_gap`), `volume`, `difficulty`, and `intent`. The body explains why this keyword is worth a page.
+   - Cross-reference `.seoagent/keywords.md` for related keywords — they tell you which cluster this page belongs to and which secondary keywords to weave in.
+   - Pick an article type from `intent` (commercial/transactional → product or comparison page; informational → guide or pillar). Pick a clean URL slug from `keyword`.
+   - Write the article following the skill's **content-production protocol** (Phase 4 — match the article type's quality rules, add internal links from related cluster pages, etc.). Show the user the draft before publishing.
+   - Publish where this project's content lives (repo `content/` or the connected CMS). Safe (new content) — but still confirm the user wants this specific page before committing.
+   - Acknowledge it: `npx @seoagent-official/seoagent ack <action_id>` (or `--failed --reason "already covered by /existing-page"` to decline).
+
+8. After processing, run `npx @seoagent-official/seoagent sync` once more to clean stale inbox files and confirm everything is settled.
+9. Report a summary to the user: how many actions you applied, how many you declined (and why).
 
 **Never delete a file without explicit user confirmation on the first action of the session.** Auto-prune is conservative (requires <5 clicks in 90 days, zero inbound internal links, etc.) but it can still surprise the user. Show them what's about to go. (Technical-fix actions edit an existing page rather than delete, so they only need a diff review, not a destructive-action confirmation.)
 
