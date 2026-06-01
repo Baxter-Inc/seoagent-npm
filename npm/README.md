@@ -161,7 +161,8 @@ SEOAgent fixes this with one unified skill that persists all work:
 Run via `npx` (works after a local install or as a one-shot fetch):
 
 ```bash
-npx @seoagent-official/seoagent init              # Create .seoagent/ project + install skill
+npx @seoagent-official/seoagent init                    # Create .seoagent/ project + install skill
+npx @seoagent-official/seoagent keywords --peek "<kw>"  # Free single-keyword DataForSEO peek (no login, daily quota)
 npx @seoagent-official/seoagent uninstall         # Remove .seoagent/, the skill, and the sync hook (--global also wipes login)
 npx @seoagent-official/seoagent status            # Show project state summary
 npx @seoagent-official/seoagent login             # Connect this CLI to seoagent.com (browser flow)

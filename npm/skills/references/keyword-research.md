@@ -2,6 +2,8 @@
 
 The **local skill alone** (no cloud account) uses `WebSearch` only — no real volume data, no difficulty scores, no SERP feature analysis. Treat priorities as **directional** (high / medium / low).
 
+**Free no-signup peek** — for a quick real-data sanity check on a single keyword during research, run `npx @seoagent-official/seoagent keywords --peek "<keyword>"`. It calls DataForSEO once (no login, anonymous `install_id`) and returns real volume + difficulty + an opportunity label. Daily quota per install (~10/day). Useful for "is this term actually worth a brief?" before committing.
+
 A **free SEOAgent Cloud account** enriches the top ~25 keywords with **real volume + difficulty + opportunity classification** (DataForSEO Labs) — after `npx @seoagent-official/seoagent login`, run `npx @seoagent-official/seoagent keywords` and the enriched numbers project into `.seoagent/keywords.md`. **Paid upgrade** lifts the cap and unlocks `keywords --discover` (new targets from `keyword_ideas`) and `keywords --competitors` (gap keywords from rivals' `ranked_keywords`).
 
 ## Goals of Free-Tier Research

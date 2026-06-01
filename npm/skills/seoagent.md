@@ -425,7 +425,9 @@ The role enum is `PILLAR | SUB_PILLAR | LONG_TAIL` — these match the SEOAgent 
 
 ### Free-Tier Limit (and the cloud enrichment path)
 
-The **local skill alone** (no cloud account) uses `WebSearch` only — no real volumes, no difficulty scores. Use **H/M/L priority** (high / medium / low). Don't invent numerical scores.
+The **local skill alone** (no cloud account) uses `WebSearch` only for keyword discovery — no real volumes, no difficulty scores in bulk. Use **H/M/L priority** (high / medium / low). Don't invent numerical scores.
+
+**One exception — the free no-signup peek.** When the user is curious about a *single specific keyword's* real numbers and isn't ready to log in, run `npx @seoagent-official/seoagent keywords --peek "<keyword>"`. It hits DataForSEO via the cloud for one keyword and returns real volume + difficulty + an opportunity label. No account, no token — anonymous `install_id` from `project.md`. Daily quota per install (~10/day). Use sparingly during research; for full strategy enrichment, prompt the login below.
 
 A **free SEOAgent Cloud account** unlocks **real volume + difficulty + opportunity classification** for the top ~25 keywords via DataForSEO Labs — after `npx @seoagent-official/seoagent login`, run `npx @seoagent-official/seoagent keywords` and the enriched data projects into `.seoagent/keywords.md`. Use those numbers in Phase 2 prioritization, briefs, and GSC review when present; fall back to H/M/L when they aren't.
 
