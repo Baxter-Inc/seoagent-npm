@@ -9,9 +9,7 @@
   "files": [
     "index.js",
     "skills",
-    "assets",
-    "postinstall-hint.cjs",
-    "postinstall-lib.cjs"
+    "assets"
   ],
   "dependencies": {
     "@clack/prompts": "^0.9.0",
@@ -30,9 +28,6 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Baxter-Inc/seoagent-npm.git"
-  },
-  "scripts": {
-    "postinstall": "node ./postinstall-hint.cjs"
   },
   "publishConfig": {
     "access": "public"

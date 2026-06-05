@@ -35,27 +35,21 @@
 
 ---
 
-> **This package is a scaffolder, not a runtime dependency.** Both forms below do the same thing — scaffold `.seoagent/` + the Claude Code skill in your repo. You don't need to keep it in `package.json` after init runs.
+> **This package is a one-shot scaffolder, not a runtime dependency.** Run `init` once to scaffold `.seoagent/` + the Claude Code skill in your repo. Nothing to keep in `package.json` afterwards.
 
 ## Install
 
-**Pick either form. Both work the same:**
-
 ```bash
-# Preferred — no package.json bloat:
 npx -y @seoagent-official/seoagent init
-
-# Also works — `npm install` runs `init` automatically via postinstall:
-npm install @seoagent-official/seoagent
 ```
 
-Either way, the scaffolder will:
+The scaffolder will:
 - Scan your repo for `package.json` `homepage` field + common `.env` files (`NEXT_PUBLIC_SITE_URL`, `SITE_URL`, etc.) to infer your domain
 - Create `.seoagent/` with `project.md`, `context.md`, and folders for audits, briefs, content
 - Install the skill at `.claude/skills/seoagent/SKILL.md` so Claude Code picks it up
 - Add a `PostToolUse` hook to `.claude/settings.json` so edits to `.seoagent/` auto-sync to the cloud (when you're logged in)
 
-After init runs, you can remove `@seoagent-official/seoagent` from `package.json` — the scaffolded sync hook uses `npx -y @seoagent-official/seoagent sync --silent` so the package is fetched on-demand from then on.
+The scaffolded sync hook uses `npx -y @seoagent-official/seoagent sync --silent` so the package is fetched on demand from then on — no `package.json` entry needed.
 
 Then open Claude Code in this repo and say *"audit my site."* The skill takes it from there.
 
@@ -69,19 +63,6 @@ Then open Claude Code in this repo and say *"audit my site."* The skill takes it
 ```bash
 npx -y @seoagent-official/seoagent init --yes --domain example.com
 ```
-
-### Skip the auto-init on `npm install`
-
-If you really want to install the package without scaffolding:
-
-```bash
-SEOAGENT_SKIP_AUTOINIT=1 npm install @seoagent-official/seoagent
-```
-
-You'd want this only when running `init` manually with custom flags. The auto-init also skips automatically when:
-- `CI=true` (or `CI=1`)
-- The package is being installed globally (`npm install -g`)
-- `.seoagent/project.md` already exists in the repo
 
 ### Optional: install globally for a bare `seoagent` command
 
