@@ -1,7 +1,7 @@
 {
   "name": "@seoagent-official/seoagent",
   "version": "0.0.0",
-  "description": "Scaffolder for Claude Code's SEOAgent skill. Run once: `npx -y @seoagent-official/seoagent init`. Sets up .seoagent/ for persistent audits, keyword strategy, content planning, and optimized writing. Not a runtime dependency.",
+  "description": "The persistent AI SEO agent for Claude Code. Audits, keyword strategy, briefs, articles, and the autopilot loop (cloud detects → CLI executes → ack closes) — other SEO tools write the prompt, SEOAgent runs it.",
   "type": "module",
   "bin": {
     "seoagent": "index.js"
@@ -11,6 +11,9 @@
     "skills",
     "assets"
   ],
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.1.0",
     "@clack/prompts": "^0.9.0",
@@ -21,13 +24,31 @@
   },
   "keywords": [
     "seo",
+    "seo-agent",
+    "agentic-seo",
     "claude-code",
+    "claude-skill",
+    "claude-agent",
     "ai-agent",
+    "ai-seo",
+    "aeo",
+    "geo",
+    "answer-engine-optimization",
+    "generative-engine-optimization",
     "seo-audit",
+    "seo-cli",
     "content-strategy",
-    "keyword-research"
+    "keyword-research",
+    "internal-links",
+    "schema-markup",
+    "autopilot"
   ],
   "license": "MIT",
+  "homepage": "https://seoagent.com",
+  "bugs": {
+    "url": "https://github.com/Baxter-Inc/seoagent-npm/issues"
+  },
+  "funding": "https://seoagent.com/pricing",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Baxter-Inc/seoagent-npm.git"

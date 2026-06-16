@@ -146,29 +146,106 @@ SEOAgent runs as a CLI on top of the [Claude Agent SDK](https://github.com/anthr
     audit-checks.md           # Full audit check list with severity tiers
 ```
 
-## CLI Commands
+## The Autopilot Loop
 
-Run via `npx` (works after a local install or as a one-shot fetch):
+`seoagent process` is the executive function over the rest of the CLI. It's how SEOAgent runs work end-to-end without you driving every step manually:
 
-```bash
-npx @seoagent-official/seoagent init                    # Create .seoagent/ project + install skill
-npx @seoagent-official/seoagent keywords --peek "<kw>"  # Free single-keyword DataForSEO peek (no login, daily quota)
-npx @seoagent-official/seoagent uninstall         # Remove .seoagent/, the skill, and the sync hook (--global also wipes login)
-npx @seoagent-official/seoagent status            # Show project state summary
-npx @seoagent-official/seoagent login             # Connect this CLI to seoagent.com (browser flow)
-npx @seoagent-official/seoagent logout            # Remove stored credentials
-npx @seoagent-official/seoagent sync              # Push artifacts to dashboard (no-op when not logged in)
-npx @seoagent-official/seoagent env-check         # Detect image generation provider (OPENAI/FAL/REPLICATE)
-npx @seoagent-official/seoagent generate-image    # Generate an image via your provider
-npx @seoagent-official/seoagent upgrade           # Open SEOAgent Cloud pricing page
+```
+┌──────────────────────┐       ┌──────────────────────┐       ┌──────────────────────┐       ┌──────────────────────┐
+│  Cloud autopilot     │       │  CLI inbox           │       │  Claude Agent SDK    │       │  Cloud dashboard     │
+│  (seoagent.com)      │   →   │  .seoagent/inbox/    │   →   │  seoagent process    │   →   │  Action closed       │
+│  detects + queues    │       │  (sync pulls down)   │       │  edits files,        │       │  with applied OR     │
+│  technical fixes,    │       │  Read with           │       │  decides apply       │       │  declined + reason   │
+│  content gaps,       │       │  seoagent inbox      │       │  vs decline,         │       │  (seoagent ack       │
+│  off-strategy KWs…   │       │                      │       │  emits verdict       │       │  fires automatically)│
+└──────────────────────┘       └──────────────────────┘       └──────────────────────┘       └──────────────────────┘
 ```
 
-> Prefer the shorter `seoagent <cmd>` form? Install globally once:
-> `npm install -g @seoagent-official/seoagent`. After that, bare `seoagent <cmd>` works in any directory.
+What that looks like in your terminal:
+
+```bash
+$ seoagent sync                  # Pull pending actions from your dashboard
+✓ Pulled 3 pending actions → .seoagent/inbox/
+
+$ seoagent inbox                 # See what's queued
+SEOAgent inbox · 3 pending actions
+▸ id 2017 · canonical · high · p:high · ⇧ +12% CTR · ⏱ 2 min — Auth pages in sitemap.xml
+▸ id 2018 · meta · medium · p:medium · ⇧ +4 positions · ⏱ 5 min — Generic meta description on /pricing
+▸ id 2176 · new-landing-page · medium — New page for keyword "3/0"
+
+$ seoagent process               # Pick what to run; agent does the rest
+[1/2] · id 2017 · canonical · high
+⏺ Read(apps/web/src/app/sitemap.ts)
+   ⎿ Read 47 lines
+⏺ Edit(apps/web/src/app/sitemap.ts)
+   ⎿ Updated apps/web/src/app/sitemap.ts
+✓ id 2017 — applied in 47s
+  Removed 3 auth routes from sitemap.xml
+
+[2/2] · id 2018 · meta · medium
+…
+⊘ id 2176 — declined: keyword "3/0" is off-strategy for our domain
+
+Done · ✓ 2/3 applied · 1 declined  (elapsed: 2m 14s)
+```
+
+Three things to notice:
+
+1. **No copy-paste step.** Other "agentic SEO" tools (Hado SEO's *SEO Trace*, etc.) emit paste-ready prompts you shuttle into Lovable/Cursor/Bolt yourself. `seoagent process` runs the action end-to-end via the [Claude Agent SDK](https://github.com/anthropics/claude-agent-sdk-typescript) — agent reads the action, edits the files, verifies, closes the action server-side. No copy-paste.
+2. **Priority badges** (`p:high · ⇧ +12% CTR · ⏱ 2 min`) tell you *which* actions to run first. The picker pre-selects high-priority entries by default — one Enter ships the highest-leverage work.
+3. **Declines self-ack.** When the agent decides an action is off-strategy, ambiguous, or a false positive, it emits `__DECLINED__: <reason>` and `seoagent ack --failed --reason "…"` fires automatically. You never type the reason by hand.
+
+## CLI Commands (all 18)
+
+Grouped by what they're for. Run via `npx -y @seoagent-official/seoagent <cmd>` or, after `npm install -g @seoagent-official/seoagent`, just `seoagent <cmd>`.
+
+**Setup + lifecycle**
+
+| Command | What it does |
+|---|---|
+| `init` | Scaffold `.seoagent/` + install the SKILL bundle + write the sync hook. Run once per repo. Auto-detects domain + site type; supports `--yes --domain <d> --site-type <t>` for CI. |
+| `login` | Connect this CLI to seoagent.com (browser OAuth flow). Free dashboard access; required for `sync` / `process` / `ack` / paid features. |
+| `logout` | Clear stored credentials. |
+| `uninstall` | Remove `.seoagent/`, the skill, and the sync hook. `--global` also wipes the login session and cache. |
+
+**The autopilot loop**
+
+| Command | What it does |
+|---|---|
+| `sync` | Two-way sync with the dashboard: pushes local `.seoagent/` artifacts up + pulls new pending actions down to `.seoagent/inbox/`. Push-only via `--push-only`. Pull-only via `seoagent pull`. Also flushes any offline-queued acks. |
+| `pull` | Pull-only sync (no push). Useful when you want fresh inbox state without uploading edits. Also supports `--print <path>` to dump a single cloud artifact to stdout. |
+| `inbox` | List pending actions with id, category, severity, and (when the server emits them) priority + impact + effort badges. `--json` for scripting. |
+| `process` | The executive function: pick pending actions + run them end-to-end via the Claude Agent SDK. Streams Claude-Code-style narration (tool bullets, result previews, markdown). `--yes` for CI; `--model <name>` to override. |
+| `ack [<id>]` | Mark an action settled server-side. With no id, opens an interactive picker. `--failed --reason "<text>"` to decline. Survives network blips via the offline ack queue. |
+| `autopilot <on\|off\|status>` | Toggle the cloud-side autopilot mode (whether the dashboard actively queues actions). |
+
+**Inspection + diagnostics**
+
+| Command | What it does |
+|---|---|
+| `status` | Boxed summary of project state: account, audit, strategy, briefs, content, roadmap. Zero-network. |
+| `whoami` | Show the currently logged-in account. |
+| `env-check` | Detect image generation provider (`OPENAI_API_KEY` / `FAL_KEY` / `REPLICATE_API_TOKEN`). |
+| `menu` | Interactive launcher — pick a command from a list when you don't remember the name. |
+
+**Research + content**
+
+| Command | What it does |
+|---|---|
+| `keywords --peek "<kw>"` | Free single-keyword DataForSEO peek (no login, daily quota per install). |
+| `keywords` | Enrich your existing keyword inventory with real search volume + difficulty. `--discover` finds new targets; `--competitors` shows the gap (paid). |
+| `internal-links` | Generate internal-linking recommendations from your existing pages + topic clusters. |
+| `generate-image` | Generate hero / inline images via the detected provider (BYO API key). |
+
+**Account**
+
+| Command | What it does |
+|---|---|
+| `upgrade` | Open the seoagent.com pricing page. |
 
 ## Auto-Sync Hook
 
-`init` writes a `PostToolUse` hook to `.claude/settings.json` so every Write/Edit to `.seoagent/` triggers `npx @seoagent-official/seoagent sync` automatically. No-op when not logged in. Merges into existing settings without clobbering them.
+`init` writes a `PostToolUse` hook to `.claude/settings.json` so every Write/Edit to `.seoagent/` triggers `npx @seoagent-official/seoagent sync --silent` automatically. No-op when not logged in. The hook is race-safe: a cooperative lock keeps a manual `seoagent sync` from clobbering an in-flight hook run (and vice versa).
 
 ## SEOAgent Cloud
 
