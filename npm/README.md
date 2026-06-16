@@ -8,6 +8,7 @@
 
 <p align="center">
   <strong>The persistent AI SEO agent for <a href="https://www.anthropic.com/claude-code">Claude Code</a>.</strong><br/>
+  Other SEO tools write the prompt — SEOAgent runs it.<br/>
   Audits • Keyword strategy • Content briefs • Optimized articles — all persisted in <code>.seoagent/</code>.
 </p>
 
@@ -85,6 +86,14 @@ SEOAgent fixes this with one unified skill that persists all work:
 | **Execution**  | Advisory — Claude audits differently each time | Protocols — consistent, comparable results                      |
 | **Continuity** | None                                           | Roadmap compounds over time, changelog tracks progress          |
 | **Page types** | Generic                                        | Dedicated protocols for landing / pillar / sub_pillar / long_tail / programmatic |
+
+### What about "agentic SEO" tools that hand you a prompt?
+
+A new wave of SEO tools — Hado SEO's *"SEO Trace"*, and others in the same shape — diagnose your page (GSC + SERP + Googlebot render) and emit a paste-ready prompt you drop into Lovable, Cursor, Bolt, or Claude Code yourself. That's better than nothing, but the *work* lives on you: every action becomes "copy the prompt, switch tools, paste, wait, switch back, verify."
+
+SEOAgent runs as a CLI on top of the [Claude Agent SDK](https://github.com/anthropics/claude-agent-sdk-typescript). `seoagent process` pulls the inbox of pending actions, picks the ones you select, and runs each one end-to-end in your repo — the agent reads the action file, edits the files, verifies the result, and closes the action server-side. No copy-paste step.
+
+> **Other tools write the prompt. SEOAgent runs it.**
 
 ## What You Get (Free, No Account)
 
