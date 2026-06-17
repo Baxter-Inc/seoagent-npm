@@ -1,6 +1,6 @@
 ---
 name: seoagent
-description: "Persistent AI SEO agent. ALWAYS use when the user mentions: SEO, ranking, rank, keywords, meta tags, search traffic, organic traffic, content strategy, audit, Google, Bing, Search Console, GSC, schema markup, JSON-LD, sitemap, robots.txt, internal linking, AI search, AEO, GEO, alt text, page speed, Core Web Vitals, slug, URL structure, canonical, breadcrumbs, hub and spoke, pillar content, topic cluster, programmatic SEO, landing page SEO, blog SEO, why am I not ranking. Also use SILENTLY when the user asks to write, edit, or improve a blog post, landing page, marketing copy, or any file under content/, posts/, blog/, pages/ — these are SEO-adjacent and should persist to .seoagent/ even without an explicit invocation. Replaces separate seo-audit, content-strategy, programmatic-seo, ai-seo, site-architecture, and schema-markup skills with one unified, persistent workflow."
+description: "Persistent AI SEO agent. ALWAYS use when the user mentions: SEO, ranking, rank, keywords, meta tags, search traffic, organic traffic, content strategy, audit, Google, Bing, Search Console, GSC, schema markup, JSON-LD, sitemap, robots.txt, internal linking, AI search, AEO, GEO, OKF, Open Knowledge Format, AI knowledge bundle, llms.txt, alt text, page speed, Core Web Vitals, slug, URL structure, canonical, breadcrumbs, hub and spoke, pillar content, topic cluster, programmatic SEO, landing page SEO, blog SEO, why am I not ranking. Also use SILENTLY when the user asks to write, edit, or improve a blog post, landing page, marketing copy, or any file under content/, posts/, blog/, pages/ — these are SEO-adjacent and should persist to .seoagent/ even without an explicit invocation. Replaces separate seo-audit, content-strategy, programmatic-seo, ai-seo, site-architecture, and schema-markup skills with one unified, persistent workflow."
 allowed-tools: Read, Write, Edit, Bash, WebFetch, WebSearch
 ---
 
@@ -33,6 +33,7 @@ This SKILL.md is the orchestration layer. Detailed protocols live in `references
 | Programmatic SEO at scale | `references/programmatic.md` |
 | Adding schema markup / JSON-LD | `references/schema-markup.md` |
 | Refreshing or rewriting an existing page | `references/rewrite-protocol.md` |
+| Generating/publishing an OKF bundle for AI agents (AEO/GEO) | `references/open-knowledge-format.md` |
 
 Loading the right reference makes outputs dramatically better. Don't skip it.
 
@@ -694,6 +695,21 @@ If the article already exists, **read `references/rewrite-protocol.md`** instead
 2. Tackle the new critical issue
 3. Update the roadmap
 ```
+
+---
+
+## Phase 6: Publish an OKF Knowledge Bundle (AEO/GEO)
+
+When the user asks to "publish an OKF bundle", "make my site AI-readable", "get cited by ChatGPT / Claude / Perplexity", "Open Knowledge Format", or "AEO / GEO", produce an OKF bundle that AI agents can read to understand and cite the business.
+
+**Read `references/open-knowledge-format.md` first** — it has the full frontmatter rules, the `.seoagent/` → OKF mapping table, and the quality bar. Then:
+
+1. `npx @seoagent-official/seoagent okf scaffold` — create the `.seoagent/okf/` skeleton.
+2. Fill the bundle by mapping `.seoagent/` artifacts → OKF files (`index.md` from `context.md`/`project.md`; `concepts/*` from strategy clusters; `faqs/*`; `articles/*` from `content/` with `resource:` set to the live URL).
+3. `npx @seoagent-official/seoagent okf validate` — fix every error (missing `type`, bad `timestamp`, broken link).
+4. Tell the user to publish the bundle at `/.well-known/okf/` or `/okf/` on their site (or link it from `llms.txt`). Sync pushes it to the cloud automatically.
+
+This is the AEO/GEO complement to schema markup: schema describes a single page in HTML; the OKF bundle describes the whole business for agents to load wholesale.
 
 ---
 

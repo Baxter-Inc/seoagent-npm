@@ -107,6 +107,8 @@ SEOAgent runs as a CLI on top of the [Claude Agent SDK](https://github.com/anthr
 
 **Image Generation (Bring Your Own Key)** — Detect `OPENAI_API_KEY`, `FAL_KEY`, or `REPLICATE_API_TOKEN` from your env. Generate hero + inline images with `npx @seoagent-official/seoagent generate-image`. You pay the LLM provider directly.
 
+**Open Knowledge Format bundle (AEO/GEO)** — Generate a Google [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf) bundle for your site — a curated, agent-readable knowledge layer so ChatGPT, Claude, Perplexity, and Google's AI understand and cite your business accurately. Claude maps your `.seoagent/` knowledge into OKF markdown; `npx @seoagent-official/seoagent okf scaffold` and `okf validate` handle the structure. Saved to `.seoagent/okf/`.
+
 **Compounding Roadmap** — Prioritized action plan that updates after every action. Saved to `.seoagent/roadmap.md`. Persistent changelog at `.seoagent/changelog.md`.
 
 ## Project Structure
@@ -126,6 +128,11 @@ SEOAgent runs as a CLI on top of the [Claude Agent SDK](https://github.com/anthr
   content/
     {article-slug}.md         # Article with full SEO frontmatter + JSON-LD
     images/                   # Generated hero + inline images
+  okf/                        # Open Knowledge Format bundle for AI agents (AEO/GEO)
+    index.md                  # type: Organization — business overview
+    concepts/                 # type: Concept|Topic — definitive explanations
+    faqs/                     # type: FAQ — answer-engine Q&A
+    articles/                 # type: Article — published pages (resource = live URL)
   pages.md                    # Sitemap inventory (URL list)
   competitors.md              # Competitor profiles + gaps
   keywords.md                 # Master keyword inventory (assigned + backlog)
@@ -141,6 +148,7 @@ SEOAgent runs as a CLI on top of the [Claude Agent SDK](https://github.com/anthr
     long-tail-articles.md     # Long-tail protocol
     programmatic.md           # 12 programmatic SEO playbooks
     schema-markup.md          # JSON-LD library by entity type
+    open-knowledge-format.md  # OKF bundle protocol (AEO/GEO)
     keyword-research.md       # WebSearch query patterns
     rewrite-protocol.md       # Phase 4b refresh procedure
     audit-checks.md           # Full audit check list with severity tiers
@@ -195,7 +203,7 @@ Three things to notice:
 2. **Priority badges** (`p:high · ⇧ +12% CTR · ⏱ 2 min`) tell you *which* actions to run first. The picker pre-selects high-priority entries by default — one Enter ships the highest-leverage work.
 3. **Declines self-ack.** When the agent decides an action is off-strategy, ambiguous, or a false positive, it emits `__DECLINED__: <reason>` and `seoagent ack --failed --reason "…"` fires automatically. You never type the reason by hand.
 
-## CLI Commands (all 18)
+## CLI Commands (all 19)
 
 Grouped by what they're for. Run via `npx -y @seoagent-official/seoagent <cmd>` or, after `npm install -g @seoagent-official/seoagent`, just `seoagent <cmd>`.
 
@@ -235,6 +243,7 @@ Grouped by what they're for. Run via `npx -y @seoagent-official/seoagent <cmd>` 
 | `keywords --peek "<kw>"` | Free single-keyword DataForSEO peek (no login, daily quota per install). |
 | `keywords` | Enrich your existing keyword inventory with real search volume + difficulty. `--discover` finds new targets; `--competitors` shows the gap (paid). |
 | `internal-links` | Generate internal-linking recommendations from your existing pages + topic clusters. |
+| `okf [scaffold\|validate]` | Generate an [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf) bundle for AI agents (AEO/GEO) → `.seoagent/okf/`. `scaffold` starts it; `validate` checks `type` fields, ISO-8601 timestamps + cross-links. The skill fills the content. |
 | `generate-image` | Generate hero / inline images via the detected provider (BYO API key). |
 
 **Account**
