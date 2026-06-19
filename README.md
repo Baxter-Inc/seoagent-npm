@@ -37,6 +37,8 @@
 ---
 
 > **This package is a one-shot scaffolder, not a runtime dependency.** Run `init` once to scaffold `.seoagent/` + the Claude Code skill in your repo. Nothing to keep in `package.json` afterwards. No `postinstall` script — installs are silent and play nicely with npm 11+.
+>
+> **Upgrading is hands-off.** When a newer CLI is published, the next time you open Claude Code, the session-start hook surfaces a notice and Claude can offer to run `seoagent update-cli` — which updates the binary **and** refreshes every project on your machine to it in one go. Prefer to do nothing? Each project also self-updates on its own the next time you open it (the `SessionStart` hook runs `seoagent sync` before the skill loads). Refreshes only rewrite the skill files; your `.seoagent/` knowledge is never touched. (No more `rm -rf .seoagent && seoagent init`.) Run `seoagent refresh --all` anytime to sweep every project yourself.
 
 ## Install — pick one
 
@@ -226,7 +228,7 @@ Three things to notice:
 2. **Priority badges** (`p:high · ⇧ +12% CTR · ⏱ 2 min`) tell you *which* actions to run first. The picker pre-selects high-priority entries by default — one Enter ships the highest-leverage work.
 3. **Declines self-ack.** When the agent decides an action is off-strategy, ambiguous, or a false positive, it emits `__DECLINED__: <reason>` and `seoagent ack --failed --reason "…"` fires automatically. You never type the reason by hand.
 
-## CLI Commands (all 20)
+## CLI Commands (all 22)
 
 Grouped by what they're for. Run as bare `seoagent <cmd>` after the one-time `npm install -g @seoagent-official/seoagent`. (Or `npx -y @seoagent-official/seoagent <cmd>` for a one-shot CI invocation.)
 
@@ -234,7 +236,7 @@ Grouped by what they're for. Run as bare `seoagent <cmd>` after the one-time `np
 
 | Command | What it does |
 |---|---|
-| `init` | Scaffold `.seoagent/` + install the SKILL bundle + write the sync hook. Run once per repo. Auto-detects domain + site type; supports `--yes --domain <d> --site-type <t>` for CI. |
+| `init` | Scaffold `.seoagent/` + install the SKILL bundle + write the sync hook. Run once per repo. Auto-detects domain + site type; supports `--yes --domain <d> --site-type <t>` for CI. **Re-running later refreshes the skill in place** (non-destructive — never touches `.seoagent/`), handy to force the skill up to your current CLI version. |
 | `login` | Connect this CLI to seoagent.com (browser OAuth flow). Free dashboard access; required for `sync` / `process` / `ack` / paid features. |
 | `logout` | Clear stored credentials. |
 | `uninstall` | Remove `.seoagent/`, the skill, and the sync hook. `--global` also wipes the login session and cache. |
@@ -270,15 +272,22 @@ Grouped by what they're for. Run as bare `seoagent <cmd>` after the one-time `np
 | `citations` | Measure whether answer engines cite you (AEO/GEO). Runs buyer-intent queries through the Claude Agent SDK **with live web search** → `.seoagent/citations/scorecard.md`. `--queries <1-12>` (default 6), `--model <name>`, `--json`. Uses your `claude login` session or `ANTHROPIC_API_KEY`, same as `process`. |
 | `generate-image` | Generate hero / inline images via the detected provider (BYO API key). |
 
-**Account**
+**Account + maintenance**
 
 | Command | What it does |
 |---|---|
 | `upgrade` | Open the seoagent.com pricing page. |
+| `update-cli` | Update the CLI to the latest npm version, **then refresh every project on this machine** to it (spawns `refresh --all`). `--no-projects` skips the sweep; `--dry-run` previews. |
+| `refresh` | Force the installed skill up to your CLI version (non-destructive). `--all` sweeps every SEOAgent project on the machine — handy right after an upgrade so you don't have to open each one. |
 
 ## Auto-Sync Hook
 
-`init` writes a `PostToolUse` hook to `.claude/settings.json` so every Write/Edit to `.seoagent/` triggers `npx -y @seoagent-official/seoagent sync --silent` automatically. The hook deliberately uses the `npx -y` form (not bare `seoagent`) so it survives `npm uninstall -g` and stays current with whatever's published. No-op when not logged in. Race-safe: a cooperative lock keeps a manual `seoagent sync` from clobbering an in-flight hook run.
+`init` writes two hooks to `.claude/settings.json`, both running `npx -y @seoagent-official/seoagent sync --silent`:
+
+- a **`SessionStart`** hook — runs at the start of every Claude Code session, **before** Claude reads the skill, so the skill is always current (this is what makes a CLI upgrade take effect on your *next* session);
+- a **`PostToolUse`** (`Write|Edit`) hook — keeps `.seoagent/` synced as the agent edits during a session.
+
+The hooks deliberately use the `npx -y` form (not bare `seoagent`) so they survive `npm uninstall -g` and stay current with whatever's published. No-op when not logged in. Race-safe: a cooperative lock keeps a manual `seoagent sync` from clobbering an in-flight hook run. Both run the same `sync`, which **auto-refreshes the installed skill** when the CLI is newer than the project's `skill_version` — rewriting only the skill bundle, never `.seoagent/`.
 
 ## SEOAgent Cloud
 
