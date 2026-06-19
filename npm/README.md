@@ -128,6 +128,8 @@ SEOAgent runs as a CLI on top of the [Claude Agent SDK](https://github.com/anthr
 
 **Open Knowledge Format bundle (AEO/GEO)** — Generate a Google [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf) bundle for your site — a curated, agent-readable knowledge layer so ChatGPT, Claude, Perplexity, and Google's AI understand and cite your business accurately. Claude maps your `.seoagent/` knowledge into OKF markdown; `seoagent okf scaffold` and `seoagent okf validate` handle the structure. Saved to `.seoagent/okf/`.
 
+**AI Citation Scorecard (the measurement half of AEO)** — Publishing an OKF bundle makes you *citable*; `seoagent citations` tells you whether it's *working*. It runs a set of buyer-intent questions through the Claude Agent SDK **with live web search** and reports which ones surface your business — a web-grounded proxy for how ChatGPT, Perplexity, and Google's AI Overviews answer. Saved to `.seoagent/citations/scorecard.md`. (Honest by design: it measures Claude + web search, not a per-engine guarantee — re-run over time to watch the trend.)
+
 **Compounding Roadmap** — Prioritized action plan that updates after every action. Saved to `.seoagent/roadmap.md`. Persistent changelog at `.seoagent/changelog.md`.
 
 ## Project Structure
@@ -152,6 +154,8 @@ SEOAgent runs as a CLI on top of the [Claude Agent SDK](https://github.com/anthr
     concepts/                 # type: Concept|Topic — definitive explanations
     faqs/                     # type: FAQ — answer-engine Q&A
     articles/                 # type: Article — published pages (resource = live URL)
+  citations/                  # AI citation scorecards (measure the OKF/AEO loop)
+    scorecard.md              # Which buyer-intent queries surface you, web-grounded
   pages.md                    # Sitemap inventory (URL list)
   competitors.md              # Competitor profiles + gaps
   keywords.md                 # Master keyword inventory (assigned + backlog)
@@ -222,7 +226,7 @@ Three things to notice:
 2. **Priority badges** (`p:high · ⇧ +12% CTR · ⏱ 2 min`) tell you *which* actions to run first. The picker pre-selects high-priority entries by default — one Enter ships the highest-leverage work.
 3. **Declines self-ack.** When the agent decides an action is off-strategy, ambiguous, or a false positive, it emits `__DECLINED__: <reason>` and `seoagent ack --failed --reason "…"` fires automatically. You never type the reason by hand.
 
-## CLI Commands (all 19)
+## CLI Commands (all 20)
 
 Grouped by what they're for. Run as bare `seoagent <cmd>` after the one-time `npm install -g @seoagent-official/seoagent`. (Or `npx -y @seoagent-official/seoagent <cmd>` for a one-shot CI invocation.)
 
@@ -263,6 +267,7 @@ Grouped by what they're for. Run as bare `seoagent <cmd>` after the one-time `np
 | `keywords` | Enrich your existing keyword inventory with real search volume + difficulty. `--discover` finds new targets; `--competitors` shows the gap (paid). |
 | `internal-links` | Generate internal-linking recommendations from your existing pages + topic clusters. |
 | `okf [scaffold\|validate]` | Generate an [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf) bundle for AI agents (AEO/GEO) → `.seoagent/okf/`. `scaffold` starts it; `validate` checks `type` fields, ISO-8601 timestamps + cross-links. The skill fills the content. |
+| `citations` | Measure whether answer engines cite you (AEO/GEO). Runs buyer-intent queries through the Claude Agent SDK **with live web search** → `.seoagent/citations/scorecard.md`. `--queries <1-12>` (default 6), `--model <name>`, `--json`. Uses your `claude login` session or `ANTHROPIC_API_KEY`, same as `process`. |
 | `generate-image` | Generate hero / inline images via the detected provider (BYO API key). |
 
 **Account**
