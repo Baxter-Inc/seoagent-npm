@@ -38,19 +38,37 @@
 
 > **This package is a one-shot scaffolder, not a runtime dependency.** Run `init` once to scaffold `.seoagent/` + the Claude Code skill in your repo. Nothing to keep in `package.json` afterwards. No `postinstall` script — installs are silent and play nicely with npm 11+.
 
-## Install
+## Install — pick one
+
+You can run SEOAgent two ways. Pick whichever fits how you work; both end up scaffolding the same `.seoagent/` workspace and installing the same Claude Code skill.
+
+### Option A — Global install (recommended for daily use)
+
+```bash
+npm install -g @seoagent-official/seoagent
+seoagent init
+```
+
+**Why this way:** `seoagent` is on your PATH so every command is `seoagent <cmd>` — short to type, instant to run (no npm fetch per call). Claude Code can also call `seoagent <cmd>` directly via its Bash tool, so the skill runs at full speed with no per-call latency.
+
+### Option B — One-shot via `npx` (no global install)
 
 ```bash
 npx -y @seoagent-official/seoagent init
 ```
 
-The scaffolder will:
+**Why this way:** nothing global on your machine, every invocation pulls the latest published version. Great for CI / one-off use / trying SEOAgent before committing. Trade-off: every command pays a ~2s npm fetch on cold cache, and Claude Code's Bash calls do the same.
+
+---
+
+Either way, `init` will:
+
 - Scan your repo for `package.json` `homepage` field + common `.env` files (`NEXT_PUBLIC_SITE_URL`, `SITE_URL`, etc.) to infer your domain
 - Create `.seoagent/` with `project.md`, `context.md`, and folders for audits, briefs, content
 - Install the skill at `.claude/skills/seoagent/SKILL.md` so Claude Code picks it up
 - Add a `PostToolUse` hook to `.claude/settings.json` so edits to `.seoagent/` auto-sync to the cloud (when you're logged in)
 
-The scaffolded sync hook uses `npx -y @seoagent-official/seoagent sync --silent` so the package is fetched on demand from then on — no `package.json` entry needed.
+The scaffolded sync hook uses `npx -y @seoagent-official/seoagent sync --silent` either way — it's infrastructure that survives your environment changing (so it works even if you later uninstall the global package).
 
 Then open Claude Code in this repo and say *"audit my site."* The skill takes it from there.
 
@@ -61,15 +79,16 @@ Then open Claude Code in this repo and say *"audit my site."* The skill takes it
 
 ### Headless / non-interactive
 
+Global install:
+
 ```bash
-npx -y @seoagent-official/seoagent init --yes --domain example.com
+seoagent init --yes --domain example.com
 ```
 
-### Optional: install globally for a bare `seoagent` command
+Via npx:
 
 ```bash
-npm install -g @seoagent-official/seoagent
-seoagent init   # in your project repo
+npx -y @seoagent-official/seoagent init --yes --domain example.com
 ```
 
 ## Why SEOAgent?
@@ -105,9 +124,9 @@ SEOAgent runs as a CLI on top of the [Claude Agent SDK](https://github.com/anthr
 
 **SEO-Optimized Articles** — Articles written from briefs with full SEO frontmatter: meta_title, meta_description, canonical, OpenGraph, Twitter cards, JSON-LD (Article + FAQPage + HowTo as appropriate), image plans. Saved to `.seoagent/content/`.
 
-**Image Generation (Bring Your Own Key)** — Detect `OPENAI_API_KEY`, `FAL_KEY`, or `REPLICATE_API_TOKEN` from your env. Generate hero + inline images with `npx @seoagent-official/seoagent generate-image`. You pay the LLM provider directly.
+**Image Generation (Bring Your Own Key)** — Detect `OPENAI_API_KEY`, `FAL_KEY`, or `REPLICATE_API_TOKEN` from your env. Generate hero + inline images with `seoagent generate-image`. You pay the LLM provider directly.
 
-**Open Knowledge Format bundle (AEO/GEO)** — Generate a Google [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf) bundle for your site — a curated, agent-readable knowledge layer so ChatGPT, Claude, Perplexity, and Google's AI understand and cite your business accurately. Claude maps your `.seoagent/` knowledge into OKF markdown; `npx @seoagent-official/seoagent okf scaffold` and `okf validate` handle the structure. Saved to `.seoagent/okf/`.
+**Open Knowledge Format bundle (AEO/GEO)** — Generate a Google [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf) bundle for your site — a curated, agent-readable knowledge layer so ChatGPT, Claude, Perplexity, and Google's AI understand and cite your business accurately. Claude maps your `.seoagent/` knowledge into OKF markdown; `seoagent okf scaffold` and `seoagent okf validate` handle the structure. Saved to `.seoagent/okf/`.
 
 **Compounding Roadmap** — Prioritized action plan that updates after every action. Saved to `.seoagent/roadmap.md`. Persistent changelog at `.seoagent/changelog.md`.
 
@@ -205,7 +224,7 @@ Three things to notice:
 
 ## CLI Commands (all 19)
 
-Grouped by what they're for. Run via `npx -y @seoagent-official/seoagent <cmd>` or, after `npm install -g @seoagent-official/seoagent`, just `seoagent <cmd>`.
+Grouped by what they're for. Run as bare `seoagent <cmd>` after the one-time `npm install -g @seoagent-official/seoagent`. (Or `npx -y @seoagent-official/seoagent <cmd>` for a one-shot CI invocation.)
 
 **Setup + lifecycle**
 
@@ -254,7 +273,7 @@ Grouped by what they're for. Run via `npx -y @seoagent-official/seoagent <cmd>` 
 
 ## Auto-Sync Hook
 
-`init` writes a `PostToolUse` hook to `.claude/settings.json` so every Write/Edit to `.seoagent/` triggers `npx @seoagent-official/seoagent sync --silent` automatically. No-op when not logged in. The hook is race-safe: a cooperative lock keeps a manual `seoagent sync` from clobbering an in-flight hook run (and vice versa).
+`init` writes a `PostToolUse` hook to `.claude/settings.json` so every Write/Edit to `.seoagent/` triggers `npx -y @seoagent-official/seoagent sync --silent` automatically. The hook deliberately uses the `npx -y` form (not bare `seoagent`) so it survives `npm uninstall -g` and stays current with whatever's published. No-op when not logged in. Race-safe: a cooperative lock keeps a manual `seoagent sync` from clobbering an in-flight hook run.
 
 ## SEOAgent Cloud
 
@@ -268,7 +287,7 @@ The free skill handles audits, strategy, briefs, articles, and persistent state 
 - **Team collaboration** — Invite members, share strategy, coordinate publishing
 - **Cloud dashboard** — See everything Claude Code did at seoagent.com (also free with any account)
 
-Run `npx @seoagent-official/seoagent login` for the free dashboard, or `npx @seoagent-official/seoagent upgrade` for paid features.
+Run `seoagent login` (or `npx -y @seoagent-official/seoagent login`) for the free dashboard, or `seoagent upgrade` for paid features.
 
 ## Pattern Note
 

@@ -114,7 +114,7 @@ Append to `.seoagent/changelog.md`:
 [2026-04-27] Rewrote tech-seo-guide v3: updated 7 stats, added "AI Search Readiness" H2 linking to ai-search-readiness sub_pillar, tightened from 3120 → 3450 words
 ```
 
-Run `npx @seoagent-official/seoagent sync`.
+Run `seoagent sync`.
 
 ## Special Cases
 
