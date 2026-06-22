@@ -8,7 +8,7 @@
 
 <p align="center">
   <strong>The persistent AI SEO agent for <a href="https://www.anthropic.com/claude-code">Claude Code</a>.</strong><br/>
-  Other SEO tools write the prompt — SEOAgent runs it.<br/>
+  Other SEO tools write the prompt — SEOAgent runs it, on your own model, in your own repo.<br/>
   Audits • Keyword strategy • Content briefs • Optimized articles — all persisted in <code>.seoagent/</code>.
 </p>
 
@@ -79,6 +79,11 @@ Then open Claude Code in this repo and say *"audit my site."* The skill takes it
      until the plugin-install → init flow is validated end-to-end. Restore
      the marketplace install section once that's confirmed. -->
 
+<!-- `npx skills add Baxter-Inc/seoagent-npm` is also wired (build.ts step 6b
+     emits skills/seoagent/SKILL.md at the mirror root for the Vercel `npx skills`
+     resolver + skills.sh discovery). Same hold: not promoted here until the
+     skills-add → init funnel is validated end-to-end. See MIRROR_REPO.md. -->
+
 ### Headless / non-interactive
 
 Global install:
@@ -115,6 +120,16 @@ A new wave of SEO tools — Hado SEO's *"SEO Trace"*, and others in the same sha
 SEOAgent runs as a CLI on top of the [Claude Agent SDK](https://github.com/anthropics/claude-agent-sdk-typescript). `seoagent process` pulls the inbox of pending actions, picks the ones you select, and runs each one end-to-end in your repo — the agent reads the action file, edits the files, verifies the result, and closes the action server-side. No copy-paste step.
 
 > **Other tools write the prompt. SEOAgent runs it.**
+
+### What about the all-in-one platforms that now ship an MCP?
+
+A second wave — Frase, with Surfer and Ahrefs heading the same way — wraps a full pipeline (research → write → optimize → publish → monitor → auto-fix) behind an MCP or API you connect to your coding agent. Genuinely capable. But three things are baked into that model that SEOAgent does differently:
+
+- **Bring your own model.** Those platforms run their *own* closed model and crawler — that's what the subscription buys (roughly $29–$1,500/mo across this category). SEOAgent runs on the model you already pay for inside Claude Code / Cursor / Codex. No second AI subscription, no per-credit content metering, no proprietary-crawler markup.
+- **Your repo, not their CMS.** They publish to a *hosted CMS* (WordPress, Webflow, their own). SEOAgent edits the actual files in your repo, approval-gated — the right shape for a site you build in code (Next.js, SSR, Lovable, Framer-export, etc.) and keep in your own git history.
+- **Free and open.** The Skill is free forever and the package is open source. The cloud is optional, per-site, and additive — not the thing that makes the agent work.
+
+Same agent-native convenience. None of the lock-in.
 
 ## What You Get (Free, No Account)
 
