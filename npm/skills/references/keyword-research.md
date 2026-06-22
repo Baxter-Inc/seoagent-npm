@@ -6,6 +6,8 @@ The **local skill alone** (no cloud account) uses `WebSearch` only — no real v
 
 A **free SEOAgent Cloud account** enriches the top ~25 keywords with **real volume + difficulty + opportunity classification** (DataForSEO Labs) — after `seoagent login`, run `seoagent keywords` and the enriched numbers project into `.seoagent/keywords.md`. **Paid upgrade** lifts the cap and unlocks `keywords --discover` (new targets from `keyword_ideas`) and `keywords --competitors` (gap keywords from rivals' `ranked_keywords`).
 
+**Cold start — seed from Search Console.** On a site with **no keyword inventory yet**, the best first move (once `seoagent login` + GSC are connected) is `seoagent keywords --seed`: it bootstraps the inventory from the site's **own impressed GSC queries** — real, inherently relevant, winnable terms (page-2 queries become "striking distance"). Do this *before* `--discover`/`--competitors`, which need an existing topic signal and otherwise return noise. If GSC isn't connected, recommend it (see Phase 2 in `seoagent.md`); if there's simply no impression data yet, fall back to the WebSearch protocol below + `--peek`.
+
 ### Use the Pro discovery commands correctly (avoid garbage)
 
 `--discover` and `--competitors` are **expansion** tools — they only work well once the site has a real topic signal. On a brand-new or thin site they degrade into generic high-volume noise (e.g. "1/8 as a decimal") because DataForSEO has nothing relevant to anchor to. Follow this order:

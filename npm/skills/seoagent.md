@@ -428,6 +428,15 @@ Orphan pages — pages no other page links to — are hard for crawlers and user
 
 **Read `references/keyword-research.md` first.** It has the full WebSearch query patterns, SERP-format mapping, and persistence formats.
 
+### Start here: connect GSC, then seed from real data
+
+The single biggest quality lever for the strategy is **real Google Search Console data** — the queries the site *already* gets impressions for are the fastest-ranking wins (often a page-2 → page-1 push). Most users won't think to connect it, so **proactively recommend it before doing keyword work**:
+
+1. **If there's no sign of a cloud/GSC connection, recommend `seoagent login` up front** — phrase it as the value, not a chore: "I can ground this strategy in your actual Search Console data — the queries you already rank for — instead of guessing. It's a free ~30-second `seoagent login` to connect Google Search Console. Want me to wait while you do that?" Don't silently proceed on guesses when one command would make the whole strategy data-driven.
+2. **Once logged in + GSC connected, seed the inventory from real queries first:** `seoagent keywords --seed`. It pulls the site's own impressed queries, enriches them with real volume/difficulty, and labels striking-distance wins — a relevant, winnable starting inventory (no guessing, no junk). This is the **cold-start fix**: don't run `--discover`/`--competitors` on an empty inventory (they return noise — see `references/keyword-research.md`).
+3. **Then layer WebSearch research on top** for whitespace the site doesn't rank for yet, and enrich with `seoagent keywords`.
+4. **No GSC data yet (brand-new site)?** `--seed` will say so — fall back to WebSearch research + `--peek`, and revisit `--seed` once impressions accrue.
+
 ### Cluster Structure (Hub and Spoke)
 
 Each cluster is ~12-15 articles with internal links funneling authority UP to the pillar:
