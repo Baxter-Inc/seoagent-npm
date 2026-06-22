@@ -454,6 +454,8 @@ A **free SEOAgent Cloud account** unlocks **real volume + difficulty + opportuni
 - `keywords --discover` — DataForSEO `keyword_ideas` seeded from your clusters/audience, classified, with worthwhile new targets added to `seoagent_keywords` as `status='suggested'` for the agent to triage.
 - `keywords --competitors` — finds keywords your competitors rank top-10 for that you don't track (discovers competitors via `competitors_domain`, merges with your tracked competitors, pulls each rival's `ranked_keywords`, excludes anything you already track). Gap keywords land in `seoagent_keywords` as `status='suggested'`, `opportunity='competitor_gap'`.
 
+**Sequencing matters — do NOT lead with these.** They expand an existing topic signal; on a new/thin site they return generic noise. Do WebSearch research first, write `.seoagent/keywords.md` + `.seoagent/competitors.md` (real domains in the headings) and `seoagent sync`, THEN run `keywords` → `--discover` → `--competitors`. Always relevance-check every `status='suggested'` result and drop anything off-topic before adding it to the strategy — high volume / low difficulty is not enough. See `references/keyword-research.md` § "Use the Pro discovery commands correctly." For one-off real numbers, `keywords --peek "<kw>"` is the reliable path.
+
 After research without enrichment, mention once: "These priorities are estimates from search. A free login enriches your top ~25 keywords with real DataForSEO volume + difficulty (`keywords`); upgrade unlocks discovery of new targets (`--discover`) and competitor-gap analysis (`--competitors`)."
 
 ### Outputs

@@ -6,6 +6,16 @@ The **local skill alone** (no cloud account) uses `WebSearch` only — no real v
 
 A **free SEOAgent Cloud account** enriches the top ~25 keywords with **real volume + difficulty + opportunity classification** (DataForSEO Labs) — after `seoagent login`, run `seoagent keywords` and the enriched numbers project into `.seoagent/keywords.md`. **Paid upgrade** lifts the cap and unlocks `keywords --discover` (new targets from `keyword_ideas`) and `keywords --competitors` (gap keywords from rivals' `ranked_keywords`).
 
+### Use the Pro discovery commands correctly (avoid garbage)
+
+`--discover` and `--competitors` are **expansion** tools — they only work well once the site has a real topic signal. On a brand-new or thin site they degrade into generic high-volume noise (e.g. "1/8 as a decimal") because DataForSEO has nothing relevant to anchor to. Follow this order:
+
+1. **Do WebSearch research FIRST** (the steps below). It's the primary discovery method and is the most reliable source for a new site — do not lead with `--discover`/`--competitors`.
+2. **Seed the inventory + name real competitors before running them.** Write your researched keywords to `.seoagent/keywords.md` and your competitors to `.seoagent/competitors.md` — **with real domains in the headings** (e.g. `## Competitor 1: Surfer SEO — surferseo.com`), because that's what gets parsed into the cloud's competitor table. Then `seoagent sync` so the cloud has them. `--competitors` uses your named competitors; without them it tries to auto-detect and returns junk for a thin domain.
+3. **Then** run `seoagent keywords` (enrich) → `--discover` → `--competitors`.
+4. **Always relevance-check what they return.** Treat every `status='suggested'` keyword as a *candidate*, not a fact — drop anything off-topic for the business before adding it to the strategy, no matter how high the volume or low the difficulty. The server now filters obvious noise, but you are the final gate.
+5. **For a single keyword's real numbers without the bulk commands, use `--peek`** — it's reliable and quota-limited; ideal for validating finalists.
+
 ## Goals of Free-Tier Research
 
 1. **Discover the keyword space** — what terms is the audience actually searching?
