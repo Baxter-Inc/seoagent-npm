@@ -56,7 +56,7 @@ seoagent init
 ### Option B — One-shot via `npx` (no global install)
 
 ```bash
-npx -y @seoagent-official/seoagent init
+npx -y @seoagent-official/seoagent@latest init
 ```
 
 **Why this way:** nothing global on your machine, every invocation pulls the latest published version. Great for CI / one-off use / trying SEOAgent before committing. Trade-off: every command pays a ~2s npm fetch on cold cache, and Claude Code's Bash calls do the same.
@@ -70,7 +70,7 @@ Either way, `init` will:
 - Install the skill at `.claude/skills/seoagent/SKILL.md` so Claude Code picks it up
 - Add a `PostToolUse` hook to `.claude/settings.json` so edits to `.seoagent/` auto-sync to the cloud (when you're logged in)
 
-The scaffolded sync hook uses `npx -y @seoagent-official/seoagent sync --silent` either way — it's infrastructure that survives your environment changing (so it works even if you later uninstall the global package).
+The scaffolded sync hook uses `npx -y @seoagent-official/seoagent@latest sync --silent` either way — it's infrastructure that survives your environment changing (so it works even if you later uninstall the global package), and the `@latest` pin keeps it from getting stuck on a stale npx-cached version.
 
 Then open Claude Code in this repo and say *"audit my site."* The skill takes it from there.
 
@@ -111,7 +111,7 @@ seoagent init --yes --domain example.com
 Via npx:
 
 ```bash
-npx -y @seoagent-official/seoagent init --yes --domain example.com
+npx -y @seoagent-official/seoagent@latest init --yes --domain example.com
 ```
 
 ## Why SEOAgent?
@@ -261,7 +261,7 @@ Three things to notice:
 
 ## CLI Commands (all 22)
 
-Grouped by what they're for. Run as bare `seoagent <cmd>` after the one-time `npm install -g @seoagent-official/seoagent`. (Or `npx -y @seoagent-official/seoagent <cmd>` for a one-shot CI invocation.)
+Grouped by what they're for. Run as bare `seoagent <cmd>` after the one-time `npm install -g @seoagent-official/seoagent`. (Or `npx -y @seoagent-official/seoagent@latest <cmd>` for a one-shot CI invocation.)
 
 **Setup + lifecycle**
 
@@ -313,12 +313,12 @@ Grouped by what they're for. Run as bare `seoagent <cmd>` after the one-time `np
 
 ## Auto-Sync Hook
 
-`init` writes two hooks to `.claude/settings.json`, both running `npx -y @seoagent-official/seoagent sync --silent`:
+`init` writes two hooks to `.claude/settings.json`, both running `npx -y @seoagent-official/seoagent@latest sync --silent`:
 
 - a **`SessionStart`** hook — runs at the start of every Claude Code session, **before** Claude reads the skill, so the skill is always current (this is what makes a CLI upgrade take effect on your *next* session);
 - a **`PostToolUse`** (`Write|Edit`) hook — keeps `.seoagent/` synced as the agent edits during a session.
 
-The hooks deliberately use the `npx -y` form (not bare `seoagent`) so they survive `npm uninstall -g` and stay current with whatever's published. No-op when not logged in. Race-safe: a cooperative lock keeps a manual `seoagent sync` from clobbering an in-flight hook run. Both run the same `sync`, which **auto-refreshes the installed skill** when the CLI is newer than the project's `skill_version` — rewriting only the skill bundle, never `.seoagent/`.
+The hooks deliberately use the `npx -y …@latest` form (not bare `seoagent`) so they survive `npm uninstall -g` **and actually stay current** — pinning `@latest` forces npx to re-resolve the newest version each run instead of silently reusing a stale `~/.npm/_npx` cache. No-op when not logged in. Race-safe: a cooperative lock keeps a manual `seoagent sync` from clobbering an in-flight hook run. Both run the same `sync`, which **auto-refreshes the installed skill** when the CLI is newer than the project's `skill_version` — rewriting only the skill bundle, never `.seoagent/`.
 
 ## SEOAgent Cloud
 
@@ -332,7 +332,7 @@ The free skill handles audits, strategy, briefs, articles, and persistent state 
 - **Team collaboration** — Invite members, share strategy, coordinate publishing
 - **Cloud dashboard** — See everything Claude Code did at seoagent.com (also free with any account)
 
-Run `seoagent login` (or `npx -y @seoagent-official/seoagent login`) for the free dashboard, or `seoagent upgrade` for paid features.
+Run `seoagent login` (or `npx -y @seoagent-official/seoagent@latest login`) for the free dashboard, or `seoagent upgrade` for paid features.
 
 ## Pattern Note
 
