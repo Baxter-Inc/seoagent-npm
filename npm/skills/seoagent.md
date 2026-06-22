@@ -494,6 +494,12 @@ Articles need a working place to live before they're worth generating. The good 
 
 SEOAgent Cloud *hosting* (option C below) exists only as a convenience for users who have **no** content home and no engineering resources — it is NOT the default. Never lead with it.
 
+> **Guardrail — the "DB-backed / headless blog with no repo files" trap.** Some sites have a blog *route* (`app/blog/[slug]/page.tsx`, `/posts/[slug]`, …) that renders rows from a **database or headless store** — the app's own Postgres/Supabase, an internal admin API, a headless setup — while the **repo contains no content files** for it. When you find this, an existing route + a live `/blog` does NOT mean you've found the publishing path. Do **NOT**:
+> - **write directly into that production database** (e.g. an `INSERT` via an MCP/SQL tool) — that's not how the app publishes, it bypasses every safeguard, and it's usually read-only anyway; and
+> - **assume SEOAgent Cloud (or a "dashboard") will publish it** — the cloud does not publish to the user's own site. Never invent a publishing mechanism you haven't verified.
+>
+> Instead, **the default recommendation is to make the blog repo-native: add a git-based Markdown/MDX content collection** (option A) — a `content/blog/` dir the route reads from — so publishing becomes a reviewed commit, no extra services. If the user would rather keep the DB/headless setup, **ask them how a post actually gets created** (which API endpoint or command produces a live page) and record it as option B / `other` — never guess. When a site has no working content home at all, **recommend creating a Markdown collection as the default**, ahead of adopting a CMS or the cloud.
+
 **Trigger this section when:**
 - Phase 1 raised a `critical` `upstream_dependency_unreachable` or `page_renders_empty` finding on a content path (e.g., `/blog`, `/docs`, `/resources`)
 - `project.md` has no `cms` and no `blog_path`, and the user wants to start publishing
@@ -507,6 +513,7 @@ Figure out the destination from the codebase first (you usually already know it 
 The site renders content from files in this repo (Next.js `content/`, Astro `src/content/`, a `_posts/` dir, MDX routes, a static-site generator, etc.).
 
 - **How you publish:** **Read an existing published article first** to learn the exact location, filename convention, and frontmatter shape this site expects. Then write `.seoagent/content/{slug}.md`'s content into a new file in that same location, matching that frontmatter exactly (their field names, their date format, their tags). Inject internal links + image refs. If a route/sitemap entry is needed and missing, add it.
+- **First post / just-converted blog (no existing file to copy):** if the content dir is empty — a brand-new blog, or one you're converting from a DB/headless source per the guardrail above — define a simple frontmatter convention yourself (`title`, `description`, `date`, `tags`, `slug`) and, if the route doesn't yet read from files, scaffold the loader + route to read the content dir (this is the one-time setup task in "After the user picks", tracked with `setup_status: pending` until it deploys).
 - **Ship it the way the repo ships:** open a PR (or commit to a branch) so the user's existing CI/CD deploys it. Never push straight to the default branch without asking.
 - **Best for:** any site whose content is in version control. This is the most common case and the highest-control path.
 
