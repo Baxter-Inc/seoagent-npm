@@ -1,5 +1,11 @@
 {
   "name": "seoagent-cli-bootstrap",
   "description": "Install SEOAgent via npm and run guided init; full skill + .seoagent/ land in the project.",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "author": {
+    "name": "SEOAgent",
+    "url": "https://seoagent.com"
+  },
+  "homepage": "https://seoagent.com",
+  "license": "MIT"
 }

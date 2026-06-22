@@ -9,7 +9,8 @@
   "files": [
     "index.js",
     "skills",
-    "assets"
+    "assets",
+    "LICENSE"
   ],
   "engines": {
     "node": ">=18"
@@ -29,6 +30,12 @@
     "claude-code",
     "claude-skill",
     "claude-agent",
+    "agent-skill",
+    "agent-skills",
+    "anthropic",
+    "codex",
+    "cursor",
+    "windsurf",
     "ai-agent",
     "ai-seo",
     "aeo",

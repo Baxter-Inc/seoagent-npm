@@ -1,0 +1,14 @@
+{
+  "name": "seoagent-cli-bootstrap",
+  "version": "1.0.0",
+  "description": "Install SEOAgent via npm and run guided init; full skill + .seoagent/ land in the project.",
+  "author": {
+    "name": "SEOAgent",
+    "url": "https://seoagent.com"
+  },
+  "homepage": "https://seoagent.com",
+  "repository": "https://github.com/Baxter-Inc/seoagent-npm",
+  "license": "MIT",
+  "keywords": ["seo", "agent-skill", "claude-skill", "codex", "ai-seo", "aeo", "geo"],
+  "skills": "./skills/"
+}

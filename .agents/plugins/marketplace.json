@@ -1,0 +1,19 @@
+{
+  "name": "seoagent-official",
+  "interface": {
+    "displayName": "SEOAgent"
+  },
+  "plugins": [
+    {
+      "name": "seoagent-cli-bootstrap",
+      "source": {
+        "source": "local",
+        "path": "./plugins/seoagent-cli-bootstrap"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

@@ -74,10 +74,26 @@ The scaffolded sync hook uses `npx -y @seoagent-official/seoagent sync --silent`
 
 Then open Claude Code in this repo and say *"audit my site."* The skill takes it from there.
 
-<!-- Claude Code marketplace install is wired (the mirror serves the plugin
-     tree) but intentionally NOT documented here yet — holding promotion
-     until the plugin-install → init flow is validated end-to-end. Restore
-     the marketplace install section once that's confirmed. -->
+### Option C — Plugin marketplace (Claude Code or Codex)
+
+Prefer to discover and install from inside your agent? SEOAgent ships a plugin marketplace. The plugin is a thin **bootstrap**: installing it adds a `seoagent-cli-setup` skill that walks the agent through the one-time npm `init` above — which lands the full skill bundle + `.seoagent/` workspace. So you still end up in the same place as Options A/B; this is just a discovery path.
+
+**Claude Code:**
+
+```text
+/plugin marketplace add Baxter-Inc/seoagent-npm
+/plugin install seoagent-cli-bootstrap@seoagent-official
+```
+
+**Codex** (requires a Codex version with plugin support):
+
+```bash
+codex plugin marketplace add Baxter-Inc/seoagent-npm
+# then open the plugins list and install SEOAgent:
+codex /plugins
+```
+
+Then tell the agent *"set up SEOAgent"* — it runs `init`, installing the skill to `.claude/skills/seoagent/` (Claude Code) or `.agents/skills/seoagent/` (Codex / Cursor), symlinking the other location so both agents discover it.
 
 <!-- `npx skills add Baxter-Inc/seoagent-npm` is also wired (build.ts step 6b
      emits skills/seoagent/SKILL.md at the mirror root for the Vercel `npx skills`
