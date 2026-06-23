@@ -516,7 +516,8 @@ Figure out the destination from the codebase first (you usually already know it 
 
 The site renders content from files in this repo (Next.js `content/`, Astro `src/content/`, a `_posts/` dir, MDX routes, a static-site generator, etc.).
 
-- **How you publish:** **Read an existing published article first** to learn the exact location, filename convention, and frontmatter shape this site expects. Then write `.seoagent/content/{slug}.md`'s content into a new file in that same location, matching that frontmatter exactly (their field names, their date format, their tags). Inject internal links + image refs. If a route/sitemap entry is needed and missing, add it.
+- **How you publish:** **Read an existing published article first** to learn the exact location, filename convention, and frontmatter shape this site expects. Then write the article **directly into a new file in that same location** (Phase 4 step 7), matching that frontmatter exactly (their field names, their date format, their tags). Inject internal links + image refs. If a route/sitemap entry is needed and missing, add it. **The repo file is the single source of truth for the body** — do NOT also write a full-body copy into `.seoagent/`.
+- **Register it so the cloud sees it:** after the repo file is written, run `seoagent content track --slug {slug} --url https://{domain}{blog_path}/{slug} --file {path}` (Phase 4 step 7). That's what makes the article appear on the dashboard — `sync` only walks `.seoagent/`, so a repo-only article is otherwise invisible to the cloud. The track record is a pointer, not a duplicate.
 - **First post / just-converted blog (no existing file to copy):** if the content dir is empty — a brand-new blog, or one you're converting from a DB/headless source per the guardrail above — define a simple frontmatter convention yourself (`title`, `description`, `date`, `tags`, `slug`) and, if the route doesn't yet read from files, scaffold the loader + route to read the content dir (this is the one-time setup task in "After the user picks", tracked with `setup_status: pending` until it deploys).
 - **Ship it the way the repo ships:** open a PR (or commit to a branch) so the user's existing CI/CD deploys it. Never push straight to the default branch without asking.
 - **Best for:** any site whose content is in version control. This is the most common case and the highest-control path.
@@ -525,7 +526,7 @@ The site renders content from files in this repo (Next.js `content/`, Astro `src
 
 The site pulls content from a CMS. You don't need a SEOAgent adapter — **read how the repo already talks to the CMS** (the existing fetch/SDK code, the env var names) and mirror it to *create* a post.
 
-- **How you publish:** find the CMS client/credentials the app already uses (`.env*`, an SDK import, an API base). Map the article (`title`, `slug`, body, meta, canonical, JSON-LD) to that CMS's content model and create the entry — print the exact `curl`/SDK call for the user to run, or, with explicit consent, run it yourself using their existing credentials. Confirm the post is a draft vs. published per the user's preference.
+- **How you publish:** find the CMS client/credentials the app already uses (`.env*`, an SDK import, an API base). Map the article (`title`, `slug`, body, meta, canonical, JSON-LD) to that CMS's content model and create the entry — print the exact `curl`/SDK call for the user to run, or, with explicit consent, run it yourself using their existing credentials. Confirm the post is a draft vs. published per the user's preference. The CMS holds the body; **then `seoagent content track --slug {slug} --url {live-url}` so the dashboard tracks it** (the cloud can't see your CMS).
 - **Mapping starting points:** Strapi → `POST /api/articles` `{data:{…}}`. Sanity → `client.create({_type:'post',…})`. Contentful → Management API `createEntry`. Webflow → `POST /collections/:id/items`. Shopify → `POST /admin/api/.../articles.json`. Ghost → Admin API `posts.add`. WordPress → `POST /wp-json/wp/v2/posts`. For anything unfamiliar, ask the user once how a post gets created, then store the mapping in `project.md` so future articles are one step.
 - **Best for:** teams with an existing CMS — keep it, just get SEOAgent's content into it.
 
@@ -655,7 +656,15 @@ After writing, run `seoagent sync`.
 4. **Read the matching page-type reference** for the article's `role` / `page_type`. The reference file gives the title pattern, section ordering, internal-linking rules, metadata defaults, and JSON-LD schema for that type.
 5. Read `references/schema-markup.md` if you need JSON-LD examples beyond what the page-type reference covers.
 6. Follow the outline. Apply the writing rules.
-7. Write to `.seoagent/content/{slug}.md` with full SEO frontmatter (slug, page_type, title, meta_title, meta_description, canonical, og, twitter, json_ld, images, internal_links).
+7. **Write the article where it actually renders — and keep ONE source of truth** (this depends on `publishing.strategy`, see the Publishing Target Decision section):
+   - **Repo-native (`mdx_sync`) or CMS (`custom`)** — the article body lives in the repo file / CMS entry, NOT in `.seoagent/`. Write it there (matching the site's existing frontmatter/model), then **register it so the cloud + dashboard can see it**:
+
+     ```bash
+     seoagent content track --slug {slug} --url https://{domain}{blog_path}/{slug} --file {repo-or-cms-path} --type {page_type} --title "..."
+     ```
+
+     `content track` writes a small **pointer** record to `.seoagent/content/{slug}.md` (slug, title, canonical, status, source) and syncs it — so the dashboard shows the article **without duplicating the body**. Do NOT also hand-write a full-body `.seoagent/content/{slug}.md`; that's the old dual-write that drifts.
+   - **Cloud-hosted (`managed_proxy` / `subdomain`)** — the SEOAgent cloud renders the article, so the body DOES live in `.seoagent/`: write the full article to `.seoagent/content/{slug}.md` with full SEO frontmatter (slug, page_type, title, meta_title, meta_description, canonical, og, twitter, json_ld, images, internal_links) and `seoagent sync`. (No `content track` needed — the full file is the record.)
 8. **Update the cluster's link graph** — for sub_pillar/long_tail writes, edit the parent (and the cluster file) to add the new link UP. For pillar writes, ensure all sub_pillars are referenced.
 
 ### Image Generation (Free Tier)
