@@ -220,6 +220,8 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
 
 **Every session starts here.** Before doing any SEO work:
 
+0. **Run `seoagent doctor` first** (when `.seoagent/` exists). It's a fast, local health check that surfaces exactly what the steps below ask you to remember — an untriaged pull receipt, `domain`/`site_type: unknown`, and an image-provider key that's present but not enabled. Use `seoagent doctor --json` if you want to branch on the findings programmatically. Treat each `action` finding as a to-do for the steps below; if it reports healthy, continue. This is the deterministic backstop so none of the checks get skipped.
+
 1. Check if `.seoagent/project.md` exists.
    - **If yes**: Read it (frontmatter has `domain`, `site_type`, optional `image_provider`, optional `publishing`). Read `.seoagent/roadmap.md` if present. Summarize in one sentence: "You have an SEO project for {domain}. Next priority: {top item from roadmap}."
    - **If no**: Check the repo for signals to infer domain and site type, then create the project files.
