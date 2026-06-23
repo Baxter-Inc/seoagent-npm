@@ -38,7 +38,7 @@
 
 > **This package is a one-shot scaffolder, not a runtime dependency.** Run `init` once to scaffold `.seoagent/` + the Claude Code skill in your repo. Nothing to keep in `package.json` afterwards. No `postinstall` script — installs are silent and play nicely with npm 11+.
 >
-> **Upgrading is hands-off.** When a newer CLI is published, the next time you open Claude Code, the session-start hook surfaces a notice and Claude can offer to run `seoagent update-cli` — which updates the binary **and** refreshes every project on your machine to it in one go. Prefer to do nothing? Each project also self-updates on its own the next time you open it (the `SessionStart` hook runs `seoagent sync` before the skill loads). Refreshes only rewrite the skill files; your `.seoagent/` knowledge is never touched. (No more `rm -rf .seoagent && seoagent init`.) Run `seoagent refresh --all` anytime to sweep every project yourself.
+> **Upgrading is hands-off.** When a newer CLI is published, the next time you open Claude Code, the session-start hook surfaces a notice and Claude can offer to run `seoagent update-cli` — which updates the binary **and** refreshes every project on your machine to it in one go. Prefer to do nothing? Each project also self-updates on its own the next time you open it (the `SessionStart` hook runs `seoagent sync` before the skill loads). Refreshes rewrite the skill files and re-scan your codebase for newly-added pages (merged into `.seoagent/pages.md` without touching your edits); nothing else in `.seoagent/` is changed. (No more `rm -rf .seoagent && seoagent init`.) Run `seoagent refresh --all` anytime to sweep every project yourself — that's also the way to re-discover pages you've added since setup.
 
 ## Install — pick one
 
