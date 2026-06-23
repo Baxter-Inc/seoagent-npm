@@ -135,6 +135,8 @@ backlog: 26
 - "technical seo audit checklist" — backlog under technical-seo cluster
 ```
 
+> **⚠️ `keywords.md` is parsed by a strict machine format — write keyword phrases ONLY.** After each `**…:**` label, write a plain comma-separated list of keyword *phrases* and nothing else. **Do NOT inline volume, KD/difficulty, intent, stars, or notes into this file** — the parser splits on commas and persists every fragment as a keyword, so `**Pillar keyword:** ai seo tools — vol 2400, KD 10` becomes the junk keywords `KD 10` and `ai seo tools — vol 2400` in the cloud. Put all metrics, analysis, and commentary in `strategy/discovery.md` or the cluster files instead. In the Unclustered list, a short ` — annotation` after the phrase is fine (it's stripped), but keep the phrase itself clean. Once you've run `seoagent keywords` (cloud enrichment), `keywords.md` becomes a **read-only projection** (`generated: true`) — don't hand-edit it then; clear discovery noise with `seoagent keywords --purge`.
+
 ### Step 6: Cluster the Keywords
 
 Group keywords into clusters with role assignments:

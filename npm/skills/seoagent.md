@@ -468,6 +468,8 @@ A **free SEOAgent Cloud account** unlocks **real volume + difficulty + opportuni
 - `keywords --discover` — DataForSEO `keyword_ideas` seeded from your clusters/audience, classified, with worthwhile new targets added to `seoagent_keywords` as `status='suggested'` for the agent to triage.
 - `keywords --competitors` — finds keywords your competitors rank top-10 for that you don't track (discovers competitors via `competitors_domain`, merges with your tracked competitors, pulls each rival's `ranked_keywords`, excludes anything you already track). Gap keywords land in `seoagent_keywords` as `status='suggested'`, `opportunity='competitor_gap'`.
 
+> **Cleaning up suggested noise.** `--discover` / `--competitors` add `status='suggested'` rows; on a thin or new site some are off-topic. **Relevance-check every suggested keyword and drop anything off-topic** — high volume / low difficulty is not enough. To clear the noise from the cloud inventory, run `seoagent keywords --purge` (removes only `suggested` rows; your clustered keywords are kept). `--purge --all` resets the whole inventory.
+
 **Sequencing matters — do NOT lead with these.** They expand an existing topic signal; on a new/thin site they return generic noise. Do WebSearch research first, write `.seoagent/keywords.md` + `.seoagent/competitors.md` (real domains in the headings) and `seoagent sync`, THEN run `keywords` → `--discover` → `--competitors`. Always relevance-check every `status='suggested'` result and drop anything off-topic before adding it to the strategy — high volume / low difficulty is not enough. See `references/keyword-research.md` § "Use the Pro discovery commands correctly." For one-off real numbers, `keywords --peek "<kw>"` is the reliable path.
 
 After research without enrichment, mention once: "These priorities are estimates from search. A free login enriches your top ~25 keywords with real DataForSEO volume + difficulty (`keywords`); upgrade unlocks discovery of new targets (`--discover`) and competitor-gap analysis (`--competitors`)."
@@ -475,9 +477,11 @@ After research without enrichment, mention once: "These priorities are estimates
 ### Outputs
 
 - `.seoagent/strategy/clusters/{cluster-slug}.md` — one per cluster, includes article table + link graph
-- `.seoagent/strategy/discovery.md` — top opportunities, competitor gaps, cluster index
+- `.seoagent/strategy/discovery.md` — top opportunities, competitor gaps, cluster index. **All metrics + analysis go here**, not in `keywords.md`.
 - `.seoagent/competitors.md` — competitor profiles persisted across sessions
 - `.seoagent/keywords.md` — master keyword inventory (assigned + backlog)
+
+> **⚠️ `keywords.md` is a strict machine-parsed file — keyword phrases ONLY.** After each `**Pillar keyword:** / **Sub-pillar keywords:** / **Long-tail (...):**` label, write a plain comma-separated list of keyword phrases. **Never inline volume / KD / difficulty / intent / notes / stars into this file** — the parser splits on commas and turns every fragment into a keyword, so `ai seo tools — vol 2400, KD 10` is persisted as the junk keywords `KD 10` etc. Put numbers and commentary in `strategy/discovery.md` or the cluster files. After you run `seoagent keywords` (cloud enrichment), `keywords.md` becomes a **read-only projection** — stop hand-editing it; clear discovery noise with `seoagent keywords --purge`. See `references/keyword-research.md` Step 5.
 
 After writing, run `seoagent sync`.
 
@@ -797,6 +801,8 @@ Append-only log. One line per action.
 ### `.seoagent/pages.md`, `.seoagent/competitors.md`, `.seoagent/keywords.md`
 
 Persisted research artifacts so each phase compounds. Format: frontmatter with `last_updated_at`, body with markdown tables / sections.
+
+> **`keywords.md` + `pages.md` are machine-parsed — and become cloud-owned.** `keywords.md` uses the strict `## Cluster:` / `**Pillar keyword:** kw1, kw2` format (keyword phrases only — no inline metrics; see Phase 2 Outputs). After the first `seoagent keywords` enrichment (and for `pages.md`, after the cloud regenerates it), these files carry `generated: true` and are **read-only projections of cloud state** — edits get overwritten on the next `seoagent pull`. Don't hand-edit a `generated: true` file; use the dashboard, or `seoagent keywords --purge` to clear keyword noise.
 
 ### Authentication
 
