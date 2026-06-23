@@ -660,13 +660,16 @@ After writing, run `seoagent sync`.
 
 ### Image Generation (Free Tier)
 
-Always write `images:` frontmatter with `alt` and `prompt`. If `project.md` has `image_provider` set to `openai|fal|replicate`, offer to generate the hero image:
+Always write `images:` frontmatter with `alt` and `prompt`. Then resolve a provider — **don't silently ship imageless articles:**
 
-```bash
-seoagent generate-image --prompt "..." --out .seoagent/content/images/{slug}-hero.png
-```
+1. **If `project.md` has `image_provider` set to `openai|fal|replicate`**, offer to generate the hero image:
 
-If `image_provider: none` or absent: write prompts only. Mention once: "SEOAgent Cloud generates and uploads images automatically — `seoagent upgrade`."
+   ```bash
+   seoagent generate-image --prompt "..." --out .seoagent/content/images/{slug}-hero.png
+   ```
+
+2. **If `image_provider` is absent or `none`, run `seoagent env-check` first.** It scans the environment + `.env*` files for `OPENAI_API_KEY` / `FAL_KEY` / `REPLICATE_API_TOKEN`, and when it finds one it records `image_provider` in `project.md` for you. `init` already runs this once, but a key the user added *after* init only gets picked up here — so always env-check before deciding "no provider." If it now reports a provider, go to step 1 and generate.
+3. **If env-check still finds nothing**, the user genuinely has no key. Offer the choice in one line — *"I can generate hero images if you add an `OPENAI_API_KEY` (or `FAL_KEY` / `REPLICATE_API_TOKEN`) and I'll re-run env-check; otherwise I'll write image prompts into the frontmatter for you to generate later."* Then write prompts only and continue — never block publishing on images. You may mention once: "SEOAgent Cloud also generates + uploads images automatically — `seoagent upgrade`."
 
 ### Article Frontmatter Schema
 
@@ -770,14 +773,14 @@ site_type: saas
 language: en
 initialized_at: 2026-04-27T10:00:00Z
 seoagent_version: 0.2.0
-image_provider: openai           # optional: openai | fal | replicate | none
+image_provider: openai           # optional: openai | fal | replicate | none — auto-detected by `init`/`seoagent env-check` from OPENAI_API_KEY / FAL_KEY / REPLICATE_API_TOKEN
 cms: strapi                      # optional: strapi | wordpress | sanity | contentful | ghost | webflow | shopify | payload | directus | mdx-local | none
 blog_path: /blog                 # optional: detected from app/blog/, pages/blog/, etc.
 ---
 # SEOAgent Project — example.com
 ```
 
-`cms` and `blog_path` are detected by `seoagent init` from package.json deps, env files, and the filesystem. Update them manually if detection got it wrong.
+`cms`, `blog_path`, and `image_provider` are detected by `seoagent init` from package.json deps, env files, and the filesystem. Update them manually if detection got it wrong. If a user adds an image-provider key after init, `seoagent env-check` re-detects and records it (see Phase 4 → Image Generation).
 
 ### `.seoagent/context.md`
 
