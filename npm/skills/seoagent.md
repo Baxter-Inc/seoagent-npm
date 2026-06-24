@@ -237,6 +237,10 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
 
 2. **Check for a pull receipt.** If `.seoagent/.pull-receipt.json` exists, a previous `seoagent pull` (manual, autosync hook, or cron) brought down cloud changes that no agent has triaged yet. Handle it **before any SEO work** — see "### Pull Receipt Triage" below — then delete the receipt file.
 
+   > **Content tracking is automatic — you don't run a backstop.** Every `seoagent sync` (including the PostToolUse hook that fires after each file write) auto-tracks any *published* (`draft: false`) article in your content dir that doesn't have a pointer yet. So writing an article locally registers it on the dashboard with no extra step. The one thing that bootstraps this: the **first** article in a repo must be tracked explicitly with `seoagent content track --slug <s> --file <path>` (Phase 4 step 7) — that records the content dir, and from then on every later article auto-tracks on sync. To **clean up** drift that predates this (untracked legacy articles, or a stale pointer whose source file is gone), run `seoagent content reconcile --prune` once — it backfills all missing pointers and deletes dead ones. If `seoagent status`'s "articles" count ever disagrees with the live count, that's the command.
+   >
+   > **Cluster-status drift (same root cause).** Cluster files in `.seoagent/strategy/clusters/` carry a per-article `status`. When you wrote an article you set it `drafted`/`in review` — but nothing advances it once the article ships, so old `IN REVIEW (PR #…)` labels linger after the PR merges. When you read the clusters, reconcile them against reality: if a cluster lists an article as `drafted`/in-review but it's live in the repo (`draft: false`, no open PR — or it has a `content reconcile` pointer), `Edit` the cluster file to mark it `published` (or `live`). The strategy should always reflect what's actually shipped.
+
 3. Read `.seoagent/context.md` if it exists. This contains business context, writing instructions, tone, topics to avoid, and reference URLs. **Apply this context to all strategy, brief, and article generation** throughout the session.
 
 4. Check what `.seoagent/` state exists and recommend the next step. After every step, ask `Continue? (y/n)` before progressing — never run two phases in one turn without explicit confirmation. Within a phase, run all sub-steps automatically.
@@ -462,6 +466,8 @@ Each cluster is ~12-15 articles with internal links funneling authority UP to th
 
 The role enum is `PILLAR | SUB_PILLAR | LONG_TAIL` — these match the SEOAgent cloud schema so syncing is lossless.
 
+> **Writing order — pillars to plant the hubs, then DEPTH before breadth.** Write each cluster's PILLAR first so every topic has its hub. But once the pillars exist, **complete one cluster before opening the next** — finish the spokes of your single highest-priority cluster rather than scattering one or two articles across all of them. A *complete* hub-and-spoke cluster is what signals topical authority and lifts the whole cluster's rankings; three half-built clusters dilute that signal and leave every topic shallow. Choose which cluster to finish by **ICP fit × easy-win density** (the cluster whose audience is your actual customer and whose keywords are lowest-difficulty), not by what's most fun to write. Only start the next cluster once the current one's spokes are essentially done. When you summarize "what's next", recommend the specific cluster to finish, not a scatter of articles.
+
 ### Free-Tier Limit (and the cloud enrichment path)
 
 The **local skill alone** (no cloud account) uses `WebSearch` only for keyword discovery — no real volumes, no difficulty scores in bulk. Use **H/M/L priority** (high / medium / low). Don't invent numerical scores.
@@ -670,6 +676,8 @@ After writing, run `seoagent sync`.
      ```
 
      `content track` writes a small **pointer** record to `.seoagent/content/{slug}.md` (slug, title, canonical, status, source) and syncs it — so the dashboard shows the article **without duplicating the body**. Do NOT also hand-write a full-body `.seoagent/content/{slug}.md`; that's the old dual-write that drifts.
+
+     > **After the first article, tracking is automatic.** The explicit `content track --file` above is required only for the **first** article in a repo — it records the content dir. Every later article you write is auto-tracked by the next `seoagent sync` (which the PostToolUse hook runs after each write), so you never have to remember a per-article call or run a backstop. (If you ever need to force a sweep — e.g. cleaning up legacy untracked articles — `seoagent content reconcile --prune` does it.)
    - **Cloud-hosted (`managed_proxy` / `subdomain`)** — the SEOAgent cloud renders the article, so the body DOES live in `.seoagent/`: write the full article to `.seoagent/content/{slug}.md` with full SEO frontmatter (slug, page_type, title, meta_title, meta_description, canonical, og, twitter, json_ld, images, internal_links) and `seoagent sync`. (No `content track` needed — the full file is the record.)
 8. **Update the cluster's link graph** — for sub_pillar/long_tail writes, edit the parent (and the cluster file) to add the new link UP. For pillar writes, ensure all sub_pillars are referenced.
 
