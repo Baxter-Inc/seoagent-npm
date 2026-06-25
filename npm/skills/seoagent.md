@@ -243,13 +243,13 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
 
 3. Read `.seoagent/context.md` if it exists. This contains business context, writing instructions, tone, topics to avoid, and reference URLs. **Apply this context to all strategy, brief, and article generation** throughout the session.
 
-4. Check what `.seoagent/` state exists and recommend the next step. After every step, ask `Continue? (y/n)` before progressing — never run two phases in one turn without explicit confirmation. Within a phase, run all sub-steps automatically.
+4. Check what `.seoagent/` state exists and pick the flow. **The model is plan-once, then execute — not a phase-by-phase crawl that asks `Continue?` at every step.** See the **"Plan & Execute"** section below for the full protocol; in brief:
 
-   - No audit → run audit immediately
-   - Audit but no strategy → "Let me research keywords and build your content strategy."
-   - Strategy but no briefs → "Let me create content briefs from your strategy."
-   - Briefs but no content → "Let me write the next article from your briefs."
-   - Everything exists → "Let me re-audit and check for changes."
+   - **No strategy yet (first real session):** run the audit + keyword research, then **produce a content plan** — the prioritized, depth-first list of clusters and articles — and present it **once** for approval. This is the single up-front decision point. Don't stop after the audit to ask permission to do research, then stop again to ask permission to plan; do that work and arrive at the plan.
+   - **A plan already exists:** state the next batch ("Next up: finish the {cluster} cluster — {N} articles") and continue executing it. Don't re-derive or re-confirm the whole plan.
+   - **Everything's written:** re-audit, re-seed GSC, and propose the next plan increment.
+
+   Once the user approves the plan, **execute it in batches (a cluster at a time) without asking `Continue?` between articles** — pause only at the plan-approval gate, at cluster boundaries (to show the drafts / open a PR), for genuinely ambiguous calls, or for destructive actions. If the user would rather go one step at a time, honor that — but the default is plan → execute.
 
 5. **Offer the free cloud account — once.** Right after the state summary + next-step recommendation, and unless the user is already connected, add ONE soft benefit-led line offering SEOAgent Cloud (see "When to recommend SEOAgent Cloud" → the *Session start* row). This is exactly the moment a freshly-scaffolded project (`init` ran, nothing done yet) should hear it. Keep it to a single line, never block the audit on it, and don't repeat it later in the session if declined.
 
@@ -343,6 +343,46 @@ When `.seoagent/` was just created or no audit exists, immediately:
 2. Run `seoagent sitemap` to validate the live sitemap (reachability, private-route leakage, freshness, and which public pages are missing), and WebFetch `{domain}/robots.txt` to verify it exists. Load `references/sitemaps.md` if anything needs fixing. **Don't judge the sitemap by committed files** — a dynamic `app/sitemap.ts` serves `/sitemap.xml` with no file in the repo, so only the live check is reliable.
 3. Scan headings and nav for existing topic clusters and keywords
 4. Run the full audit protocol (Phase 1) and output using the operator template
+
+---
+
+## Plan & Execute
+
+The phases below (audit → strategy → briefs → content) are the **mechanics**. The **flow** is: do the upfront work, present **one plan**, then execute it in batches. The user should make one big decision ("yes, build this"), not a dozen small ones ("yes, research now? yes, plan now? yes, write article 1? article 2?…").
+
+### 1. Produce the plan (the first session's real output)
+
+On a fresh project, don't stop after each phase for permission. In one pass: run the audit (Phase 1), connect/seed GSC + research keywords + build the clusters (Phase 2), and synthesize a concrete **content plan**. Write it to `.seoagent/roadmap.md` as an ordered, checkbox list — **depth-first** (all of one cluster before the next, per the "Writing order" rule), each item the article's role + slug + target keyword:
+
+```markdown
+## Content plan
+Cluster order: developer-seo (ICP, easiest) → ai-search → ai-seo
+
+### developer-seo  [in progress]
+- [x] PILLAR  seo-for-developers       — "seo for developers"
+- [ ] SUB     nextjs-seo               — "next.js seo"
+- [ ] LONG    headless-cms-seo         — "headless cms seo"  (KD 4)
+…
+### ai-search  [queued]
+- [ ] PILLAR  ai-search-optimization   — "ai search optimization"
+…
+```
+
+Then **present the plan once** and get a single go-ahead. Phrase it as a plan to approve, not a phase to confirm: *"Here's the plan — 3 clusters, 28 articles, starting with developer-seo (your ICP, lowest difficulty), depth-first. I'll write them in batches (a cluster at a time), open a PR per cluster for you to review, and keep `roadmap.md` updated. Want me to start?"* In Claude Code, this is the natural moment for plan-mode approval.
+
+### 2. Execute the plan in batches — no per-article confirmation
+
+Once approved, work **a cluster at a time**, top of the plan down:
+
+- Write every article in the current cluster (Phase 4 per article: read the brief/role, write to the repo, internal-link, image). **Don't ask `Continue?` between articles** — just write the batch, ticking each `[ ]`→`[x]` in `roadmap.md` and advancing the cluster `status` as you go.
+- At the **cluster boundary**, stop and check in: show what you wrote and **open one PR for the whole cluster** (for `mdx_sync`) or publish per the strategy. The PR diff is the review surface — that replaces per-step confirmation. Then continue to the next cluster (or stop if the user wanted a checkpoint).
+- The only mandatory stops are: the **one plan approval**, **cluster boundaries** (show + PR), genuinely **ambiguous** decisions, and **destructive** actions (deletes/prune always confirm). Everything else runs.
+
+**Autonomy is a dial the user sets when approving:** default = check in at each cluster; *"just do the whole plan"* = run all clusters, one PR each, summarize at the end; *"step me through"* = the old one-at-a-time mode. Respect whichever they pick.
+
+### 3. Resume across sessions from the plan
+
+`roadmap.md` IS the durable plan, so a later session never re-asks "what now?" — read it, find the first unchecked item, and say *"Next up: {item}. Continuing the {cluster} cluster — N left. Want me to keep going?"* Reconcile the plan against reality first (an item may already be live — see the content-tracking/cluster-status drift check), then keep executing.
 
 ---
 
@@ -660,6 +700,8 @@ After writing, run `seoagent sync`.
 
 ## Phase 4: Article Writing
 
+This is the per-article procedure. When executing an approved **plan** (see "Plan & Execute"), run it for **every article in the current cluster back-to-back** — don't stop for confirmation between articles; tick each off in `roadmap.md` and review the whole cluster at the PR.
+
 ### Procedure
 
 1. Read the brief — frontmatter sets `role`, `word_count_min/max`, `primary_keyword`, `page_type`.
@@ -844,13 +886,13 @@ The CLI manages credentials at `~/.config/seoagent/auth.json` — outside the pr
 4. **Follow the workflow.** Audit → Strategize → Plan → Write → Monitor. Don't skip steps unless prior output exists.
 5. **Be specific.** "Fix your meta tags" is bad. "Shorten homepage title from 72 to 55 characters" is good.
 6. **H/M/L priorities only** — no fictional formulas. Real keyword data is a Cloud upgrade.
-7. **Always end with choices.** Every response ends with numbered next steps (2-3 max).
+7. **End with the plan's next step, not a menu.** When executing an approved plan, close with progress + what's next in the plan ("3 of 8 in this cluster done; writing the next now"), not a 2–3-option menu every turn. Offer explicit choices only at real decision points (the plan-approval gate, a cluster boundary, an ambiguous call).
 8. **Update the roadmap and changelog** after every action.
 9. **Sync after every artifact write.** Run `seoagent sync` (no-op when not logged in — always run it).
 10. **WebFetch before reporting missing.** Never say a URL is missing without fetching it live first.
 11. **Use the output template** for all top-level reports.
 12. **Read context before generating.** Before any strategy, brief, or article, read `.seoagent/context.md`.
-13. **Confirm between phases** with `Continue? (y/n)` — auto-progress within a phase, never across.
+13. **Plan once, then execute** (see "Plan & Execute"). Get one approval on the content plan, then run it in batches (a cluster at a time) — don't ask `Continue?` between articles or phases. Pause only for: the plan approval, cluster boundaries (show drafts + open a PR), ambiguous decisions, and destructive actions. Go fully autonomous or step-by-step if the user asks.
 14. **Hub-and-spoke linking is mandatory** — sub_pillars link UP to pillar; long_tails link UP to parent sub_pillar; pillars link DOWN to all sub_pillars.
 15. **Edit existing files; Write only new ones.** `project.md`, `context.md`, `roadmap.md`, `changelog.md`, and any artifact created by `init` already exist — use the `Edit` tool to modify them. Reserve `Write` for files that don't exist yet. Trying to `Write` an existing file fails with "File must be read first" and wastes a tool call.
 16. **Use the CMS metadata.** If `project.md` has `cms: strapi | wordpress | sanity | contentful | ghost | webflow | shopify | payload | directus | mdx-local`, the user has a CMS. When writing articles in Phase 4, mention how the article's frontmatter maps to that CMS's content model (e.g. Strapi: title → Title field, body → Content rich-text). When the cluster is content-focused, suggest publishing the article to the detected CMS as the next step. The free tier writes to `.seoagent/content/` only — Cloud handles the publish itself.
