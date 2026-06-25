@@ -1,10 +1,20 @@
 # Keyword Research Protocol
 
-The **local skill alone** (no cloud account) uses `WebSearch` only — no real volume data, no difficulty scores, no SERP feature analysis. Treat priorities as **directional** (high / medium / low).
+**Use the richest real data the account is entitled to — WebSearch estimates are the fallback, not the default.** Check the tier (you usually know it; else `seoagent whoami` → `plan`/`paid`):
 
-**Free no-signup peek** — for a quick real-data sanity check on a single keyword during research, run `seoagent keywords --peek "<keyword>"`. It calls DataForSEO once (no login, anonymous `install_id`) and returns real volume + difficulty + an opportunity label. Daily quota per install (~10/day). Useful for "is this term actually worth a brief?" before committing.
+| Tier | Data path |
+|---|---|
+| **Pro / paid** | **Full DataForSEO** — `seoagent keywords` (enrich, no quota) + `--discover` (new targets) + `--competitors` (gap keywords). Don't fall back to WebSearch estimates for a paid user. |
+| **Free account (logged in)** | `seoagent keywords` — real volume/difficulty for the top ~25 (no quota). WebSearch for breadth beyond 25. Surface the Pro upsell. |
+| **Anonymous (no login)** | `keywords --peek "<kw>"` — a *single*-keyword spot-check, ~10/day quota. WebSearch H/M/L for breadth. Recommend `seoagent login`. |
 
-A **free SEOAgent Cloud account** enriches the top ~25 keywords with **real volume + difficulty + opportunity classification** (DataForSEO Labs) — after `seoagent login`, run `seoagent keywords` and the enriched numbers project into `.seoagent/keywords.md`. **Paid upgrade** lifts the cap and unlocks `keywords --discover` (new targets from `keyword_ideas`) and `keywords --competitors` (gap keywords from rivals' `ranked_keywords`).
+**Never loop `--peek` across many keywords** — it's the anonymous single-keyword tool and will hit its ~10/day quota. Logged in, `seoagent keywords` enriches the whole top set at once with no quota. Use `--peek` only when not logged in, or to validate one finalist.
+
+**WebSearch H/M/L priorities are directional** — use them only when real numbers aren't available (anonymous breadth, beyond the free ~25, a `402` gate, or first-mover terms below). Never invent numeric scores.
+
+> **First-mover terms DataForSEO can't size = opportunity.** Brand-new on-strategy categories (`claude code seo`, `cursor seo`, an emerging product term) often return **no volume / no data**. For a first-mover that means low competition you can own before the volume arrives — **don't discard an on-strategy term for lack of data**; mark it `first_mover`/high-opportunity (cite `context.md` + any GSC impressions or WebSearch signal) and prioritize. Treat no-data as low-value only when the term is *also* off-strategy.
+
+**Cold start — seed from Search Console.** On a site with **no keyword inventory yet**, the best first move (once `seoagent login` + GSC are connected) is `seoagent keywords --seed`: it adds the site's **own impressed GSC queries** — real, inherently relevant, winnable terms (page-2 queries become "striking distance"). It's **additive** (adds new queries, keeps any existing keywords — never overwrites). Do this *before* `--discover`/`--competitors`, which need a topic signal and otherwise return noise.
 
 **Cold start — seed from Search Console.** On a site with **no keyword inventory yet**, the best first move (once `seoagent login` + GSC are connected) is `seoagent keywords --seed`: it adds the site's **own impressed GSC queries** — real, inherently relevant, winnable terms (page-2 queries become "striking distance"). It's **additive** (adds new queries, keeps any existing keywords — never overwrites). Do this *before* `--discover`/`--competitors`, which need a topic signal and otherwise return noise.
 
@@ -14,8 +24,8 @@ A **free SEOAgent Cloud account** enriches the top ~25 keywords with **real volu
 
 `--discover` and `--competitors` are **expansion** tools — they only work well once the site has a real topic signal. On a brand-new or thin site they degrade into generic high-volume noise (e.g. "1/8 as a decimal") because DataForSEO has nothing relevant to anchor to. Follow this order:
 
-1. **Do WebSearch research FIRST** (the steps below). It's the primary discovery method and is the most reliable source for a new site — do not lead with `--discover`/`--competitors`.
-2. **Seed the inventory + name real competitors before running them.** Write your researched keywords to `.seoagent/keywords.md` and your competitors to `.seoagent/competitors.md` — **with real domains in the headings** (e.g. `## Competitor 1: Surfer SEO — surferseo.com`), because that's what gets parsed into the cloud's competitor table. Then `seoagent sync` so the cloud has them. `--competitors` uses your named competitors; without them it tries to auto-detect and returns junk for a thin domain.
+1. **Seed the inventory FIRST so discovery has a signal** — via `keywords --seed` (GSC) and/or a WebSearch pass (the steps below). This isn't "WebSearch instead of DataForSEO"; it's giving `--discover`/`--competitors` a real topic to anchor to so they don't return generic noise. Once there's an inventory, real DataForSEO leads.
+2. **Name real competitors (improves `--competitors`).** Write competitors to `.seoagent/competitors.md` **with real domains in the headings** (e.g. `## Competitor 1: Surfer SEO — surferseo.com`) — that's what's parsed into the cloud's competitor table. `seoagent sync`. On Pro, `--competitors` will *also* auto-discover rivals (DataForSEO `competitors_domain`) and merge them, but naming the obvious ones up front gives it a cleaner anchor on a thin domain. (No DataForSEO/Pro? A WebSearch competitor pass into `competitors.md` is the free substitute.)
 3. **Then** run `seoagent keywords` (enrich) → `--discover` → `--competitors`.
 4. **Always relevance-check what they return.** Treat every `status='suggested'` keyword as a *candidate*, not a fact — drop anything off-topic for the business before adding it to the strategy, no matter how high the volume or low the difficulty. The server now filters obvious noise, but you are the final gate.
 5. **For a single keyword's real numbers without the bulk commands, use `--peek`** — it's reliable and quota-limited; ideal for validating finalists.
@@ -149,6 +159,8 @@ Target structure per cluster: 1 pillar + 3-5 sub_pillars + 8-10 long_tails = ~12
 Write each cluster to `.seoagent/strategy/clusters/{cluster-slug}.md` with the markdown table format (see `references/pillar-articles.md` for the structure).
 
 ### Step 7: Tag Priority
+
+**Use real DataForSEO volume + difficulty + opportunity labels when the account has them** (logged in → top ~25; Pro → the whole inventory). H/M/L bins below are the **fallback** for terms you only have WebSearch signal for (and for first-mover terms with no data — tag those high-opportunity, not low). Don't downgrade a real low-difficulty/striking-distance term to "M" on a hunch when the data says otherwise.
 
 Use H/M/L bins:
 - **High** — high search demand signals (autocomplete, multiple SERP results, "people also ask"), low competition (no Wikipedia, no government, no huge brands), strong business fit

@@ -1,6 +1,6 @@
 ---
 name: seoagent
-description: "Persistent AI SEO agent. ALWAYS use when the user mentions: SEO, ranking, rank, keywords, meta tags, search traffic, organic traffic, content strategy, audit, Google, Bing, Search Console, GSC, schema markup, JSON-LD, sitemap, robots.txt, internal linking, AI search, AEO, GEO, OKF, Open Knowledge Format, AI knowledge bundle, llms.txt, alt text, page speed, Core Web Vitals, slug, URL structure, canonical, breadcrumbs, hub and spoke, pillar content, topic cluster, programmatic SEO, landing page SEO, blog SEO, why am I not ranking. Also use SILENTLY when the user asks to write, edit, or improve a blog post, landing page, marketing copy, or any file under content/, posts/, blog/, pages/ — these are SEO-adjacent and should persist to .seoagent/ even without an explicit invocation. Replaces separate seo-audit, content-strategy, programmatic-seo, ai-seo, site-architecture, and schema-markup skills with one unified, persistent workflow."
+description: "Persistent AI SEO agent. ALWAYS use when the user mentions: SEO, ranking, rank, keywords, meta tags, search traffic, organic traffic, content strategy, audit, Google, Bing, Search Console, GSC, schema markup, JSON-LD, sitemap, robots.txt, internal linking, AI search, AEO, GEO, OKF, Open Knowledge Format, AI knowledge bundle, llms.txt, alt text, page speed, Core Web Vitals, slug, URL structure, canonical, breadcrumbs, hub and spoke, pillar content, topic cluster, programmatic SEO, landing page SEO, blog SEO, listicle, best-of / top-N roundup, why am I not ranking. Also use SILENTLY when the user asks to write, edit, or improve a blog post, landing page, marketing copy, or any file under content/, posts/, blog/, pages/ — these are SEO-adjacent and should persist to .seoagent/ even without an explicit invocation. Replaces separate seo-audit, content-strategy, programmatic-seo, ai-seo, site-architecture, and schema-markup skills with one unified, persistent workflow."
 allowed-tools: Read, Write, Edit, Bash, WebFetch, WebSearch
 ---
 
@@ -42,6 +42,7 @@ This SKILL.md is the orchestration layer. Detailed protocols live in `references
 | Writing a pillar article | `references/pillar-articles.md` |
 | Writing a sub-pillar article | `references/sub-pillar-articles.md` |
 | Writing a long-tail article | `references/long-tail-articles.md` |
+| Writing a listicle ("Top N" / "Best X") | `references/listicle-articles.md` |
 | Programmatic SEO at scale | `references/programmatic.md` |
 | Adding schema markup / JSON-LD | `references/schema-markup.md` |
 | Refreshing or rewriting an existing page | `references/rewrite-protocol.md` |
@@ -490,7 +491,7 @@ The single biggest quality lever for the strategy is **real Google Search Consol
    - **On-strategy** — aligned with the current positioning → keep and prioritize (these are real, winnable, *and* on-message).
    - **Legacy / off-strategy** — demand from an older brand, product, or audience the site has moved away from → mark as *harvest/defend* (worth keeping rankings, not worth building the new strategy around). Note them as such; don't let them steer the clusters.
 4. **Add forward-looking clusters GSC can't show.** The new direction has little or no search history yet, so it won't appear in `--seed`. Generate those targets from the current positioning (`context.md`) + WebSearch — this is where the strategy points *forward*, not backward.
-5. **No GSC data yet (brand-new site)?** `--seed` will say so — fall back to WebSearch research + `--peek`, and revisit `--seed` once impressions accrue. **Stale GSC?** If the freshest seeded data looks weeks old, the cloud GSC sync may be behind — flag it to the user; the seed is only as fresh as the synced data.
+5. **No GSC data yet (brand-new site)?** `--seed` will say so — use WebSearch to draft the clusters, then get real numbers the tier allows: **logged in → `seoagent keywords`** (enrich the drafted set), **Pro → also `keywords --discover`** for new targets; `--peek` only if not logged in. Revisit `--seed` once impressions accrue. **Stale GSC?** If the freshest seeded data looks weeks old, the cloud GSC sync may be behind — flag it; the seed is only as fresh as the synced data.
 
 ### Cluster Structure (Hub and Spoke)
 
@@ -508,13 +509,25 @@ The role enum is `PILLAR | SUB_PILLAR | LONG_TAIL` — these match the SEOAgent 
 
 > **Writing order — pillars to plant the hubs, then DEPTH before breadth.** Write each cluster's PILLAR first so every topic has its hub. But once the pillars exist, **complete one cluster before opening the next** — finish the spokes of your single highest-priority cluster rather than scattering one or two articles across all of them. A *complete* hub-and-spoke cluster is what signals topical authority and lifts the whole cluster's rankings; three half-built clusters dilute that signal and leave every topic shallow. Choose which cluster to finish by **ICP fit × easy-win density** (the cluster whose audience is your actual customer and whose keywords are lowest-difficulty), not by what's most fun to write. Only start the next cluster once the current one's spokes are essentially done. When you summarize "what's next", recommend the specific cluster to finish, not a scatter of articles.
 
-### Free-Tier Limit (and the cloud enrichment path)
+### Keyword data: use real DataForSEO by tier — WebSearch is the FALLBACK
 
-The **local skill alone** (no cloud account) uses `WebSearch` only for keyword discovery — no real volumes, no difficulty scores in bulk. Use **H/M/L priority** (high / medium / low). Don't invent numerical scores.
+**Real DataForSEO numbers are the default whenever the account can get them — don't lead with WebSearch estimates.** Check the tier first (you usually know it from the session; if not, `seoagent whoami` returns `plan` + `paid`), then use the richest data the account is entitled to:
 
-**One exception — the free no-signup peek.** When the user is curious about a *single specific keyword's* real numbers and isn't ready to log in, run `seoagent keywords --peek "<keyword>"`. It hits DataForSEO via the cloud for one keyword and returns real volume + difficulty + an opportunity label. No account, no token — anonymous `install_id` from `project.md`. Daily quota per install (~10/day). Use sparingly during research; for full strategy enrichment, prompt the login below.
+| Tier | Run | You get |
+|---|---|---|
+| **Pro / paid (`paid: true`)** | `seoagent keywords` (enrich, no quota) → `keywords --discover` (new targets) → `keywords --competitors` (competitor gaps) | **Full DataForSEO** — real volume/difficulty across the inventory, new-target discovery, competitor-gap keywords. **This is the path for a Pro user — do NOT fall back to WebSearch estimates for them.** |
+| **Free account (logged in, `paid: false`)** | `seoagent keywords` | Real DataForSEO volume/difficulty for the top ~25 keywords (no quota). WebSearch only for breadth beyond 25. **Surface the Pro upsell** (below). |
+| **Anonymous (not logged in)** | `keywords --peek "<kw>"` for a *single* spot-check (~10/day) + WebSearch H/M/L for breadth | A taste. **Recommend `seoagent login`** — a free account turns peek-spam into full top-25 enrichment, no quota. |
 
-A **free SEOAgent Cloud account** unlocks **real volume + difficulty + opportunity classification** for the top ~25 keywords via DataForSEO Labs — after `seoagent login`, run `seoagent keywords` and the enriched data projects into `.seoagent/keywords.md`. Use those numbers in Phase 2 prioritization, briefs, and GSC review when present; fall back to H/M/L when they aren't.
+> **Never loop `--peek` across many keywords.** It's an anonymous *single-keyword* spot-check with a ~10/day quota — burning it on 15 lookups (then running dry) is the wrong tool and a real dogfooding mistake. The instant the user is logged in, `seoagent keywords` enriches the whole top set at once with **no quota**. Peek exists only for the not-logged-in "what's this one keyword worth?" moment.
+
+**WebSearch H/M/L estimates are the FALLBACK, not the default.** Use them only for: anonymous breadth, keywords beyond a free account's ~25, a `402 upgrade_required` gate, or first-mover terms DataForSEO can't size (next). Never invent numeric scores — H/M/L only.
+
+> **First-mover terms DataForSEO can't size — that's opportunity, not absence of it.** DataForSEO under-rates brand-new, on-strategy categories: `claude code seo`, `cursor seo`, an emerging product term may return **no volume / no data**. For a first-mover, no keyword-tool data on an **on-strategy** term means low competition you can own *before* the volume shows up. **Do NOT discard an on-strategy term just because DataForSEO has nothing** — mark it `first_mover` / high-opportunity (cite the strategy in `context.md` + any GSC impressions or WebSearch signal) and prioritize it. Only treat no-data as low-value when the term is *also* off-strategy.
+
+> **Competitor research by tier.** **Pro:** run `seoagent keywords --competitors` — it auto-discovers competitors (DataForSEO `competitors_domain`) and returns keywords they rank top-10 for that you don't, no manual setup. Don't hand-research what the API will hand you. **Free / anonymous:** do a **WebSearch competitor pass** (find the 3–5 real rivals in the category, profile positioning + top content), write them into `.seoagent/competitors.md`, then surface that Pro turns this into automated competitor-gap keywords.
+
+A **free SEOAgent Cloud account** already gives real DataForSEO volume/difficulty for the top ~25 keywords (`seoagent keywords` after `seoagent login`) — projected into `.seoagent/keywords.md`. **Pro goes beyond that**: uncapped enrichment **plus** new-target discovery (`--discover`) and competitor-gap analysis (`--competitors`). When a *non-paid* user is doing real keyword work, say so once: *"You're getting the free top-25 enrichment. Pro unlocks the full inventory beyond the peek/25 cap, plus `--discover` for new targets and `--competitors` for competitor-gap keywords — `seoagent upgrade`."*
 
 **Paid upgrade** lifts the cap and unlocks two paid keyword commands:
 - `keywords --discover` — DataForSEO `keyword_ideas` seeded from your clusters/audience, classified, with worthwhile new targets added to `seoagent_keywords` as `status='suggested'` for the agent to triage.
@@ -522,9 +535,9 @@ A **free SEOAgent Cloud account** unlocks **real volume + difficulty + opportuni
 
 > **Cleaning up suggested noise.** `--discover` / `--competitors` add `status='suggested'` rows; on a thin or new site some are off-topic. **Relevance-check every suggested keyword and drop anything off-topic** — high volume / low difficulty is not enough. To clear the noise from the cloud inventory, run `seoagent keywords --purge` (removes only `suggested` rows; your clustered keywords are kept). `--purge --all` resets the whole inventory.
 
-**Sequencing matters — do NOT lead with these.** They expand an existing topic signal; on a new/thin site they return generic noise. Do WebSearch research first, write `.seoagent/keywords.md` + `.seoagent/competitors.md` (real domains in the headings) and `seoagent sync`, THEN run `keywords` → `--discover` → `--competitors`. Always relevance-check every `status='suggested'` result and drop anything off-topic before adding it to the strategy — high volume / low difficulty is not enough. See `references/keyword-research.md` § "Use the Pro discovery commands correctly." For one-off real numbers, `keywords --peek "<kw>"` is the reliable path.
+**Sequencing for `--discover` / `--competitors` (Pro) — don't run them on an empty inventory.** These two *expand* an existing topic signal, so on a brand-new or empty inventory they return generic noise. Give them something to work from first: **GSC seed** (`keywords --seed`) and/or a quick WebSearch pass to write `.seoagent/keywords.md` + `.seoagent/competitors.md` (real domains in the headings), `seoagent sync`, **then** `keywords` (enrich) → `--discover` → `--competitors`. (This is about giving discovery a seed, NOT about preferring WebSearch over DataForSEO — once there's an inventory, real DataForSEO leads.) Always relevance-check every `status='suggested'` result and drop anything off-topic — high volume / low difficulty is not enough. See `references/keyword-research.md` § "Use the Pro discovery commands correctly."
 
-After research without enrichment, mention once: "These priorities are estimates from search. A free login enriches your top ~25 keywords with real DataForSEO volume + difficulty (`keywords`); upgrade unlocks discovery of new targets (`--discover`) and competitor-gap analysis (`--competitors`)."
+Only when the account genuinely can't enrich (anonymous, or a `402` gate) do you ship estimate-only priorities — and then say once: *"These priorities are WebSearch estimates. `seoagent login` (free) enriches your top ~25 with real DataForSEO volume + difficulty; Pro unlocks the full inventory plus `--discover` and `--competitors`."*
 
 ### Outputs
 
@@ -648,12 +661,13 @@ For each planned article (in priority order from strategy):
 1. Read the cluster file for article role (`PILLAR | SUB_PILLAR | LONG_TAIL`) and metadata.
 2. Research the target keyword with `WebSearch` — analyze top 3-5 results.
 3. Identify search intent, content format, heading structure of competitors, content gaps.
-4. **Read the matching page-type reference**:
+4. **Read the matching page-type reference** (by cluster `role`):
    - PILLAR → `references/pillar-articles.md`
    - SUB_PILLAR → `references/sub-pillar-articles.md`
    - LONG_TAIL → `references/long-tail-articles.md`
    - Landing page → `references/landing-pages.md`
    - Programmatic → `references/programmatic.md`
+   - **Then check the FORMAT (orthogonal to role).** Role sets where the article sits in the cluster; *format* sets how it's written. If the title/intent is a **listicle** — "Top N", "Best N", "N Best/Top/Ways/Tips/Reasons" (commercial "best/top/alternatives" intent) — also read `references/listicle-articles.md` and follow **its** section structure (it overrides the role's outline), and tag the brief `article_type: listicle`. (The cloud pipeline already has a `listicle` type; tagging keeps local + cloud in sync.)
 5. Generate the brief — markdown with frontmatter — using the structure that reference file specifies.
 
 ### Output: `.seoagent/briefs/{slug}.md`
@@ -707,7 +721,7 @@ This is the per-article procedure. When executing an approved **plan** (see "Pla
 1. Read the brief — frontmatter sets `role`, `word_count_min/max`, `primary_keyword`, `page_type`.
 2. Read `.seoagent/context.md` — apply tone, audience, banned topics throughout.
 3. Read the cluster file to confirm internal-link targets.
-4. **Read the matching page-type reference** for the article's `role` / `page_type`. The reference file gives the title pattern, section ordering, internal-linking rules, metadata defaults, and JSON-LD schema for that type.
+4. **Read the matching page-type reference** for the article's `role` / `page_type`. The reference file gives the title pattern, section ordering, internal-linking rules, metadata defaults, and JSON-LD schema for that type. **If the brief is `article_type: listicle` (or the title is "Top N" / "Best X"), read `references/listicle-articles.md`** and follow its structure (consistent per-item layout, quick-pick + comparison table, `ItemList` schema) — it overrides the role's outline.
 5. Read `references/schema-markup.md` if you need JSON-LD examples beyond what the page-type reference covers.
 6. Follow the outline. Apply the writing rules.
 7. **Write the article where it actually renders — and keep ONE source of truth** (this depends on `publishing.strategy`, see the Publishing Target Decision section):
@@ -741,7 +755,8 @@ Always write `images:` frontmatter with `alt` and `prompt`. Then resolve a provi
 ```yaml
 ---
 slug: tech-seo-guide
-page_type: pillar              # landing | pillar | sub_pillar | long_tail | programmatic
+page_type: pillar              # role: landing | pillar | sub_pillar | long_tail | programmatic
+article_type: guide            # format (optional): guide | listicle | how_to | comparison | faq — drives the cloud pipeline + schema
 title: "The Complete Technical SEO Guide for 2026"
 meta_title: "Technical SEO Guide: 47-Step Checklist (2026)"
 meta_description: "Master technical SEO with our 47-step checklist..."
