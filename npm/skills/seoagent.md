@@ -392,9 +392,12 @@ Once approved, work **a cluster at a time**, top of the plan down:
 
 ## Phase 1: Technical SEO Audit
 
-### Step 0 (mandatory)
+### Step 0 (mandatory — capture the live-crawl evidence base, then read the checks)
 
-**Read `.claude/skills/seoagent/references/audit-checks.md` before any WebFetch.** It contains the full check list with severity tiers and recommendation text per check. Do not run the audit from memory — the reference is the source of truth and gives consistent results across sessions.
+1. **Run `seoagent crawl` first.** It fetches the homepage + top pages, the real robots.txt, and the live sitemap, and writes `.seoagent/audit/evidence.md` — the verified evidence base (exact title/meta, ALL H1s, canonical + server/client-render flag, every JSON-LD `@type`, OG/Twitter tags, the ACTUAL robots.txt contents, sitemap URL + blog-post counts, client-rendered-shell detection). **`Read` that file — every `Confirmed` finding must be derived from it, not from repo source or memory.** (Use `seoagent crawl --json` if you want the structured bundle.)
+2. **Read `.claude/skills/seoagent/references/audit-checks.md`.** It contains the full check list, the **Verify-before-assert** rules (confidence labels, never-recommend-what-exists, live-vs-source reconciliation), severity tiers, and recommendation text per check. Do not run the audit from memory — the reference is the source of truth and gives consistent results across sessions.
+
+**Verify-before-assert is the load-bearing rule of the whole audit.** Never state a live-page fact you didn't fetch: don't invent a robots.txt rule, don't recommend adding schema/canonical/OG tags the evidence shows already exist, don't report a dynamic on-page number (a "2,184 families" counter) as `Confirmed` unless it's in the server-fetched HTML. Tag every finding `Confirmed` / `Likely` / `Hypothesis`. If `seoagent crawl` couldn't run (offline, no domain), fall back to per-page WebFetch — but remember WebFetch strips `<script>`, so schema conclusions from it are `Hypothesis`, never `Confirmed`.
 
 ### Procedure
 
@@ -454,7 +457,7 @@ When the user says "I fixed X":
 2. Append to `changelog.md`: `[date] Fixed: {finding}`.
 3. Run `seoagent sync`.
 
-> **Rule**: Before reporting any URL is missing or broken, always WebFetch the live URL first. Never assume a 404 from inference alone.
+> **Rule (verify-before-assert)**: Before reporting ANY live-state fact — a URL is missing/broken, robots.txt blocks a path, a page lacks schema, a title/H1/canonical value — it must be grounded in an actual fetch (`seoagent crawl`'s `evidence.md`, or a WebFetch you just ran). Never assume a 404, a robots rule, or a missing schema from inference/repo source alone. Every finding carries a confidence tag (`Confirmed`/`Likely`/`Hypothesis`); unverified specifics (prices, line numbers, competitor names, dynamic counters) are never emitted as bare fact.
 
 ---
 
@@ -911,7 +914,7 @@ The CLI manages credentials at `~/.config/seoagent/auth.json` — outside the pr
 7. **End with the plan's next step, not a menu.** When executing an approved plan, close with progress + what's next in the plan ("3 of 8 in this cluster done; writing the next now"), not a 2–3-option menu every turn. Offer explicit choices only at real decision points (the plan-approval gate, a cluster boundary, an ambiguous call).
 8. **Update the roadmap and changelog** after every action.
 9. **Sync after every artifact write.** Run `seoagent sync` (no-op when not logged in — always run it).
-10. **WebFetch before reporting missing.** Never say a URL is missing without fetching it live first.
+10. **Verify before you assert.** Every claim about a page's live state (robots.txt rules, schema/JSON-LD, meta tags, titles, headings, canonical, sitemap contents, whether a URL exists) must be grounded in an actual live fetch — `seoagent crawl`'s `.seoagent/audit/evidence.md` or a WebFetch you just ran — never repo source, memory, or a prior. **Never recommend adding something the live page already has.** Tag every finding `Confirmed` / `Likely` / `Hypothesis`; never emit an unverified specific (price, line number, competitor, dynamic on-page metric) as a bare fact. Repo-only issues that aren't confirmed on the live site are labeled and reported separately, not as production reality.
 11. **Use the output template** for all top-level reports.
 12. **Read context before generating.** Before any strategy, brief, or article, read `.seoagent/context.md`.
 13. **Plan once, then execute** (see "Plan & Execute"). Get one approval on the content plan, then run it in batches (a cluster at a time) — don't ask `Continue?` between articles or phases. Pause only for: the plan approval, cluster boundaries (show drafts + open a PR), ambiguous decisions, and destructive actions. Go fully autonomous or step-by-step if the user asks.

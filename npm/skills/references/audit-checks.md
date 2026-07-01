@@ -2,6 +2,20 @@
 
 Loaded by Phase 1 (Technical SEO Audit) when running a full audit. The main `SKILL.md` summarizes the categories; this reference holds the complete check list with the exact pattern to match and the recommendation text.
 
+## Verify-before-assert (read first — non-negotiable)
+
+**Every factual claim about a page's live state must be grounded in an actual fetch of the live URL — never in repo source, memory, or a prior.** Before running these checks, run `seoagent crawl` (Phase 1 Step 0). It writes `.seoagent/audit/evidence.md` — the live-crawl evidence base (exact title, meta, ALL H1s, canonical + server/client-render flag, every JSON-LD `@type`, OG/Twitter tags, the ACTUAL robots.txt contents, the sitemap URL + blog-post counts, client-rendered-shell detection). Read that file and derive Confirmed findings from it.
+
+Three rules govern every finding:
+
+1. **Confidence label (mandatory on every finding).** Tag each finding `Confirmed` (verified against the live evidence in `evidence.md` / a fetch you just did), `Likely` (strong inference, not directly verified), or `Hypothesis` (unverified). **Never emit an unverified specific — a price, a line number, a competitor name/roster, a dynamic on-page metric — as a bare fact.** A "2,184 families" style counter that is NOT in the server-fetched HTML is at most `Likely`/`Hypothesis`, never `Confirmed`.
+
+2. **Never recommend adding something that already exists.** If `evidence.md` shows the page already serves `Organization` JSON-LD, a canonical tag, OG tags, etc., do NOT recommend adding them — that's the stale-source hallucination this guardrail exists to stop. Only recommend adding what the live evidence shows is genuinely absent.
+
+3. **Live-vs-source reconciliation.** When repo/source state and the live-rendered page can disagree, grade the finding against the LIVE site. A repo-only issue (e.g. a `noindex` in a source file that isn't in the served HTML, a robots rule in a committed file that the live `/robots.txt` doesn't serve) must be labeled **"repo-only, unconfirmed on live"** and reported separately — never as production reality.
+
+**Do not assert repo-internal specifics (file paths, line numbers) as fact in a live-state finding.** They are fixing *hints*, not verified live facts — mark them `Likely` and phrase as "likely in `app/layout.tsx`", never "on line 42".
+
 ## Crawlability & Indexation
 
 ### `robots_txt_exists`
@@ -10,9 +24,9 @@ Severity if fail: `high`
 Recommendation: "Create a robots.txt file at {domain}/robots.txt. At minimum: `User-agent: *\nAllow: /\nSitemap: {domain}/sitemap.xml`."
 
 ### `robots_txt_blocks_important_paths`
-Check: parse robots.txt for `Disallow:` directives. Match against the URL list in `pages.md`.
+Check: use the ACTUAL robots.txt contents from `evidence.md` (the crawl fetched and parsed the live file). Match its real `Disallow:` rules against the URL list in `pages.md`.
 Severity: `critical` if blocks > 5 known important pages; `high` if blocks any important page.
-Recommendation: List the blocking rules and which pages they affect.
+Recommendation: List **only the blocking rules that actually appear in the fetched robots.txt** and which pages they affect. **Never invent a rule** (e.g. do NOT claim `Disallow: /private/` unless it is verbatim in the fetched file) — quoting a rule that isn't there is the exact hallucination this audit must avoid. If robots.txt wasn't fetched, this check is `Hypothesis` — say "couldn't verify robots.txt" rather than asserting any rule.
 
 ### `sitemap_exists`
 Check: WebFetch `{domain}/sitemap.xml`. Pass = 200 OK and parseable XML.
@@ -67,6 +81,11 @@ Recommendation: "{dependency_url} returned {status}. The pages it powers ({list}
 
 > **Why this check matters:** the most common SEO disaster on a live site is a CMS that's been quietly down for weeks — every page returns 200, the audit looks clean, but Google has been deindexing the blog the whole time. This check catches it on the first audit.
 
+### `client_rendered_shell`
+Check: `evidence.md` flags the page as a client-rendered shell — the server HTML is near-empty and/or shows a "Loading…" placeholder with no in-body links. The classic case is a blog index that ships a `Loading…` shell with no post `<a>` links in the server HTML: crawlers (and this fetch) see zero posts.
+Severity: `critical` if it's a content-listing / blog-index / indexable page; `high` otherwise.
+Recommendation: "This page renders client-side — the server HTML has no content/links, so crawlers can't see it (Confirmed from the crawl). Server-render or pre-render it (SSR/SSG/ISR) so the {posts/listings} are in the initial HTML. Any on-page data on this page (counts, listings) is Likely/Hypothesis until it's server-rendered."
+
 ## On-Page SEO
 
 ### `title_missing`
@@ -105,9 +124,9 @@ Severity: `high`
 Recommendation: "Add exactly one `<h1>` containing the primary keyword."
 
 ### `h1_multiple`
-Check: more than one `<h1>` in body.
+Check: `evidence.md` lists more than one `<h1>` for the page (it captures ALL H1s in document order, so conflicting H1s are detected).
 Severity: `medium`
-Recommendation: "Reduce to one `<h1>`. Demote others to `<h2>` or `<h3>`."
+Recommendation: "Page has {N} `<h1>`s ({list}). Reduce to one; demote the others to `<h2>`/`<h3>`."
 
 ### `heading_hierarchy_skipped`
 Check: H1 → H3 with no H2 between, or H2 → H4 with no H3.
@@ -202,18 +221,20 @@ Recommendation: "Add an FAQ section with 5-7 H3 questions. Powers FAQ schema and
 
 ## Schema Markup
 
+> **Schema checks MUST use `evidence.md`, not WebFetch.** WebFetch strips `<script>` tags — it CANNOT see JSON-LD, so "no schema found" from WebFetch is a false negative that leads directly to recommending schema the page already serves. The `seoagent crawl` evidence base parses raw HTML and lists every JSON-LD `@type` present per page. Read that. **Only flag a schema type as missing when `evidence.md` shows it is genuinely absent — never recommend adding a `@type` that already appears in the evidence.**
+
 ### `no_json_ld_on_article`
-Check: page is a blog article (URL pattern `/blog/*`) but page HTML has no `<script type="application/ld+json">` Article schema.
+Check: page is a blog article (URL pattern `/blog/*`) AND `evidence.md` shows **no `Article` (or `BlogPosting`/`NewsArticle`) `@type`** for it.
 Severity: `medium`
-Recommendation: "Add `Article` JSON-LD with headline, author, datePublished, dateModified, image, publisher.logo. See `references/schema-markup.md`."
+Recommendation (only if genuinely absent): "Add `Article` JSON-LD with headline, author, datePublished, dateModified, image, publisher.logo. See `references/schema-markup.md`."
 
 ### `no_organization_schema_on_homepage`
-Check: homepage has no `Organization` schema.
+Check: `evidence.md` shows the homepage has **no `Organization` `@type`** (and no `SoftwareApplication`/`WebSite` that would already cover the brand entity). If the evidence lists `Organization`/`SoftwareApplication`, this check PASSES — do not recommend adding it.
 Severity: `medium`
-Recommendation: "Add `Organization` JSON-LD on homepage with name, url, logo, sameAs links to social profiles."
+Recommendation (only if genuinely absent): "Add `Organization` JSON-LD on homepage with name, url, logo, sameAs links to social profiles."
 
 ### `note_schema_detection_limitation`
-WebFetch strips `<script>` tags including JSON-LD. After auditing, always tell the user: "Test your pages at https://search.google.com/test/rich-results for accurate schema validation — WebFetch can't see your JSON-LD blocks directly."
+Schema is verified from `evidence.md` (raw-HTML JSON-LD parse), not WebFetch. If the crawl couldn't run, treat any "no schema" conclusion as `Hypothesis` and tell the user: "Test your pages at https://search.google.com/test/rich-results — I couldn't verify JSON-LD via WebFetch (it strips `<script>` blocks). Run `seoagent crawl` for a verified read."
 
 ## Site Architecture
 
