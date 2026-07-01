@@ -44,9 +44,9 @@ Severity: `critical` if homepage; `high` otherwise.
 Recommendation: "Remove the `noindex` directive from {file/URL}."
 
 ### `canonical_tag_present`
-Check: `<link rel="canonical" href="...">` exists in `<head>`.
+Check: `evidence.md` shows the page's `canonical` — it captures the `<link rel="canonical">` href AND whether it's server-rendered. Do NOT conclude "no canonical" from WebFetch — it strips the head. Pass = a canonical present in the server HTML.
 Severity: `medium` if absent; `high` if points to a different domain.
-Recommendation: "Add a self-referencing canonical tag: `<link rel=\"canonical\" href=\"{full URL}\">`."
+Recommendation (only if genuinely absent per evidence): "Add a self-referencing canonical tag: `<link rel=\"canonical\" href=\"{full URL}\">`."
 
 ### `redirect_chain`
 Check: follow redirects, count hops.
@@ -88,10 +88,12 @@ Recommendation: "This page renders client-side — the server HTML has no conten
 
 ## On-Page SEO
 
+> **Head-level checks MUST use `evidence.md`, not WebFetch.** WebFetch returns a markdown-stripped render that DROPS the entire document `<head>` — so `<title>`, `<meta name="description">`, `<link rel="canonical">`, and every `og:*` / `twitter:*` tag are invisible to it, exactly like `<script>` JSON-LD. "No title / no meta / no canonical / no OG" concluded from WebFetch is a **false negative** that leads to recommending head tags the page already serves (the head-blindness bug). `seoagent crawl` parses the RAW HTML head and `evidence.md` lists each of these per page, plus an explicit **"Already present (do NOT recommend adding)"** line. Read that. **Only flag a head tag as missing when `evidence.md` shows it genuinely absent — never recommend adding a title / meta description / canonical / OG / Twitter tag that already appears in the evidence.**
+
 ### `title_missing`
-Check: `<title>` element is empty or absent.
+Check: `evidence.md` shows the page's `title` is `_(none)_` (empty or absent). Do NOT conclude "no title" from WebFetch — it strips the head.
 Severity: `critical`
-Recommendation: "Add a `<title>` tag. Target 50-60 characters with primary keyword near the start."
+Recommendation (only if genuinely absent per evidence): "Add a `<title>` tag. Target 50-60 characters with primary keyword near the start."
 
 ### `title_too_long`
 Check: title > 60 characters.
@@ -109,14 +111,19 @@ Severity: `high`
 Recommendation: "Pages {list} all use the same title. Make each unique."
 
 ### `meta_description_missing`
-Check: `<meta name="description">` absent or empty.
+Check: `evidence.md` shows the page's `meta description` is `_(none)_`. Do NOT conclude "no meta description" from WebFetch — it strips the head.
 Severity: `medium`
-Recommendation: "Add a meta description, 150-160 chars, includes primary keyword and a soft CTA."
+Recommendation (only if genuinely absent per evidence): "Add a meta description, 150-160 chars, includes primary keyword and a soft CTA."
 
 ### `meta_description_too_long`
 Check: meta description > 160 characters.
 Severity: `low`
 Recommendation: "Trim meta description from {N} to 150-160 chars: `{suggested}`."
+
+### `social_tags_missing`
+Check: `evidence.md` lists the page's `Open Graph` and `Twitter` tags. Do NOT conclude "no OG / no Twitter card" from WebFetch — it strips the head. Pass = at least `og:title` + `og:image` (and ideally `twitter:card`) present in the server HTML.
+Severity: `low` (a social-share / CTR gap, not an indexation issue).
+Recommendation (only if genuinely absent per evidence): "Add Open Graph (`og:title`, `og:description`, `og:image`, `og:url`) and a `twitter:card` so shared links render a rich preview. **Never recommend adding these if `evidence.md` already lists them** — that's the head-blindness false positive this check exists to stop."
 
 ### `h1_missing`
 Check: no `<h1>` in the page body.

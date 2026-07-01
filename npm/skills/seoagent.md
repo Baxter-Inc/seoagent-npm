@@ -38,6 +38,7 @@ This SKILL.md is the orchestration layer. Detailed protocols live in `references
 |---|---|
 | Running a full audit | `references/audit-checks.md` |
 | Keyword research | `references/keyword-research.md` |
+| Migrating legacy ranking authority after a pivot/rebrand | `references/migration-planning.md` |
 | Writing a landing page | `references/landing-pages.md` |
 | Writing a pillar article | `references/pillar-articles.md` |
 | Writing a sub-pillar article | `references/sub-pillar-articles.md` |
@@ -397,7 +398,7 @@ Once approved, work **a cluster at a time**, top of the plan down:
 1. **Run `seoagent crawl` first.** It fetches the homepage + top pages, the real robots.txt, and the live sitemap, and writes `.seoagent/audit/evidence.md` — the verified evidence base (exact title/meta, ALL H1s, canonical + server/client-render flag, every JSON-LD `@type`, OG/Twitter tags, the ACTUAL robots.txt contents, sitemap URL + blog-post counts, client-rendered-shell detection). **`Read` that file — every `Confirmed` finding must be derived from it, not from repo source or memory.** (Use `seoagent crawl --json` if you want the structured bundle.)
 2. **Read `.claude/skills/seoagent/references/audit-checks.md`.** It contains the full check list, the **Verify-before-assert** rules (confidence labels, never-recommend-what-exists, live-vs-source reconciliation), severity tiers, and recommendation text per check. Do not run the audit from memory — the reference is the source of truth and gives consistent results across sessions.
 
-**Verify-before-assert is the load-bearing rule of the whole audit.** Never state a live-page fact you didn't fetch: don't invent a robots.txt rule, don't recommend adding schema/canonical/OG tags the evidence shows already exist, don't report a dynamic on-page number (a "2,184 families" counter) as `Confirmed` unless it's in the server-fetched HTML. Tag every finding `Confirmed` / `Likely` / `Hypothesis`. If `seoagent crawl` couldn't run (offline, no domain), fall back to per-page WebFetch — but remember WebFetch strips `<script>`, so schema conclusions from it are `Hypothesis`, never `Confirmed`.
+**Verify-before-assert is the load-bearing rule of the whole audit.** Never state a live-page fact you didn't fetch: don't invent a robots.txt rule, don't recommend adding schema/canonical/OG tags the evidence shows already exist, don't report a dynamic on-page number (a "2,184 families" counter) as `Confirmed` unless it's in the server-fetched HTML. Tag every finding `Confirmed` / `Likely` / `Hypothesis`. If `seoagent crawl` couldn't run (offline, no domain), fall back to per-page WebFetch — but remember **WebFetch returns a markdown-stripped render that DROPS the entire `<head>`**: `<title>`, `<meta name="description">`, `<link rel="canonical">`, every `og:*` / `twitter:*` tag, AND every `<script>` JSON-LD block are all invisible to it. Any "missing title / meta / canonical / OG / schema" conclusion drawn from WebFetch is a **false negative** — never `Confirmed`, and never a basis for recommending you add a head tag the site already serves. That's what `seoagent crawl` (raw-HTML parse) exists to prevent; `evidence.md` even prints an explicit **"Already present (do NOT recommend adding)"** line per page.
 
 ### Procedure
 
@@ -406,7 +407,7 @@ Once approved, work **a cluster at a time**, top of the plan down:
    - All pages linked from the homepage `<nav>` (in DOM order)
    - Top-level routes from `sitemap.xml` (sorted by sitemap `priority`, then `lastmod` desc)
 2. **Upstream-health pass (mandatory, runs before per-page checks).** Use `Grep` to find cross-subdomain fetch URLs (`blog.`, `api.`, `cms.`, `content.`) in `src/`, `app/`, `pages/`, `lib/`, `libs/`, `services/`, plus any `rewrites:` / `redirects:` targets in `next.config.{js,mjs,ts}` and `vercel.json`. WebFetch each unique base URL. Anything returning 5xx, timing out, or returning an HTML error page becomes an `upstream_dependency_unreachable` finding (`critical` if it powers indexable content). See `audit-checks.md`.
-3. For each page, WebFetch it and run all checks from `audit-checks.md`.
+3. For each page, run all checks from `audit-checks.md`. **Source every head-level and schema fact (title, meta description, canonical, OG/Twitter, JSON-LD @types) from `evidence.md`, not WebFetch** — WebFetch strips the `<head>` and produces false "missing" negatives. Use WebFetch only for body-content / render-state signals it can actually see.
 4. **Render-state pass (mandatory, runs as part of every page check).** After fetching, strip nav/footer/script/style/noscript and count visible body words. If word count < 30, mark `page_renders_empty` (`critical` for homepage or sitemap-listed pages). A 200 OK with empty body is a soft 404 — Google deindexes these. This catches dead CMS backends that the upstream-health pass might have missed.
    - **Shortcut: `seoagent refresh --crawl`** does this render-state pass deterministically for the whole inventory — it fetches every page and fills the `Status` / `Rendered` / `Word count` columns in `.seoagent/pages.md` (a 404/5xx → `error`; a 200 with < 30 body words → `empty`). Run it once at the start of the audit, then read `pages.md` to find the `empty`/`error` rows instead of WebFetching each page by hand. **It writes `pages.md` directly (not via your Write tool), so the auto-sync hook won't fire — run `seoagent sync` after it** to push the filled inventory to the cloud. (No JS execution — a client-rendered SPA with an empty initial HTML reads as `empty`, which is itself the SEO signal to fix with SSR/prerender.)
 5. Tag findings with severity: `critical`, `high`, `medium`, `low`.
@@ -498,6 +499,20 @@ The single biggest quality lever for the strategy is **real Google Search Consol
    - **Legacy / off-strategy** — demand from an older brand, product, or audience the site has moved away from → mark as *harvest/defend* (worth keeping rankings, not worth building the new strategy around). Note them as such; don't let them steer the clusters.
 4. **Add forward-looking clusters GSC can't show.** The new direction has little or no search history yet, so it won't appear in `--seed`. Generate those targets from the current positioning (`context.md`) + WebSearch — this is where the strategy points *forward*, not backward.
 5. **No GSC data yet (brand-new site)?** `--seed` will say so — use WebSearch to draft the clusters, then get real numbers the tier allows: **logged in → `seoagent keywords`** (enrich the drafted set), **Pro → also `keywords --discover`** for new targets; `--peek` only if not logged in. Revisit `--seed` once impressions accrue. **Stale GSC?** If the freshest seeded data looks weeks old, the cloud GSC sync may be behind — flag it; the seed is only as fresh as the synced data.
+
+### Migration Planning — when the site has repositioned (read `references/migration-planning.md`)
+
+**This is the differentiating move no competitor makes.** When the live product/positioning has clearly shifted away from what history ranks for — a pivot, a rebrand, a new ICP, a dropped product line — step 3's "on-strategy vs legacy" split isn't enough. Run a **per-asset migration plan** for the legacy ranking authority so you don't strand equity or, worse, rebuild the old story.
+
+**When to run it:** you detect a positioning shift — `context.md` / the live homepage describe a *different* product than the site's top GSC queries/pages rank for; the audit or `--seed` surfaces high-impression URLs that are off-message for the current direction; the user says they pivoted/rebranded.
+
+**How:** `seoagent migrate --csv <gsc-export.csv>`. Export Search Console → Performance → **Pages** (and/or **Queries**) → CSV (no login needed for this path — it reads the file). The planner infers the new direction from `project.md` + `context.md` (override with `--direction "<text>"`), then classifies each legacy URL/query by (topical relevance to the new direction, impressions, position) into the **harvest / redirect / sunset** protocol:
+
+- **harvest** — on-topic for the new direction *and* holds real impressions → **refresh/repurpose** into the new narrative, keep the URL, retarget the content.
+- **redirect** — off-topic for the new direction *but* holds authority/impressions → **301** into the most relevant new page so the equity carries forward.
+- **sunset** — negligible impressions and/or off-topic → let it decay / noindex; don't spend effort on it.
+
+It writes `.seoagent/strategy/migration-plan.md` (GSC-backed rationale + concrete action per URL, plus proposed 301s). **Surface a concise summary in the audit/operator output** (`N harvest · N redirect · N sunset`). The proposed redirects are **approval-gated** — if the repo can express them as config (a redirects list / `next.config` `redirects`), offer to write them and **show the diff first**; never apply silently. See `references/migration-planning.md` for the full protocol and thresholds.
 
 ### Cluster Structure (Hub and Spoke)
 
