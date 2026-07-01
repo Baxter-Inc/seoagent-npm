@@ -145,6 +145,8 @@ Landing pages need:
 - 2-4 feature/inline images — actual screenshots, not stock photography
 - 1 OG image — branded, includes product name and value prop, 1200×630
 
+**For a SaaS / product site, the hero + feature images should be real product screenshots — read `references/screenshots.md`** for how to capture them from the product's own code in this repo (no Playwright/paid API) and where to place them. Real UI shots out-convert AI illustrations on a SaaS landing page; only fall back to a generated image when a screenshot isn't possible.
+
 In article frontmatter:
 ```yaml
 images:

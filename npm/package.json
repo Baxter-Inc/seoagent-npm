@@ -1,7 +1,7 @@
 {
   "name": "@seoagent-official/seoagent",
   "version": "0.0.0",
-  "description": "The persistent AI SEO agent for Claude Code. Audits, keyword strategy, briefs, articles, and the autopilot loop (cloud detects → CLI executes → ack closes) — other SEO tools write the prompt, SEOAgent runs it.",
+  "description": "The persistent AI SEO agent for Claude Code. Audits, keyword strategy, briefs, articles, real product screenshots from your repo, and the autopilot loop (cloud detects → CLI executes → ack closes) — other SEO tools write the prompt, SEOAgent runs it.",
   "type": "module",
   "bin": {
     "seoagent": "index.js"
@@ -48,7 +48,9 @@
     "keyword-research",
     "internal-links",
     "schema-markup",
-    "autopilot"
+    "autopilot",
+    "product-screenshots",
+    "saas-seo"
   ],
   "license": "MIT",
   "homepage": "https://seoagent.com",

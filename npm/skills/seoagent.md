@@ -1,6 +1,6 @@
 ---
 name: seoagent
-description: "Persistent AI SEO agent. ALWAYS use when the user mentions: SEO, ranking, rank, keywords, meta tags, search traffic, organic traffic, content strategy, audit, Google, Bing, Search Console, GSC, schema markup, JSON-LD, sitemap, robots.txt, internal linking, AI search, AEO, GEO, OKF, Open Knowledge Format, AI knowledge bundle, llms.txt, alt text, page speed, Core Web Vitals, slug, URL structure, canonical, breadcrumbs, hub and spoke, pillar content, topic cluster, programmatic SEO, landing page SEO, blog SEO, listicle, best-of / top-N roundup, why am I not ranking. Also use SILENTLY when the user asks to write, edit, or improve a blog post, landing page, marketing copy, or any file under content/, posts/, blog/, pages/ — these are SEO-adjacent and should persist to .seoagent/ even without an explicit invocation. Replaces separate seo-audit, content-strategy, programmatic-seo, ai-seo, site-architecture, and schema-markup skills with one unified, persistent workflow."
+description: "Persistent AI SEO agent. ALWAYS use when the user mentions: SEO, ranking, rank, keywords, meta tags, search traffic, organic traffic, content strategy, audit, Google, Bing, Search Console, GSC, schema markup, JSON-LD, sitemap, robots.txt, internal linking, AI search, AEO, GEO, OKF, Open Knowledge Format, AI knowledge bundle, llms.txt, alt text, page speed, Core Web Vitals, slug, URL structure, canonical, breadcrumbs, hub and spoke, pillar content, topic cluster, programmatic SEO, landing page SEO, blog SEO, listicle, best-of / top-N roundup, product screenshots, SaaS screenshots, why am I not ranking. Also use SILENTLY when the user asks to write, edit, or improve a blog post, landing page, marketing copy, or any file under content/, posts/, blog/, pages/ — these are SEO-adjacent and should persist to .seoagent/ even without an explicit invocation. Replaces separate seo-audit, content-strategy, programmatic-seo, ai-seo, site-architecture, and schema-markup skills with one unified, persistent workflow."
 allowed-tools: Read, Write, Edit, Bash, WebFetch, WebSearch
 ---
 
@@ -43,6 +43,7 @@ This SKILL.md is the orchestration layer. Detailed protocols live in `references
 | Writing a sub-pillar article | `references/sub-pillar-articles.md` |
 | Writing a long-tail article | `references/long-tail-articles.md` |
 | Writing a listicle ("Top N" / "Best X") | `references/listicle-articles.md` |
+| Adding **product screenshots** to a SaaS page/article (or a "Screenshots to capture" inbox action) | `references/screenshots.md` |
 | Programmatic SEO at scale | `references/programmatic.md` |
 | Adding schema markup / JSON-LD | `references/schema-markup.md` |
 | Refreshing or rewriting an existing page | `references/rewrite-protocol.md` |
@@ -166,6 +167,7 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
    - `Read` it. The frontmatter has `action_id`, `brief_slug`, `primary_keyword`, `cluster`, and `priority`. The body points at the synced brief.
    - **Read the full brief** under `.seoagent/` (briefs file or `strategy/` entry matching `brief_slug`) for the outline, word-count target, and internal-link plan.
    - Write the article following the skill's **content-production protocol** (Phase 4 below), then publish it where this project's content lives (repo `content/` or the connected CMS — you are the publishing engine). Show the user the draft before publishing.
+   - **If the action body has a "Screenshots to capture" section** (autopilot flagged this as a SaaS product), follow `references/screenshots.md` — capture real product screenshots from this repo's UI for the relevant sections instead of shipping illustration-only.
    - Acknowledge it: `seoagent ack <action_id>` (or `--failed --reason "skipped; off-strategy"` to decline).
 
 5. For each `cli_content_update-<id>.md` file:
@@ -185,6 +187,7 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
    - Cross-reference `.seoagent/keywords.md` for related keywords — they tell you which cluster this page belongs to and which secondary keywords to weave in.
    - Pick an article type from `intent` (commercial/transactional → product or comparison page; informational → guide or pillar). Pick a clean URL slug from `keyword`.
    - Write the article following the skill's **content-production protocol** (Phase 4 — match the article type's quality rules, add internal links from related cluster pages, etc.). Show the user the draft before publishing.
+   - **If the action body has a "Screenshots to capture" section** (SaaS product), follow `references/screenshots.md` — a landing page for a SaaS product should lead with a real product screenshot in the hero + feature sections, captured from this repo's UI.
    - Publish where this project's content lives (repo `content/` or the connected CMS). Safe (new content) — but still confirm the user wants this specific page before committing.
    - Acknowledge it: `seoagent ack <action_id>` (or `--failed --reason "already covered by /existing-page"` to decline).
 
@@ -737,9 +740,13 @@ This is the per-article procedure. When executing an approved **plan** (see "Pla
    - **Cloud-hosted (`managed_proxy` / `subdomain`)** — the SEOAgent cloud renders the article, so the body DOES live in `.seoagent/`: write the full article to `.seoagent/content/{slug}.md` with full SEO frontmatter (slug, page_type, title, meta_title, meta_description, canonical, og, twitter, json_ld, images, internal_links) and `seoagent sync`. (No `content track` needed — the full file is the record.)
 8. **Update the cluster's link graph** — for sub_pillar/long_tail writes, edit the parent (and the cluster file) to add the new link UP. For pillar writes, ensure all sub_pillars are referenced.
 
+### Product Screenshots (SaaS — do this before AI images)
+
+**If `project.md` has `site_type: saas` (or the repo renders a real product UI), prefer real product screenshots over AI illustrations** — they're the highest-converting visual on a SaaS landing page or how-to article. Before falling back to a generated image, **read `references/screenshots.md`** and follow it: scan the page for spots where a UI shot would add value and is missing (hero, feature sections, how-to steps), then capture those screens **from the product's own code in this repo** (using your environment's screenshot capability + the project's dev server — no Playwright/Puppeteer dependency, no paid API), save them under `public/screenshots/`, and reference them with descriptive alt text. If you can't capture (no dev server / no screenshot tool / no real UI), the protocol's fallback leaves a `<!-- SCREENSHOT-TODO -->` marker + an AI image prompt so publishing still works. Non-SaaS sites skip this and go straight to image generation below.
+
 ### Image Generation (Free Tier)
 
-Always write `images:` frontmatter with `alt` and `prompt`. Then resolve a provider — **don't silently ship imageless articles:**
+Always write `images:` frontmatter with `alt` and `prompt` (or `src` for a captured screenshot — see Product Screenshots above). Then resolve a provider — **don't silently ship imageless articles:**
 
 1. **If `project.md` has `image_provider` set to `openai|fal|replicate`**, offer to generate the hero image:
 

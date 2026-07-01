@@ -125,6 +125,7 @@ Same protocol but:
 - Don't ship the rewrite during a campaign in flight — coordinate with the user
 - Update OG card and Twitter card alt text (often forgotten)
 - Update JSON-LD `Product` / `Offer` if pricing or feature claims changed
+- **Screenshot-gap pass (SaaS sites):** during the diagnosis (Step 3), scan the page for hero/feature sections that describe the product but show no real screenshot (illustration-only, stock, or empty). For each gap, capture a real product screenshot from this repo's UI per `references/screenshots.md` and fold it into the rewrite — this is how an *existing* SaaS landing page gets the screenshots it's missing.
 
 ### Rewriting Without an Existing Brief
 

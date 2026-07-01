@@ -29,6 +29,7 @@ Use the **project-local** `seoagent` skill for all real work — audits, strateg
 
 - **Bring your own model.** Runs on the model you already pay for inside Claude Code / Cursor / Codex — no second AI subscription, no per-credit content metering, no proprietary-crawler markup.
 - **Your repo, not a hosted CMS.** Edits the actual files in your repo, approval-gated — the right shape for a site you build in code and keep in your own git history.
+- **Real product screenshots (SaaS).** Captures screenshots of your product straight from your repo's own UI and drops them into landing pages and how-to articles — no Playwright, no paid screenshot API, no stock photos.
 - **Persistent + free.** Every audit, strategy, and brief is saved under `.seoagent/` and builds on the last session. The Skill is free; the cloud is optional and additive.
 
 Docs: https://seoagent.com · npm: https://www.npmjs.com/package/@seoagent-official/seoagent

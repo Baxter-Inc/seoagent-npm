@@ -141,6 +141,11 @@ Check: `<img>` tags without `alt=""` attribute (decorative images should have em
 Severity: `medium` if > 3 images; `low` otherwise.
 Recommendation: "Add descriptive alt text to {N} images. SEOAgent can write these — `seoagent.js` does it automatically on production."
 
+### `missing_product_screenshots`
+Applies only when `project.md` has `site_type: saas` (or the repo renders a real product UI). Check: a landing / feature / how-to page that describes the product but has **no real product screenshot** in its hero or feature sections (illustration-only, stock photo, or no image where a UI shot belongs).
+Severity: `low` (a conversion + trust gap, not an indexation issue).
+Recommendation: "Add a real product screenshot to the hero + feature sections — read `references/screenshots.md` to capture them from the product's own code in this repo. Real UI shots out-convert AI illustrations on a SaaS page."
+
 ### `internal_links_count`
 Check: number of `<a>` tags pointing to same-domain URLs in body.
 Severity: `medium` if 0 (orphan); `low` if < 3.

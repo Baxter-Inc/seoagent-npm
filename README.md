@@ -26,6 +26,7 @@
   <img alt="Node 18+" src="https://img.shields.io/badge/NODE%20%E2%89%A5%2018-339933?style=flat-square&logo=node.js&logoColor=white">
   <img alt="SEO Autopilot" src="https://img.shields.io/badge/SEO-AUTOPILOT-f97316?style=flat-square">
   <img alt="Images via OpenAI · fal.ai · Replicate" src="https://img.shields.io/badge/IMAGES-OpenAI%20%C2%B7%20fal.ai%20%C2%B7%20Replicate-ec4899?style=flat-square">
+  <img alt="Product screenshots from your repo" src="https://img.shields.io/badge/PRODUCT-SCREENSHOTS-0ea5e9?style=flat-square">
 </p>
 
 <p align="center">
@@ -159,6 +160,8 @@ Same agent-native convenience. None of the lock-in.
 
 **Image Generation (Bring Your Own Key)** — Detect `OPENAI_API_KEY`, `FAL_KEY`, or `REPLICATE_API_TOKEN` from your env. Generate hero + inline images with `seoagent generate-image`. You pay the LLM provider directly.
 
+**Real Product Screenshots (SaaS)** — For SaaS/product sites, Claude captures **real screenshots of your product straight from your repo's own UI** and places them in landing-page heroes, feature sections, and how-to steps — the highest-converting visual on a SaaS page, and one no other SEO tool gives you. No Playwright dependency, no paid screenshot API, no stock photos: it renders your product locally and shoots the actual screens. It evaluates where a screenshot would help and is missing, fills the gap, and falls back to an AI image only when a real shot isn't possible. Cloud-suggested SaaS pages carry the instruction too, so a page SEOAgent queues gets the same screenshots when you run it in your repo.
+
 **Open Knowledge Format bundle (AEO/GEO)** — Generate a Google [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf) bundle for your site — a curated, agent-readable knowledge layer so ChatGPT, Claude, Perplexity, and Google's AI understand and cite your business accurately. Claude maps your `.seoagent/` knowledge into OKF markdown; `seoagent okf scaffold` and `seoagent okf validate` handle the structure. Saved to `.seoagent/okf/`.
 
 **AI Citation Tracker (the measurement half of AEO)** — Publishing an OKF bundle makes you *citable*; `seoagent citations` tells you whether it's *working*. It runs a set of buyer-intent questions through the Claude Agent SDK **with live web search** and reports which ones surface your business — a web-grounded proxy for how ChatGPT, Perplexity, and Google's AI Overviews answer. It's a real tracker, not a one-shot read: every run is saved to `.seoagent/citations/history/` and the scorecard shows the **trend** vs your last run, the **URL each engine cited** (yours when you win, the page that beat you when you don't), and — with `--competitors "Frase,Otterly"` — a **share-of-voice** table ranking you against them. Saved to `.seoagent/citations/scorecard.md`. The paid trackers (Frase, Otterly, Profound) gate exactly this behind $50–500/mo; we do it free on your own model. (Honest by design: it measures Claude + web search, not a per-engine guarantee.)
@@ -203,6 +206,7 @@ Same agent-native convenience. None of the lock-in.
     sub-pillar-articles.md    # Sub-pillar protocol
     long-tail-articles.md     # Long-tail protocol
     programmatic.md           # 12 programmatic SEO playbooks
+    screenshots.md            # Capture real product screenshots from your repo (SaaS)
     schema-markup.md          # JSON-LD library by entity type
     open-knowledge-format.md  # OKF bundle protocol (AEO/GEO)
     keyword-research.md       # WebSearch query patterns
