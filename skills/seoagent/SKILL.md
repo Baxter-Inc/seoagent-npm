@@ -1,6 +1,6 @@
 ---
 name: seoagent
-description: "Persistent AI SEO for coding agents — technical SEO audits, hub-and-spoke keyword strategy, page-type content briefs, optimized articles, schema/JSON-LD, sitemaps, internal linking, and AI-search (AEO/GEO) — all saved under .seoagent/ in your repo. Runs on your own model (Claude Code, Cursor, Codex), no second AI subscription. Use when the user mentions SEO, ranking, keywords, organic traffic, content strategy, an SEO audit, schema, sitemap, internal links, AI search / AEO / GEO, get cited by AI, or 'why am I not ranking'."
+description: "Persistent AI SEO for coding agents — technical SEO audits, hub-and-spoke keyword strategy, page-type content briefs, optimized articles, real product screenshots captured from your repo (SaaS), schema/JSON-LD, sitemaps, internal linking, and AI-search (AEO/GEO) — all saved under .seoagent/ in your repo. Runs on your own model (Claude Code, Cursor, Codex), no second AI subscription. Use when the user mentions SEO, ranking, keywords, organic traffic, content strategy, an SEO audit, product screenshots, schema, sitemap, internal links, AI search / AEO / GEO, get cited by AI, or 'why am I not ranking'."
 ---
 
 # SEOAgent — set up the persistent SEO agent (one command)

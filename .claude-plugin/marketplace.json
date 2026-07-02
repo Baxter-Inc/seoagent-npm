@@ -4,7 +4,7 @@
     "name": "SEOAgent"
   },
   "metadata": {
-    "description": "SEOAgent — install the npm CLI, then get the full persistent SEO skill in your repo."
+    "description": "SEOAgent — install the npm CLI, then get the full persistent SEO skill in your repo: audits, keyword strategy, content, and real product screenshots captured from your own repo (SaaS)."
   },
   "plugins": [
     {
