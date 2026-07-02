@@ -6,7 +6,7 @@
     "name": "SEOAgent",
     "url": "https://seoagent.com"
   },
-  "homepage": "https://seoagent.com",
+  "homepage": "https://seoagent.com?ref=codex-plugin-marketplace",
   "repository": "https://github.com/Baxter-Inc/seoagent-npm",
   "license": "MIT",
   "keywords": ["seo", "agent-skill", "claude-skill", "codex", "ai-seo", "aeo", "geo"],

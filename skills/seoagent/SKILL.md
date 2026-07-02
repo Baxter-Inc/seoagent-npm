@@ -32,4 +32,4 @@ Use the **project-local** `seoagent` skill for all real work — audits, strateg
 - **Real product screenshots (SaaS).** Captures screenshots of your product straight from your repo's own UI and drops them into landing pages and how-to articles — no Playwright, no paid screenshot API, no stock photos.
 - **Persistent + free.** Every audit, strategy, and brief is saved under `.seoagent/` and builds on the last session. The Skill is free; the cloud is optional and additive.
 
-Docs: https://seoagent.com · npm: https://www.npmjs.com/package/@seoagent-official/seoagent
+Docs: https://seoagent.com?ref=skills-sh · npm: https://www.npmjs.com/package/@seoagent-official/seoagent

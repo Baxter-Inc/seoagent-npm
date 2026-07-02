@@ -53,11 +53,11 @@
     "saas-seo"
   ],
   "license": "MIT",
-  "homepage": "https://seoagent.com",
+  "homepage": "https://seoagent.com?ref=npm-package",
   "bugs": {
     "url": "https://github.com/Baxter-Inc/seoagent-npm/issues"
   },
-  "funding": "https://seoagent.com/pricing",
+  "funding": "https://seoagent.com/pricing?ref=npm-funding",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Baxter-Inc/seoagent-npm.git"

@@ -27,4 +27,4 @@ The user should use the **project-local** SEOAgent skill (large `SKILL.md`) for 
 
 ## Docs
 
-Package README and behavior: [npm `@seoagent-official/seoagent`](https://www.npmjs.com/package/@seoagent-official/seoagent) and [SEOAgent](https://seoagent.com).
+Package README and behavior: [npm `@seoagent-official/seoagent`](https://www.npmjs.com/package/@seoagent-official/seoagent) and [SEOAgent](https://seoagent.com?ref=claude-plugin-skill).

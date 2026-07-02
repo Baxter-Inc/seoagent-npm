@@ -346,7 +346,7 @@ export DO_NOT_TRACK=1         # the cross-tool convention — also respected
 
 ## SEOAgent Cloud
 
-The free skill handles audits, strategy, briefs, articles, and persistent state using Claude's native capabilities. For teams and production SEO, [SEOAgent Cloud](https://seoagent.com/pricing?ref=readme) adds:
+The free skill handles audits, strategy, briefs, articles, and persistent state using Claude's native capabilities. For teams and production SEO, [SEOAgent Cloud](https://seoagent.com/pricing?ref=npm-readme-pricing) adds:
 
 - **Real keyword data (DataForSEO)** — Actual search volumes, difficulty scores, and opportunity classification (easy-win / striking-distance / competitor-gap). Free login enriches your top ~25 keywords (`keywords`); paid lifts the cap and unlocks discovery of new targets (`--discover`) and competitor-gap analysis (`--competitors`).
 - **Deep crawling** — Firecrawl-powered JS rendering (finds issues in SPAs)
@@ -354,7 +354,7 @@ The free skill handles audits, strategy, briefs, articles, and persistent state 
 - **GSC integration** — Real clicks, impressions, CTR, position tracking
 - **CMS publishing** — WordPress, Ghost, Webflow, Shopify, Strapi
 - **Team collaboration** — Invite members, share strategy, coordinate publishing
-- **Cloud dashboard** — See everything Claude Code did at seoagent.com (also free with any account)
+- **Cloud dashboard** — See everything Claude Code did at [seoagent.com](https://seoagent.com?ref=npm-readme-dashboard) (also free with any account)
 
 Run `seoagent login` (or `npx -y @seoagent-official/seoagent@latest login`) for the free dashboard, or `seoagent upgrade` for paid features.
 
