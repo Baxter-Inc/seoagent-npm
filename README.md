@@ -324,6 +324,26 @@ Grouped by what they're for. Run as bare `seoagent <cmd>` after the one-time `np
 
 The hooks deliberately use the `npx -y …@latest` form (not bare `seoagent`) so they survive `npm uninstall -g` **and actually stay current** — pinning `@latest` forces npx to re-resolve the newest version each run instead of silently reusing a stale `~/.npm/_npx` cache. No-op when not logged in. Race-safe: a cooperative lock keeps a manual `seoagent sync` from clobbering an in-flight hook run. Both run the same `sync`, which **auto-refreshes the installed skill** when the CLI is newer than the project's `skill_version` — rewriting only the skill bundle, never `.seoagent/`.
 
+## Telemetry (anonymous, disclosed, opt-out)
+
+`seoagent init` sends **one anonymous ping** so we can count installs: a random
+install id (the same UUID `keywords --peek` uses), the event name (`init` /
+`reinit`), the CLI version, and your OS platform. **Nothing else** — no domain,
+no file paths, no environment contents, no username. The CLI prints a
+disclosure line whenever a ping is sent.
+
+`init` also runs one **free keyword peek** on your domain's brand name (the
+same `keywords --peek` lookup, shown to you in the output) so you see real
+keyword data immediately; that request carries your project domain, exactly
+like a manual `--peek`.
+
+Opt out of both with either:
+
+```bash
+export SEOAGENT_TELEMETRY=0   # SEOAgent-specific
+export DO_NOT_TRACK=1         # the cross-tool convention — also respected
+```
+
 ## SEOAgent Cloud
 
 The free skill handles audits, strategy, briefs, articles, and persistent state using Claude's native capabilities. For teams and production SEO, [SEOAgent Cloud](https://seoagent.com/pricing?ref=readme) adds:
