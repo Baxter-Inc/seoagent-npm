@@ -393,6 +393,19 @@ Once approved, work **a cluster at a time**, top of the plan down:
 
 ---
 
+## Session Economy — bounded sessions
+
+Every session has a budget — headless/one-shot runs have a hard turn cap, interactive ones have the user's patience. Treat any single-request session as a **bounded session** and spend the budget on findings and shippable work, not on bookkeeping churn. The failure mode this section prevents: sessions that write a hundred small files — ticking a changelog line after every action, re-polishing the roadmap between steps — and hit the cap before the final summary exists. Four rules:
+
+1. **Consolidate writes.** One audit doc, one migration plan, one batch of fixes — not a file (or a file update) per finding. Do NOT write per-item bookkeeping updates (a changelog line here, a roadmap tick there, a status touch after each action) as you go; accumulate them and batch them into a single write at the end of the session — one changelog append, one roadmap update, one `seoagent sync`.
+2. **Scope a single-session ask to what one session can ship.** For a single-session "grow organic traffic" ask, deliver the audit findings + the migration plan + the top shippable fixes. Do NOT draft full article inventories or write every article in the plan — that is multi-session work; list the briefs (slug + target keyword + role) in the roadmap instead and let later sessions write them.
+3. **Reserve the final turns for the wrap-up.** When the work above is done, produce the final summary (running `seoagent verify-recs` first) — do not open a new work stream (another audit pass, another content draft) you cannot finish inside the budget. An unfinished extra stream plus a missing summary is worth less than a complete summary.
+4. **Prefer editing an existing file over creating a new one** when appending related content — extend `audit/latest.md` rather than creating a second audit file, add a section to `roadmap.md` rather than a new planning doc. Fewer files means fewer writes, fewer sync round-trips, and a workspace the next session can actually read.
+
+These are general bounded-session economics, not a benchmark mode — in an interactive session the same rules simply make you faster and the workspace cleaner.
+
+---
+
 ## Phase 1: Technical SEO Audit
 
 ### Step 0 (mandatory — capture the live-crawl evidence base, then read the checks)
@@ -412,6 +425,8 @@ Every finding or recommendation line you emit — in `.seoagent/audit/latest.md`
 A line with neither is invalid output — rewrite it or drop it before responding.
 
 **"Add X" recommendations are FORBIDDEN unless evidence shows absence on the LIVE page.** Never recommend adding a title, meta description, canonical, Open Graph/Twitter tags, or JSON-LD schema unless the page's `evidence.md` section shows that item genuinely absent (`_(none)_` / "safe to recommend adding"). If the page's **"Already present (do NOT recommend adding)"** line lists it, the recommendation is suppressed — those are the `recommendation-guard` semantics, printed into the evidence file precisely so you can't miss them. If a page wasn't crawled, you have **no evidence of absence**: an "add X" for it is at most a `Hypothesis`, never an action item.
+
+**Mechanical enforcement — `seoagent verify-recs` is the MANDATORY final step of any audit/optimization session.** The contract above is enforced by the CLI, not just by this prompt. At the end of the session — after writing your outputs, BEFORE composing the final summary — run `seoagent verify-recs` (pass any work-log/summary files you wrote outside `.seoagent/` as arguments). It re-checks every authored `.seoagent/**/*.md` against `evidence.md` and REWRITES, in place with a `CORRECTION (verify-recs)` annotation, any "added X / there was no X / X was missing" claim about a head-level entity (title, meta description, canonical, Open Graph, twitter:card, or a JSON-LD `@type` such as `Organization`/`SoftwareApplication`/`WebSite`) that the evidence shows the live page ALREADY serves. **Reflect every correction it reports in your final message** — never let a corrected claim survive into the summary (use `--json` to branch on the result programmatically). It never touches `evidence.md`, generated projections (`pages.md`/`keywords.md`), the inbox, or anything under `.claude/`, and it always exits 0 — a correction is the check working, not an error.
 
 **Verify-before-assert is the load-bearing rule of the whole audit.** Never state a live-page fact you didn't fetch: don't invent a robots.txt rule, don't recommend adding schema/canonical/OG tags the evidence shows already exist, don't report a dynamic on-page number (a "2,184 families" counter) as `Confirmed` unless it's in the server-fetched HTML. Tag every finding `Confirmed` / `Likely` / `Hypothesis`. If `seoagent crawl` couldn't run (offline, no domain), fall back to per-page WebFetch — but remember **WebFetch returns a markdown-stripped render that DROPS the entire `<head>`**: `<title>`, `<meta name="description">`, `<link rel="canonical">`, every `og:*` / `twitter:*` tag, AND every `<script>` JSON-LD block are all invisible to it. Any "missing title / meta / canonical / OG / schema" conclusion drawn from WebFetch is a **false negative** — never `Confirmed`, and never a basis for recommending you add a head tag the site already serves. That's what `seoagent crawl` (raw-HTML parse) exists to prevent; `evidence.md` even prints an explicit **"Already present (do NOT recommend adding)"** line per page.
 
@@ -466,7 +481,8 @@ low: 3
 
 1. Append to `.seoagent/changelog.md`: `[date] Audit completed: {N} pages, {N} findings ({c} critical, {h} high, {m} medium, {l} low)`.
 2. Update `.seoagent/roadmap.md` with audit-derived action items grouped by priority.
-3. Run `seoagent sync`.
+3. Run `seoagent verify-recs` — the mechanical check that nothing you wrote contradicts `evidence.md` (it rewrites any false "added X / none existed" claim in place and reports it; reflect its corrections in your response).
+4. Run `seoagent sync`.
 
 ### Audit "Fixed" Flow
 
@@ -965,7 +981,7 @@ The CLI manages credentials at `~/.config/seoagent/auth.json` — outside the pr
 7. **End with the plan's next step, not a menu.** When executing an approved plan, close with progress + what's next in the plan ("3 of 8 in this cluster done; writing the next now"), not a 2–3-option menu every turn. Offer explicit choices only at real decision points (the plan-approval gate, a cluster boundary, an ambiguous call).
 8. **Update the roadmap and changelog** after every action.
 9. **Sync after every artifact write.** Run `seoagent sync` (no-op when not logged in — always run it).
-10. **Verify before you assert.** Every claim about a page's live state (robots.txt rules, schema/JSON-LD, meta tags, titles, headings, canonical, sitemap contents, whether a URL exists) must be grounded in an actual live fetch — `seoagent crawl`'s `.seoagent/audit/evidence.md` or a WebFetch you just ran — never repo source, memory, or a prior. **Never recommend adding something the live page already has.** Tag every finding `Confirmed` / `Likely` / `Hypothesis`; never emit an unverified specific (price, line number, competitor, dynamic on-page metric) as a bare fact. Repo-only issues that aren't confirmed on the live site are labeled and reported separately, not as production reality. Every finding/recommendation line carries an `Evidence:` citation or an explicit `Hypothesis` label — see Phase 1 § Evidence-citation contract.
+10. **Verify before you assert.** Every claim about a page's live state (robots.txt rules, schema/JSON-LD, meta tags, titles, headings, canonical, sitemap contents, whether a URL exists) must be grounded in an actual live fetch — `seoagent crawl`'s `.seoagent/audit/evidence.md` or a WebFetch you just ran — never repo source, memory, or a prior. **Never recommend adding something the live page already has.** Tag every finding `Confirmed` / `Likely` / `Hypothesis`; never emit an unverified specific (price, line number, competitor, dynamic on-page metric) as a bare fact. Repo-only issues that aren't confirmed on the live site are labeled and reported separately, not as production reality. Every finding/recommendation line carries an `Evidence:` citation or an explicit `Hypothesis` label — see Phase 1 § Evidence-citation contract. The deterministic backstop is `seoagent verify-recs` — run it as the session's final step and reflect its corrections in the final summary.
 11. **Use the output template** for all top-level reports.
 12. **Read context before generating.** Before any strategy, brief, or article, read `.seoagent/context.md`.
 13. **Plan once, then execute** (see "Plan & Execute"). Get one approval on the content plan, then run it in batches (a cluster at a time) — don't ask `Continue?` between articles or phases. Pause only for: the plan approval, cluster boundaries (show drafts + open a PR), ambiguous decisions, and destructive actions. Go fully autonomous or step-by-step if the user asks.
@@ -973,6 +989,7 @@ The CLI manages credentials at `~/.config/seoagent/auth.json` — outside the pr
 15. **Edit existing files; Write only new ones.** `project.md`, `context.md`, `roadmap.md`, `changelog.md`, and any artifact created by `init` already exist — use the `Edit` tool to modify them. Reserve `Write` for files that don't exist yet. Trying to `Write` an existing file fails with "File must be read first" and wastes a tool call.
 16. **Use the CMS metadata.** If `project.md` has `cms: strapi | wordpress | sanity | contentful | ghost | webflow | shopify | payload | directus | mdx-local`, the user has a CMS. When writing articles in Phase 4, mention how the article's frontmatter maps to that CMS's content model (e.g. Strapi: title → Title field, body → Content rich-text). When the cluster is content-focused, suggest publishing the article to the detected CMS as the next step. The free tier writes to `.seoagent/content/` only — Cloud handles the publish itself.
 17. **Use the blog_path metadata.** If `project.md` has `blog_path: /blog` (or similar), articles' canonical URLs use that prefix: `https://{domain}{blog_path}/{slug}`.
+18. **Respect the session budget** (see "Session Economy — bounded sessions"). Consolidate writes, batch bookkeeping into one final update, scope single-session asks to audit + plan + top fixes, and reserve the final turns for `seoagent verify-recs` + the summary — never start a work stream you can't finish.
 
 ---
 

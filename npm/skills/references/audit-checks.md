@@ -18,6 +18,8 @@ Three rules govern every finding:
 
 **Do not assert repo-internal specifics (file paths, line numbers) as fact in a live-state finding.** They are fixing *hints*, not verified live facts — mark them `Likely` and phrase as "likely in `app/layout.tsx`", never "on line 42".
 
+**Mechanical backstop — `seoagent verify-recs` (run it at the end of every audit session).** The rules above are also enforced deterministically: after writing the audit outputs (and any fixes/work log), run `seoagent verify-recs`. It scans every authored `.seoagent/**/*.md` (plus any files you pass as arguments) against `evidence.md` and rewrites, in place with a `CORRECTION (verify-recs)` annotation, any absence claim or add-recommendation about a title, meta description, canonical, Open Graph/Twitter tag, or JSON-LD `@type` the live page already serves. Treat its corrections as authoritative: carry every one into the final response, and never restate the original (corrected) claim.
+
 ## Crawlability & Indexation
 
 ### `robots_txt_exists`
