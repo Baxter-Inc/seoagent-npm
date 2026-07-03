@@ -228,6 +228,8 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
 
 **Every session starts here.** Before doing any SEO work:
 
+> **⚡ FAST PATH — fresh project (findings first, bookkeeping second).** When `.seoagent/` was JUST created — `init` ran this session or moments before it, there's no `audit/latest.md`, no `strategy/`, and the changelog holds only the init line — there is **nothing to reconcile**. Skip the session bookkeeping below (pull-receipt triage, content/cluster-status reconciliation, doctor-finding loops) and go **straight to Phase 1**: `seoagent crawl` → read `evidence.md` → audit → deliver findings. Do not spend the first stretch of the session on scaffolding, roadmap polish, changelog hygiene, or sync plumbing — **deliver evidence-grounded findings first; workspace bookkeeping second.** One quick `seoagent doctor` is still worth it (it catches a missing domain in seconds) — but act only on `domain_unknown`/`site_type_unknown` before the crawl; every other finding waits until after the findings are delivered. `seoagent sync` is best-effort background hygiene: it **must never block, gate, or precede audit work** on a fresh project — run it after the findings are out. (This fast path applies only to fresh projects; an established `.seoagent/` runs the full checklist below because there genuinely is state to reconcile.)
+
 0. **Run `seoagent doctor` first** (when `.seoagent/` exists). It's a fast, local health check that surfaces exactly what the steps below ask you to remember — an untriaged pull receipt, `domain`/`site_type: unknown`, and an image-provider key that's present but not enabled. Use `seoagent doctor --json` if you want to branch on the findings programmatically. Treat each `action` finding as a to-do for the steps below; if it reports healthy, continue. This is the deterministic backstop so none of the checks get skipped.
 
 1. Check if `.seoagent/project.md` exists.
@@ -398,6 +400,19 @@ Once approved, work **a cluster at a time**, top of the plan down:
 1. **Run `seoagent crawl` first.** It fetches the homepage + top pages, the real robots.txt, and the live sitemap, and writes `.seoagent/audit/evidence.md` — the verified evidence base (exact title/meta, ALL H1s, canonical + server/client-render flag, every JSON-LD `@type`, OG/Twitter tags, the ACTUAL robots.txt contents, sitemap URL + blog-post counts, client-rendered-shell detection). **`Read` that file — every `Confirmed` finding must be derived from it, not from repo source or memory.** (Use `seoagent crawl --json` if you want the structured bundle.)
 2. **Read `.claude/skills/seoagent/references/audit-checks.md`.** It contains the full check list, the **Verify-before-assert** rules (confidence labels, never-recommend-what-exists, live-vs-source reconciliation), severity tiers, and recommendation text per check. Do not run the audit from memory — the reference is the source of truth and gives consistent results across sessions.
 
+3. **Step 0 is not optional and not "when useful" — it is the gate for ALL live-state work.** Any audit, technical-SEO review, "what's wrong with my site", or "add schema/meta/canonical" request starts with `seoagent crawl` — even a quick one, even when the repo source looks obvious. The crawl now covers the homepage **plus subpages discovered from the live sitemap + homepage nav links** (default 15 pages, fetched concurrently), so it's fast and it sees the blog posts and subpages where the real gaps hide. **No live-state claim and no "add X" recommendation may be emitted unless `.seoagent/audit/evidence.md` exists, covers the target page(s), and the claim cites it.** If `evidence.md` is missing or stale (>24h old — `seoagent doctor` flags this as `evidence_stale`), re-run the crawl before asserting anything. Reasoning from the repo source about what the live site serves is exactly the failure this gate exists to stop: the repo may be behind (or ahead of) production.
+
+### Evidence-citation contract (applies to every finding and recommendation)
+
+Every finding or recommendation line you emit — in `.seoagent/audit/latest.md` AND in the chat response — must either:
+
+- carry an **`Evidence:`** citation — quote the exact `evidence.md` entry or name the file + page section (e.g. `Evidence: evidence.md § https://site.com/pricing — canonical: _(none in server HTML)_`), or cite the specific fetch you just ran; **or**
+- be explicitly labeled **`Hypothesis`** (and phrased as one — "may", "likely", never asserted).
+
+A line with neither is invalid output — rewrite it or drop it before responding.
+
+**"Add X" recommendations are FORBIDDEN unless evidence shows absence on the LIVE page.** Never recommend adding a title, meta description, canonical, Open Graph/Twitter tags, or JSON-LD schema unless the page's `evidence.md` section shows that item genuinely absent (`_(none)_` / "safe to recommend adding"). If the page's **"Already present (do NOT recommend adding)"** line lists it, the recommendation is suppressed — those are the `recommendation-guard` semantics, printed into the evidence file precisely so you can't miss them. If a page wasn't crawled, you have **no evidence of absence**: an "add X" for it is at most a `Hypothesis`, never an action item.
+
 **Verify-before-assert is the load-bearing rule of the whole audit.** Never state a live-page fact you didn't fetch: don't invent a robots.txt rule, don't recommend adding schema/canonical/OG tags the evidence shows already exist, don't report a dynamic on-page number (a "2,184 families" counter) as `Confirmed` unless it's in the server-fetched HTML. Tag every finding `Confirmed` / `Likely` / `Hypothesis`. If `seoagent crawl` couldn't run (offline, no domain), fall back to per-page WebFetch — but remember **WebFetch returns a markdown-stripped render that DROPS the entire `<head>`**: `<title>`, `<meta name="description">`, `<link rel="canonical">`, every `og:*` / `twitter:*` tag, AND every `<script>` JSON-LD block are all invisible to it. Any "missing title / meta / canonical / OG / schema" conclusion drawn from WebFetch is a **false negative** — never `Confirmed`, and never a basis for recommending you add a head tag the site already serves. That's what `seoagent crawl` (raw-HTML parse) exists to prevent; `evidence.md` even prints an explicit **"Already present (do NOT recommend adding)"** line per page.
 
 ### Procedure
@@ -433,12 +448,14 @@ low: 3
 # Audit — example.com
 
 ## Critical
-- [ ] **Homepage `noindex` meta tag** — blocks Google from indexing the home page entirely.
+- [ ] **Homepage `noindex` meta tag** — blocks Google from indexing the home page entirely. (Confirmed)
   - URL: https://example.com
-  - Recommendation: Remove `<meta name="robots" content="noindex">` from `app/layout.tsx`.
+  - Evidence: evidence.md § https://example.com — server HTML contains `<meta name="robots" content="noindex">`
+  - Recommendation: Remove the `noindex` directive — likely in `app/layout.tsx`.
 
 ## High
-- [ ] Homepage title is 72 chars (target 50-60). Move primary keyword to start.
+- [ ] Homepage title is 72 chars (target 50-60). Move primary keyword to start. (Confirmed)
+  - Evidence: evidence.md § https://example.com — title: "…"
 
 ## What's Working
 - HTTPS site-wide with HSTS
@@ -506,13 +523,32 @@ The single biggest quality lever for the strategy is **real Google Search Consol
 
 **When to run it:** you detect a positioning shift — `context.md` / the live homepage describe a *different* product than the site's top GSC queries/pages rank for; the audit or `--seed` surfaces high-impression URLs that are off-message for the current direction; the user says they pivoted/rebranded.
 
+**Run it in the DEFAULT audit/strategy flow — don't wait to be asked.** During ANY audit or strategy session, check two conditions:
+
+1. **GSC data is available** — either a connected GSC (cloud login), **or a local Search Console CSV export in the workspace**. `seoagent migrate` auto-detects these when run without `--csv` (it scans `gsc/*.csv` and root-level `*.csv` files whose header parses as a Search Console Pages/Queries export) — so a user who dropped an export in the repo has GSC data even with no login. Check for those files yourself too before concluding "no GSC data".
+2. **The audit detects a positioning mismatch** — the live product/positioning (from `evidence.md` + `context.md`) differs materially from what the GSC queries/pages are about.
+
+When BOTH hold, running the migration planner is **mandatory** — and the final response MUST include the per-asset **harvest / redirect / sunset table** (each row carrying its **impressions/position rationale**), not just a pointer to `.seoagent/strategy/migration-plan.md` (write that file too — `seoagent migrate` does). The user asked how to grow traffic; the disposition of their existing ranking equity IS a core part of that answer, and burying it in a file the user never opens throws the differentiator away.
+
+When GSC data is available and there's **no** mismatch, one line suffices: *"No migration needed: current positioning matches existing search demand."* When no GSC data exists at all, skip silently — there's nothing to migrate from.
+
 **How:** `seoagent migrate --csv <gsc-export.csv>`. Export Search Console → Performance → **Pages** (and/or **Queries**) → CSV (no login needed for this path — it reads the file). The planner infers the new direction from `project.md` + `context.md` (override with `--direction "<text>"`), then classifies each legacy URL/query by (topical relevance to the new direction, impressions, position) into the **harvest / redirect / sunset** protocol:
 
 - **harvest** — on-topic for the new direction *and* holds real impressions → **refresh/repurpose** into the new narrative, keep the URL, retarget the content.
 - **redirect** — off-topic for the new direction *but* holds authority/impressions → **301** into the most relevant new page so the equity carries forward.
 - **sunset** — negligible impressions and/or off-topic → let it decay / noindex; don't spend effort on it.
 
-It writes `.seoagent/strategy/migration-plan.md` (GSC-backed rationale + concrete action per URL, plus proposed 301s). **Surface a concise summary in the audit/operator output** (`N harvest · N redirect · N sunset`). The proposed redirects are **approval-gated** — if the repo can express them as config (a redirects list / `next.config` `redirects`), offer to write them and **show the diff first**; never apply silently. See `references/migration-planning.md` for the full protocol and thresholds.
+It writes `.seoagent/strategy/migration-plan.md` (GSC-backed rationale + concrete action per URL, plus proposed 301s). **Surface a concise summary in the audit/operator output** (`N harvest · N redirect · N sunset`) **and the full per-asset table in the final strategy response** (per the mandate above). The proposed redirects are **approval-gated** — if the repo can express them as config (a redirects list / `next.config` `redirects`), offer to write them and **show the diff first**; never apply silently. See `references/migration-planning.md` for the full protocol and thresholds.
+
+### Closing a growth answer: the transition narrative
+
+Any strategy-level answer to a "grow organic traffic" ask — with or without a migration plan — should **end with a short, sequenced transition narrative**, because the *order* of the work is itself the strategy:
+
+1. **Protect & harvest existing equity first** — apply the harvest/redirect decisions (or, when no migration is needed, confirm the current rankings are safe and fed by internal links) so today's traffic funds the transition instead of leaking away during it.
+2. **Build the new-direction clusters** — the depth-first content plan (Phase 2/roadmap) targeting where the business is going, hub-and-spoke, highest ICP-fit cluster first.
+3. **Measure and iterate** — GSC (or `seoagent citations` for AI answers) confirms whether harvested pages held their positions and the new clusters are gaining; re-audit on a cadence and adjust.
+
+Write it as genuine method guidance in the site's own terms — which URLs, which clusters, what to watch — not as boilerplate steps. It's how the user should sequence real work over the next quarter.
 
 ### Cluster Structure (Hub and Spoke)
 
@@ -929,7 +965,7 @@ The CLI manages credentials at `~/.config/seoagent/auth.json` — outside the pr
 7. **End with the plan's next step, not a menu.** When executing an approved plan, close with progress + what's next in the plan ("3 of 8 in this cluster done; writing the next now"), not a 2–3-option menu every turn. Offer explicit choices only at real decision points (the plan-approval gate, a cluster boundary, an ambiguous call).
 8. **Update the roadmap and changelog** after every action.
 9. **Sync after every artifact write.** Run `seoagent sync` (no-op when not logged in — always run it).
-10. **Verify before you assert.** Every claim about a page's live state (robots.txt rules, schema/JSON-LD, meta tags, titles, headings, canonical, sitemap contents, whether a URL exists) must be grounded in an actual live fetch — `seoagent crawl`'s `.seoagent/audit/evidence.md` or a WebFetch you just ran — never repo source, memory, or a prior. **Never recommend adding something the live page already has.** Tag every finding `Confirmed` / `Likely` / `Hypothesis`; never emit an unverified specific (price, line number, competitor, dynamic on-page metric) as a bare fact. Repo-only issues that aren't confirmed on the live site are labeled and reported separately, not as production reality.
+10. **Verify before you assert.** Every claim about a page's live state (robots.txt rules, schema/JSON-LD, meta tags, titles, headings, canonical, sitemap contents, whether a URL exists) must be grounded in an actual live fetch — `seoagent crawl`'s `.seoagent/audit/evidence.md` or a WebFetch you just ran — never repo source, memory, or a prior. **Never recommend adding something the live page already has.** Tag every finding `Confirmed` / `Likely` / `Hypothesis`; never emit an unverified specific (price, line number, competitor, dynamic on-page metric) as a bare fact. Repo-only issues that aren't confirmed on the live site are labeled and reported separately, not as production reality. Every finding/recommendation line carries an `Evidence:` citation or an explicit `Hypothesis` label — see Phase 1 § Evidence-citation contract.
 11. **Use the output template** for all top-level reports.
 12. **Read context before generating.** Before any strategy, brief, or article, read `.seoagent/context.md`.
 13. **Plan once, then execute** (see "Plan & Execute"). Get one approval on the content plan, then run it in batches (a cluster at a time) — don't ask `Continue?` between articles or phases. Pause only for: the plan approval, cluster boundaries (show drafts + open a PR), ambiguous decisions, and destructive actions. Go fully autonomous or step-by-step if the user asks.

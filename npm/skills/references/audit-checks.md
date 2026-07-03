@@ -4,7 +4,9 @@ Loaded by Phase 1 (Technical SEO Audit) when running a full audit. The main `SKI
 
 ## Verify-before-assert (read first — non-negotiable)
 
-**Every factual claim about a page's live state must be grounded in an actual fetch of the live URL — never in repo source, memory, or a prior.** Before running these checks, run `seoagent crawl` (Phase 1 Step 0). It writes `.seoagent/audit/evidence.md` — the live-crawl evidence base (exact title, meta, ALL H1s, canonical + server/client-render flag, every JSON-LD `@type`, OG/Twitter tags, the ACTUAL robots.txt contents, the sitemap URL + blog-post counts, client-rendered-shell detection). Read that file and derive Confirmed findings from it.
+**Every factual claim about a page's live state must be grounded in an actual fetch of the live URL — never in repo source, memory, or a prior.** Before running these checks, run `seoagent crawl` (Phase 1 Step 0). It writes `.seoagent/audit/evidence.md` — the live-crawl evidence base (exact title, meta, ALL H1s, canonical + server/client-render flag, every JSON-LD `@type`, OG/Twitter tags, per-page `<img>`-missing-alt stats, the ACTUAL robots.txt contents, the sitemap URL + blog-post counts, client-rendered-shell detection). Read that file and derive Confirmed findings from it.
+
+**The evidence covers the whole crawl, not just the homepage — audit accordingly.** The crawl discovers subpages from the live sitemap + homepage nav links (default 15 pages) and writes a per-page section for **EVERY page in `evidence.md`**, plus a **`## Site-wide rollup`** section that aggregates the per-page gaps: *Pages missing canonical*, *Pages missing meta description*, *Pages with multiple H1s*, *Pages with no structured data*, and *Images missing alt* (total + per-page counts with the offending srcs). Run the per-page checks below against **every crawled page** — a subpage's missing canonical or a blog post's missing meta description is exactly what the rollup lists — and report those findings from the rollup + per-page sections, never from homepage-only inspection or guesswork.
 
 Three rules govern every finding:
 
@@ -44,7 +46,7 @@ Severity: `critical` if homepage; `high` otherwise.
 Recommendation: "Remove the `noindex` directive from {file/URL}."
 
 ### `canonical_tag_present`
-Check: `evidence.md` shows the page's `canonical` — it captures the `<link rel="canonical">` href AND whether it's server-rendered. Do NOT conclude "no canonical" from WebFetch — it strips the head. Pass = a canonical present in the server HTML.
+Check: `evidence.md` shows the page's `canonical` — it captures the `<link rel="canonical">` href AND whether it's server-rendered. Do NOT conclude "no canonical" from WebFetch — it strips the head. Pass = a canonical present in the server HTML. **Run this for EVERY crawled page, not just the homepage** — the rollup's *Pages missing canonical* list is the finding; a subpage that lacks a canonical while the homepage has one is the classic miss.
 Severity: `medium` if absent; `high` if points to a different domain.
 Recommendation (only if genuinely absent per evidence): "Add a self-referencing canonical tag: `<link rel=\"canonical\" href=\"{full URL}\">`."
 
@@ -111,7 +113,7 @@ Severity: `high`
 Recommendation: "Pages {list} all use the same title. Make each unique."
 
 ### `meta_description_missing`
-Check: `evidence.md` shows the page's `meta description` is `_(none)_`. Do NOT conclude "no meta description" from WebFetch — it strips the head.
+Check: `evidence.md` shows the page's `meta description` is `_(none)_`. Do NOT conclude "no meta description" from WebFetch — it strips the head. **Per-page check — blog posts included:** the rollup's *Pages missing meta description* list covers every crawled page; posts missing descriptions while the homepage has one is the common real-world shape, so report each listed URL.
 Severity: `medium`
 Recommendation (only if genuinely absent per evidence): "Add a meta description, 150-160 chars, includes primary keyword and a soft CTA."
 
@@ -131,7 +133,7 @@ Severity: `high`
 Recommendation: "Add exactly one `<h1>` containing the primary keyword."
 
 ### `h1_multiple`
-Check: `evidence.md` lists more than one `<h1>` for the page (it captures ALL H1s in document order, so conflicting H1s are detected).
+Check: `evidence.md` lists more than one `<h1>` for the page (it captures ALL H1s in document order, so conflicting H1s are detected). Per-page — the rollup's *Pages with multiple H1s* lists every offender across the crawl, subpages included.
 Severity: `medium`
 Recommendation: "Page has {N} `<h1>`s ({list}). Reduce to one; demote the others to `<h2>`/`<h3>`."
 
@@ -163,9 +165,9 @@ Severity: `medium`
 Recommendation: "Move the primary keyword `{keyword}` into the first paragraph for AI-extractability."
 
 ### `images_without_alt`
-Check: `<img>` tags without `alt=""` attribute (decorative images should have empty alt).
+Check: `evidence.md` — each page section's **images** line (`N total, M missing alt` + the first offending srcs) and the rollup's *Images missing alt* total. The crawl extracts `<img>` tags with no `alt` attribute from the server HTML (`alt=""` on decorative images counts as present). Do NOT conclude alt coverage from WebFetch or repo source — report the counts + srcs the evidence lists, per page.
 Severity: `medium` if > 3 images; `low` otherwise.
-Recommendation: "Add descriptive alt text to {N} images. SEOAgent can write these — `seoagent.js` does it automatically on production."
+Recommendation: "Add descriptive alt text to {N} images on {page} (starting with {srcs from evidence}). SEOAgent can write these — `seoagent.js` does it automatically on production."
 
 ### `missing_product_screenshots`
 Applies only when `project.md` has `site_type: saas` (or the repo renders a real product UI). Check: a landing / feature / how-to page that describes the product but has **no real product screenshot** in its hero or feature sections (illustration-only, stock photo, or no image where a UI shot belongs).
