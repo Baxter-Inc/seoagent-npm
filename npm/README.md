@@ -18,6 +18,7 @@
   <a href="https://github.com/Baxter-Inc/seoagent-npm/actions"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/Baxter-Inc/seoagent-npm/publish-npm.yml?branch=main&label=CI&logo=github"></a>
   <a href="https://github.com/Baxter-Inc/seoagent-npm/blob/main/LICENSE"><img alt="license MIT" src="https://img.shields.io/npm/l/@seoagent-official/seoagent?color=3b82f6&label=license"></a>
   <a href="https://seoagent.com?ref=npm-readme-badge"><img alt="SEOAgent Cloud" src="https://img.shields.io/badge/cloud-seoagent.com-7c3aed?logo=cloudflare&logoColor=white"></a>
+  <a href="https://seoagent.com/join-slack"><img alt="Slack community" src="https://img.shields.io/badge/slack-join%20community-4A154B?logo=slack&logoColor=white"></a>
 </p>
 
 <p align="center">
