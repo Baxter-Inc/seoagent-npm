@@ -18,7 +18,6 @@
   <a href="https://github.com/Baxter-Inc/seoagent-npm/actions"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/Baxter-Inc/seoagent-npm/publish-npm.yml?branch=main&label=CI&logo=github"></a>
   <a href="https://github.com/Baxter-Inc/seoagent-npm/blob/main/LICENSE"><img alt="license MIT" src="https://img.shields.io/npm/l/@seoagent-official/seoagent?color=3b82f6&label=license"></a>
   <a href="https://seoagent.com?ref=npm-readme-badge"><img alt="SEOAgent Cloud" src="https://img.shields.io/badge/cloud-seoagent.com-7c3aed?logo=cloudflare&logoColor=white"></a>
-  <a href="https://seoagent.com/join-slack"><img alt="Slack community" src="https://img.shields.io/badge/slack-join%20community-4A154B?logo=slack&logoColor=white"></a>
 </p>
 
 <p align="center">
@@ -28,6 +27,12 @@
   <img alt="SEO Autopilot" src="https://img.shields.io/badge/SEO-AUTOPILOT-f97316?style=flat-square">
   <img alt="Images via OpenAI · fal.ai · Replicate" src="https://img.shields.io/badge/IMAGES-OpenAI%20%C2%B7%20fal.ai%20%C2%B7%20Replicate-ec4899?style=flat-square">
   <img alt="Product screenshots from your repo" src="https://img.shields.io/badge/PRODUCT-SCREENSHOTS-0ea5e9?style=flat-square">
+</p>
+
+<p align="center">
+  <a href="https://seoagent.com/join-slack?c=seoagent">
+    <img alt="Join the SEOAgent Slack community" src="https://img.shields.io/badge/Join%20our%20Slack%20community-4A154B?style=for-the-badge&logo=slack&logoColor=white">
+  </a>
 </p>
 
 <p align="center">
