@@ -68,6 +68,32 @@ Check: WebFetch `http://{domain}` and confirm 301 to `https://`.
 Severity: `high`
 Recommendation: "Configure a 301 redirect from http:// to https:// at the server / CDN level."
 
+## Indexing Coverage (GSC) — cloud-connected only
+
+**Source of truth: `.seoagent/audit/indexing.md`, written by `seoagent indexing` (Phase 1 step 9).** It holds authoritative Google Search Console URL Inspection verdicts per sitemap URL — the only ground truth for "is this page indexed". Never derive an indexed/not-indexed claim from anything else: not from `site:` searches (they under-report and truncate), not from traffic, not from the page existing. Every finding below cites `Evidence: indexing.md § <URL>` and is `Confirmed`.
+
+**When the CLI is logged out** (`seoagent indexing` errors asking for `seoagent login`): indexing coverage is UNVERIFIED. Say exactly that in the audit output — "indexing coverage not verified (needs the free `seoagent login`, which connects Search Console)" — and never guess. **When `indexing.md` has `capture_complete: false`**, URLs in its "Not inspected" section have NO verdict: no claim about them (indexed OR not) is Confirmed; the coverage percentage describes only the inspected subset.
+
+### `sitemap_url_not_indexed`
+Check: a row in `indexing.md` § "Not indexed" — the URL is in the live sitemap but GSC's verdict is not PASS (coverage states like "Crawled - currently not indexed", "Discovered - currently not indexed", "Duplicate without user-selected canonical").
+Severity: `high` for content pages (blog posts, guides, landing pages); `medium` for legal/utility pages.
+Recommendation: quote the exact coverage state from the report and match the fix to it — "Discovered - currently not indexed" → strengthen internal links to the page and request indexing in GSC; "Crawled - currently not indexed" → improve content depth/uniqueness (Google saw it and declined); "Duplicate…" → fix the canonical. Never a generic "submit the sitemap" for all three.
+
+### `page_indexing_blocked_gsc`
+Check: `indexing.md` row where robots state is `DISALLOWED`, fetch state is not successful, or the coverage state names an explicit block (`noindex`, `Blocked by robots.txt`, `Soft 404`, `Not found (404)`, server error).
+Severity: `critical` — Google is actively prevented from indexing a page the sitemap asks it to index.
+Recommendation: name the exact blocking mechanism from the report row and where to fix it (robots.txt rule, noindex directive, or the failing fetch), plus "request re-indexing in GSC once fixed".
+
+### `google_canonical_mismatch`
+Check: `indexing.md` row where the Google canonical differs from the page URL / user canonical.
+Severity: `medium` (`high` when Google's choice is a different domain).
+Recommendation: "Google chose `{google_canonical}` as canonical instead of `{url}`. Consolidate: make the duplicates point their canonical at the preferred URL, and internally link only the preferred URL."
+
+### `indexing_coverage_low`
+Check: from `indexing.md` frontmatter — `indexed / inspected < 0.5` with at least 5 URLs inspected.
+Severity: `high`
+Recommendation: "Only {indexed} of {inspected} inspected sitemap URLs are indexed ({pct}%). List the not-indexed URLs (from the report), group by coverage state, and fix by group — this is usually internal-link depth, thin/duplicate content, or a site-wide render problem, not a per-page accident." Cross-reference the `client_rendered_shell` and `page_renders_empty` checks: a client-rendered site is the most common cause of mass "Crawled - currently not indexed".
+
 ## Render & Upstream Health
 
 These checks catch the failure mode where a page returns `200 OK` but the body is empty or broken — Google sees a soft 404, you see a green status code, the audit silently passes. Run these on every page audited.
