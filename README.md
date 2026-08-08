@@ -278,8 +278,8 @@ Grouped by what they're for. Run as bare `seoagent <cmd>` after the one-time `np
 | Command | What it does |
 |---|---|
 | `init` | Scaffold `.seoagent/` + install the SKILL bundle + write the sync hook. Run once per repo. Auto-detects domain + site type; supports `--yes --domain <d> --site-type <t>` for CI. **Re-running later refreshes the skill in place** (non-destructive — never touches `.seoagent/`), handy to force the skill up to your current CLI version. |
-| `login` | Connect this CLI to seoagent.com (browser OAuth flow). Free dashboard access; required for `sync` / `process` / `ack` / paid features. |
-| `logout` | Clear stored credentials. |
+| `login` | Connect this CLI to seoagent.com (browser OAuth flow). Free dashboard access; required for `sync` / `process` / `ack` / paid features. **You can be logged into multiple sites at once** — run `login` again from a different project and it adds that site rather than replacing the first; each project auto-selects its own via `.seoagent/project.md`'s domain. |
+| `logout` | Clear stored credentials for the current project's site. `--all` clears every site this machine is logged into. |
 | `uninstall` | Remove `.seoagent/`, the skill, and the sync hook. `--global` also wipes the login session and cache. |
 
 **The autopilot loop**
