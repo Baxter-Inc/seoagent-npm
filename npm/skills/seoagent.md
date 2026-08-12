@@ -37,6 +37,7 @@ This SKILL.md is the orchestration layer. Detailed protocols live in `references
 | Task | Read |
 |---|---|
 | Writing or editing ANY content (always, alongside the page-type reference) | `references/writing-rules.md` |
+| Reviewing a draft with the user in the browser (interactive sessions) | `references/draft-review.md` |
 | Running a full audit | `references/audit-checks.md` |
 | Keyword research | `references/keyword-research.md` |
 | Migrating legacy ranking authority after a pivot/rebrand | `references/migration-planning.md` |
@@ -169,13 +170,13 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
 4. For each `cli_new_content-<id>.md` file:
    - `Read` it. The frontmatter has `action_id`, `brief_slug`, `primary_keyword`, `cluster`, and `priority`. The body points at the synced brief.
    - **Read the full brief** under `.seoagent/` (briefs file or `strategy/` entry matching `brief_slug`) for the outline, word-count target, and internal-link plan.
-   - Write the article following the skill's **content-production protocol** (Phase 4 below), then publish it where this project's content lives (repo `content/` or the connected CMS — you are the publishing engine). Show the user the draft before publishing.
+   - Write the article following the skill's **content-production protocol** (Phase 4 below), then publish it where this project's content lives (repo `content/` or the connected CMS — you are the publishing engine). Show the user the draft before publishing (interactive sessions can use the visual review loop — `references/draft-review.md`).
    - **If the action body has a "Screenshots to capture" section** (autopilot flagged this as a SaaS product), follow `references/screenshots.md` — capture real product screenshots from this repo's UI for the relevant sections instead of shipping illustration-only.
    - Acknowledge it: `seoagent ack <action_id>` (or `--failed --reason "skipped; off-strategy"` to decline).
 
 5. For each `cli_content_update-<id>.md` file:
    - `Read` it. The frontmatter has `action_id`, `reason` (`declining_clicks`|`low_ctr`|`stale_thin`), and `page_url`; the body has the signals.
-   - **Find the page's source** for `page_url`. Apply the revision per `reason`: `declining_clicks` → refresh/expand the content; `low_ctr` → rewrite title + meta description; `stale_thin` → expand and update. Follow the skill's **rewrite/revise protocol**. Reversible edit — show the user the diff (confirm once per session, then proceed).
+   - **Find the page's source** for `page_url`. Apply the revision per `reason`: `declining_clicks` → refresh/expand the content; `low_ctr` → rewrite title + meta description; `stale_thin` → expand and update. Follow the skill's **rewrite/revise protocol**. Reversible edit — show the user the diff (confirm once per session, then proceed; interactive sessions can review the revised draft via `references/draft-review.md`).
    - Acknowledge it: `seoagent ack <action_id>` (or `--failed --reason "kept as-is; ..."` to decline).
 
 6. For each `cli_sitemap_update-<id>.md` file:
@@ -189,7 +190,7 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
    - `Read` it. The frontmatter has `action_id`, `keyword`, `opportunity` (`easy_win` | `competitor_gap`), `volume`, `difficulty`, and `intent`. The body explains why this keyword is worth a page.
    - Cross-reference `.seoagent/keywords.md` for related keywords — they tell you which cluster this page belongs to and which secondary keywords to weave in.
    - Pick an article type from `intent` (commercial/transactional → product or comparison page; informational → guide or pillar). Pick a clean URL slug from `keyword`.
-   - Write the article following the skill's **content-production protocol** (Phase 4 — match the article type's quality rules, add internal links from related cluster pages, etc.). Show the user the draft before publishing.
+   - Write the article following the skill's **content-production protocol** (Phase 4 — match the article type's quality rules, add internal links from related cluster pages, etc.). Show the user the draft before publishing (interactive sessions can use the visual review loop — `references/draft-review.md`).
    - **If the action body has a "Screenshots to capture" section** (SaaS product), follow `references/screenshots.md` — a landing page for a SaaS product should lead with a real product screenshot in the hero + feature sections, captured from this repo's UI.
    - Publish where this project's content lives (repo `content/` or the connected CMS). Safe (new content) — but still confirm the user wants this specific page before committing.
    - Acknowledge it: `seoagent ack <action_id>` (or `--failed --reason "already covered by /existing-page"` to decline).
@@ -839,6 +840,10 @@ This is the per-article procedure. When executing an approved **plan** (see "Pla
      > **After the first article, tracking is automatic.** The explicit `content track --file` above is required only for the **first** article in a repo — it records the content dir. Every later article you write is auto-tracked by the next `seoagent sync` (which the PostToolUse hook runs after each write), so you never have to remember a per-article call or run a backstop. (If you ever need to force a sweep — e.g. cleaning up legacy untracked articles — `seoagent content reconcile --prune` does it.)
    - **Cloud-hosted (`managed_proxy` / `subdomain`)** — the SEOAgent cloud renders the article, so the body DOES live in `.seoagent/`: write the full article to `.seoagent/content/{slug}.md` with full SEO frontmatter (slug, page_type, title, meta_title, meta_description, canonical, og, twitter, json_ld, images, internal_links) and `seoagent sync`. (No `content track` needed — the full file is the record.)
 8. **Update the cluster's link graph** — for sub_pillar/long_tail writes, edit the parent (and the cluster file) to add the new link UP. For pillar writes, ensure all sub_pillars are referenced.
+
+### Draft Review with the User (interactive sessions)
+
+When the user is present and a draft is worth their eyes — the first article of a cluster, a landing page, or anything they asked to review — offer the **visual review loop** from `references/draft-review.md` instead of pasting the draft into chat: `npx -y human-review {draft-path}` opens it in their browser, they edit text directly and leave anchored comments, and you apply the whole batch to the source. Offer it once per session; if declined (or the session is headless), fall back to chat/PR review. For `mdx_sync` cluster batches the PR diff remains the default review surface — human-review is for single-draft, tight-loop review.
 
 ### Product Screenshots (SaaS — do this before AI images)
 

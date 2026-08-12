@@ -103,6 +103,10 @@ Add to JSON-LD:
 
 Both dates in the schema. Google uses `dateModified` to know freshness without resetting ranking signal.
 
+### Step 5b: Optional Visual Review
+
+In interactive sessions, offer to open the rewritten article with the visual review loop (`references/draft-review.md`): the user fixes small things directly in the browser and comments on the rest, and you apply the batch to the source. Their exact wording always wins — never revert or "improve" text they typed.
+
 ### Step 6: Update Internal Links
 
 If the rewrite added or changed internal links:
