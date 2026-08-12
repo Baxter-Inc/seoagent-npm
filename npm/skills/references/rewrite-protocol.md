@@ -31,6 +31,7 @@ Before any edits, read:
 - `.seoagent/context.md` — current brand voice, banned topics, audience
 - `.seoagent/strategy/clusters/{cluster}.md` — the article's role and link graph
 - `.seoagent/briefs/{slug}.md` if it exists — the original brief
+- `references/writing-rules.md` — the prose rules, especially its **"Editing existing content"** section (voice preservation, minimum effective edit)
 
 ### Step 3: Diagnose the Gaps
 
@@ -71,6 +72,7 @@ Wait for user confirmation before executing.
 Rules:
 - **Preserve the URL slug.** Never change `slug` — even if the title changes, the URL stays.
 - **Preserve sections that rank.** If a section is the page's strongest signal, keep its core wording.
+- **Preserve the voice.** Follow `references/writing-rules.md` § "Editing existing content": note the article's voice signals before editing, make the minimum effective edit, remove slop patterns without flattening distinctive sentences, and never invent claims or stats the original didn't have.
 - **Use `Edit`, not `Write`.** Edit one section at a time so changes are reviewable.
 - **Update `dateModified`** in JSON-LD. Don't change `datePublished` — that resets ranking signal.
 - **Bump `version`** in frontmatter (1 → 2 → 3).

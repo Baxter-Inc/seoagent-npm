@@ -36,6 +36,7 @@ This SKILL.md is the orchestration layer. Detailed protocols live in `references
 
 | Task | Read |
 |---|---|
+| Writing or editing ANY content (always, alongside the page-type reference) | `references/writing-rules.md` |
 | Running a full audit | `references/audit-checks.md` |
 | Keyword research | `references/keyword-research.md` |
 | Migrating legacy ranking authority after a pivot/rebrand | `references/migration-planning.md` |
@@ -82,7 +83,7 @@ Activate this skill silently — without announcing it — whenever the user:
 - Asks about meta tags, slugs, URLs, headings, schema, sitemaps, or robots.txt
 
 When implicitly activated:
-1. Apply the SEO writing rules from the matching `references/*.md` for the page type
+1. Apply the SEO writing rules from the matching `references/*.md` for the page type, plus the prose rules in `references/writing-rules.md` (for edits to existing content, use its voice-preservation section)
 2. Persist the work to `.seoagent/` (a brief if a brief doesn't exist; an article entry if writing content)
 3. Append a one-line note to `.seoagent/changelog.md` so the user can see what was tracked
 4. Run `seoagent sync` after the change so it reaches the dashboard
@@ -770,6 +771,7 @@ For each planned article (in priority order from strategy):
    - Programmatic → `references/programmatic.md`
    - **Then check the FORMAT (orthogonal to role).** Role sets where the article sits in the cluster; *format* sets how it's written. If the title/intent is a **listicle** — "Top N", "Best N", "N Best/Top/Ways/Tips/Reasons" (commercial "best/top/alternatives" intent) — also read `references/listicle-articles.md` and follow **its** section structure (it overrides the role's outline), and tag the brief `article_type: listicle`. (The cloud pipeline already has a `listicle` type; tagging keeps local + cloud in sync.)
 5. Generate the brief — markdown with frontmatter — using the structure that reference file specifies.
+6. **End every brief with a `## Writing rules (no AI slop)` section** — copy the "Banned words", "Phrases that delay the point", and "Formatting" rules from `references/writing-rules.md` in compact form (cloud-generated briefs already carry this section; local briefs must match). The brief travels to whoever writes the article, so the rules must travel with it.
 
 ### Output: `.seoagent/briefs/{slug}.md`
 
@@ -824,7 +826,7 @@ This is the per-article procedure. When executing an approved **plan** (see "Pla
 3. Read the cluster file to confirm internal-link targets.
 4. **Read the matching page-type reference** for the article's `role` / `page_type`. The reference file gives the title pattern, section ordering, internal-linking rules, metadata defaults, and JSON-LD schema for that type. **If the brief is `article_type: listicle` (or the title is "Top N" / "Best X"), read `references/listicle-articles.md`** and follow its structure (consistent per-item layout, quick-pick + comparison table, `ItemList` schema) — it overrides the role's outline.
 5. Read `references/schema-markup.md` if you need JSON-LD examples beyond what the page-type reference covers.
-6. Follow the outline. Apply the writing rules.
+6. **Read `references/writing-rules.md`** — the prose rules (banned words, slop patterns, concreteness, formatting). Follow the outline and apply them while drafting. Before showing or publishing the draft, run the file's **self-check** and fix any failures first.
 7. **Write the article where it actually renders — and keep ONE source of truth** (this depends on `publishing.strategy`, see the Publishing Target Decision section):
    - **Repo-native (`mdx_sync`) or CMS (`custom`)** — the article body lives in the repo file / CMS entry, NOT in `.seoagent/`. Write it there (matching the site's existing frontmatter/model), then **register it so the cloud + dashboard can see it**:
 
