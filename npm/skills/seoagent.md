@@ -58,7 +58,7 @@ Loading the right reference makes outputs dramatically better. Don't skip it.
 
 ## Install (npm CLI — for users without this skill yet)
 
-If the project does not have `.seoagent/` yet, run **in the repo root** (where `package.json` lives). Recommended (global install — fastest for daily use):
+If the project does not have `.seoagent/` yet, run **in the MAIN repo root** (where `package.json` lives). Never init inside a **temporary checkout** — a linked git worktree (e.g. anything under `.claude/worktrees/`), a CI checkout, or a scratch clone. `.seoagent/` accumulates knowledge (briefs, articles, images, login binding) and only its `*.md` files round-trip through cloud sync — a workspace created in a disposable folder is deleted with it. If your current working directory is a worktree, `cd` to the main repository root first; `init` refuses in a worktree unless you pass `--allow-worktree`. Recommended (global install — fastest for daily use):
 
 ```bash
 npm install -g @seoagent-official/seoagent
