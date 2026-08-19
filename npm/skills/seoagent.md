@@ -129,6 +129,7 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
 - **`cli_content_update`** — autopilot flagged an existing page to revise (declining GSC clicks, low CTR, or stale/thin). Reversible (edits existing content).
 - **`cli_sitemap_update`** — GSC is connected but can't fetch a sitemap at the site's `/sitemap.xml`. Write/refresh the project's sitemap (from the URL list in the file, which includes CMS-hosted articles) so Google can index it. Safe (adds/updates a sitemap).
 - **`cli_new_landing_page`** — the keyword engine flagged a high-value keyword (`easy_win` or `competitor_gap`) with no page covering it. Write a dedicated landing page targeting it. Safe (new content).
+- **`cli_draft_ready`** — the cloud already **wrote a complete article** (drafted from a brief, or generated during the user's onboarding) and synced it to `.seoagent/content/<slug>.md` in the same pull. Nothing to write — review the draft and place it where this site's content renders. Safe (new content).
 
 **Whenever the user says "process the inbox", "handle pending actions", "what's in my inbox", or anything similar**, OR whenever you see `.seoagent/inbox/README.md` reports pending actions after a sync, do this:
 
@@ -195,8 +196,13 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
    - Publish where this project's content lives (repo `content/` or the connected CMS). Safe (new content) — but still confirm the user wants this specific page before committing.
    - Acknowledge it: `seoagent ack <action_id>` (or `--failed --reason "already covered by /existing-page"` to decline).
 
-8. After processing, run `seoagent sync` once more to clean stale inbox files and confirm everything is settled.
-9. Report a summary to the user: how many actions you applied, how many you declined (and why).
+8. For each `cli_draft_ready-<id>.md` file:
+   - `Read` it. The frontmatter has `action_id`, `article_slug`, `path`, and (when drafted from a brief) `brief_slug`. The draft itself is at `.seoagent/<path>` — pulled in the same sync that delivered this task.
+   - **Review the draft** (frontmatter carries title, meta description, status), then place it where this project's content renders: repo-native (mdx_sync) → copy/adapt into the repo's content directory and `seoagent content track` it; CMS → create the entry and track it; cloud-hosted → flip frontmatter `status` to `published` and sync. The inbox file body walks through each strategy.
+   - Edit freely before publishing — the `.seoagent` copy is the user's now. Show the user the draft before publishing.
+   - Acknowledge it: `seoagent ack <action_id>` (or `--failed --reason "not publishing; ..."` to decline).
+9. After processing, run `seoagent sync` once more to clean stale inbox files and confirm everything is settled.
+10. Report a summary to the user: how many actions you applied, how many you declined (and why).
 
 **Never delete a file without explicit user confirmation on the first action of the session.** Auto-prune is conservative (requires <5 clicks in 90 days, zero inbound internal links, etc.) but it can still surprise the user. Show them what's about to go. (Technical-fix actions edit an existing page rather than delete, so they only need a diff review, not a destructive-action confirmation.)
 
