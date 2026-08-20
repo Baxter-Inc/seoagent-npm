@@ -1,0 +1,4 @@
+{
+  "min_cli": "1.85.0",
+  "_comment": "Lowest CLI version that can safely run the skill in this directory. The cloud skill channel refuses to install a skill newer than the user's CLI can support, so an old CLI keeps its bundled skill instead of being told to run a command it does not have. Bump this ONLY when the skill starts depending on a command or flag that a newer CLI introduced."
+}
