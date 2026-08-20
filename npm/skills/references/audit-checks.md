@@ -257,6 +257,23 @@ Check: page has primary keyword in title/H1 but no paragraph in the first 200 wo
 Severity: `medium`
 Recommendation: "Lead with a definition or direct answer in the first paragraph (40-80 words) so AI search engines can extract it."
 
+### `llms_txt_missing`
+Check: `WebFetch https://{domain}/llms.txt`. It fails the check if it 404s, or returns something that isn't markdown starting with an `#` H1 (a soft-404 / SPA shell).
+Severity: `medium`
+Recommendation: "Your site serves no `llms.txt` — the markdown map ChatGPT, Claude, Perplexity and AI Overviews read to work out what this site is. `seoagent llms` generates one from your page inventory, published articles and crawl evidence, and publishes it to your static dir; every `seoagent sync` keeps it current after that."
+> Fixing this is one command. Run `seoagent llms` — do not hand-write the file, and do not tell the user to; a hand-written one goes stale the moment they publish anything, which is the state this check exists to catch.
+
+### `okf_bundle_missing`
+Check: `WebFetch https://{domain}/.well-known/okf/index.md`, then `https://{domain}/okf/index.md`. It passes only if one of them returns markdown whose YAML frontmatter carries a `type:` field. A 200 that renders your app shell is a soft-404 — that is a FAIL, not a pass.
+Severity: `medium` (`low` for a purely local/internal site with no answer-engine ambitions)
+Recommendation: "Your site publishes no Open Knowledge Format bundle. OKF is Google's format for describing an organization to AI agents: a directory of markdown files answer engines can read wholesale instead of guessing from scraped pages. `.seoagent/okf/` is already scaffolded — fill it (see `references/open-knowledge-format.md`) and `seoagent sync` publishes it to `/.well-known/okf/` automatically."
+> **`.seoagent/okf/` existing is NOT a pass.** The check is about what the live site SERVES. A bundle that only exists in `.seoagent/` is invisible to every crawler — that gap is the whole reason this check exists.
+
+### `ai_files_unpublished`
+Check: `.seoagent/okf/` has real content (not the scaffold placeholders) but `{domain}/.well-known/okf/index.md` 404s — i.e. the bundle was written and never reached the live site.
+Severity: `high` (the work is done and earning nothing)
+Recommendation: "The OKF bundle exists in `.seoagent/okf/` but isn't served. Check `public_dir:` in `.seoagent/project.md` points at the directory your framework serves (`public` for Next.js/Vite/Astro, `static` for SvelteKit/Gatsby/Hugo), run `seoagent okf publish`, and commit + deploy the result."
+
 ### `faq_section_missing_on_pillar`
 Check: page is page_type=pillar but has no `<h2>` containing "FAQ" or "Frequently Asked Questions".
 Severity: `low`

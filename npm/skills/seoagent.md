@@ -128,6 +128,7 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
 - **`cli_new_content`** — autopilot found a content brief with no article written yet. Write + publish the article. Safe (new content).
 - **`cli_content_update`** — autopilot flagged an existing page to revise (declining GSC clicks, low CTR, or stale/thin). Reversible (edits existing content).
 - **`cli_sitemap_update`** — GSC is connected but can't fetch a sitemap at the site's `/sitemap.xml`. Write/refresh the project's sitemap (from the URL list in the file, which includes CMS-hosted articles) so Google can index it. Safe (adds/updates a sitemap).
+- **`cli_ai_files_update`** — the AI-readable file layer (Open Knowledge Format bundle + `llms.txt`) is missing, unmanaged, or stale. These are what ChatGPT, Claude, Perplexity and Google's AI Overviews read to decide what the site is. Scaffold/refresh them **and publish them to the paths crawlers actually fetch** (`/.well-known/okf/`, `/llms.txt`). Safe (adds/updates static files).
 - **`cli_new_landing_page`** — the keyword engine flagged a high-value keyword (`easy_win` or `competitor_gap`) with no page covering it. Write a dedicated landing page targeting it. Safe (new content).
 - **`cli_draft_ready`** — the cloud already **wrote a complete article** (drafted from a brief, or generated during the user's onboarding) and synced it to `.seoagent/content/<slug>.md` in the same pull. Nothing to write — review the draft and place it where this site's content renders. Safe (new content).
 
@@ -187,7 +188,14 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
    - **Verify with `seoagent sitemap`** once deployed — it should report 200, no private leakage, and the expected URL count.
    - Acknowledge it: `seoagent ack <action_id>` (or `--failed --reason "sitemap already served"` to decline). SEOAgent re-submits the sitemap to GSC on its schedule.
 
-7. For each `cli_new_landing_page-<id>.md` file:
+7. For each `cli_ai_files_update-<id>.md` file:
+   - `Read` it. The frontmatter has `action_id` and `needs` (e.g. `okf:unmanaged, llms_txt:missing`); the body says what to do per file and lists the site's published pages.
+   - **`okf`** — fill `.seoagent/okf/` per `references/open-knowledge-format.md` (it is already scaffolded; `seoagent okf scaffold` covers an older project). **Replace every scaffold placeholder** and make `seoagent okf validate` pass — a placeholder or invalid bundle is deliberately NOT published. Then `seoagent sync` copies it to `<public_dir>/.well-known/okf/` (or `seoagent okf publish` on demand), and **you tell the user to commit + deploy**. `.seoagent/okf/` is the source; crawlers only read `/.well-known/okf/index.md`.
+   - **`llms_txt`** — run `seoagent llms`. **Do not hand-write it.** It is generated from `pages.md`, published `content/`, crawl evidence and `context.md`, so every link resolves and it regenerates on every sync instead of going stale after the next publish. If the page inventory is thin, run `seoagent refresh --crawl` first.
+   - **Both files must agree with the live site** on pricing, plan names, and positioning. A bundle that contradicts your own pages is worse than none. Cross-check `/pricing` before you write numbers.
+   - Show the user the diff, deploy, then acknowledge: `seoagent ack <action_id>` (or `--failed --reason "..."` to decline).
+
+8. For each `cli_new_landing_page-<id>.md` file:
    - `Read` it. The frontmatter has `action_id`, `keyword`, `opportunity` (`easy_win` | `competitor_gap`), `volume`, `difficulty`, and `intent`. The body explains why this keyword is worth a page.
    - Cross-reference `.seoagent/keywords.md` for related keywords — they tell you which cluster this page belongs to and which secondary keywords to weave in.
    - Pick an article type from `intent` (commercial/transactional → product or comparison page; informational → guide or pillar). Pick a clean URL slug from `keyword`.
@@ -196,7 +204,7 @@ Offer **once per session per topic**; if declined, drop it and keep working. Nev
    - Publish where this project's content lives (repo `content/` or the connected CMS). Safe (new content) — but still confirm the user wants this specific page before committing.
    - Acknowledge it: `seoagent ack <action_id>` (or `--failed --reason "already covered by /existing-page"` to decline).
 
-8. For each `cli_draft_ready-<id>.md` file:
+9. For each `cli_draft_ready-<id>.md` file:
    - `Read` it. The frontmatter has `action_id`, `article_slug`, `path`, and (when drafted from a brief) `brief_slug`. The draft itself is at `.seoagent/<path>` — pulled in the same sync that delivered this task.
    - **Review the draft** (frontmatter carries title, meta description, status), then place it where this project's content renders: repo-native (mdx_sync) → copy/adapt into the repo's content directory and `seoagent content track` it; CMS → create the entry and track it; cloud-hosted → flip frontmatter `status` to `published` and sync. The inbox file body walks through each strategy.
    - Edit freely before publishing — the `.seoagent` copy is the user's now. Show the user the draft before publishing.
@@ -479,6 +487,8 @@ A line with neither is invalid output — rewrite it or drop it before respondin
 7. Persist the URL list to `.seoagent/pages.md` so future audits and link checks reuse it. Include a `rendered` column (yes / empty) so future audits can spot regressions.
 8. **Internal-link pass.** Run the **Internal Link Analysis** below to find orphan pages (no inbound internal links) and fold any orphans into the audit findings (`medium` severity, category internal-linking).
 9. **Indexing-coverage pass (cloud-connected — run whenever `seoagent whoami` shows a login).** Run `seoagent indexing` — it inspects the live sitemap's URLs with Google Search Console URL Inspection (authoritative verdicts, not inference) and writes `.seoagent/audit/indexing.md`. Read that file and fold its findings into the audit per `audit-checks.md` § Indexing Coverage: sitemap URLs Google has NOT indexed (`high`), pages whose indexing is blocked by robots/noindex per GSC (`critical`), Google-chose-a-different-canonical mismatches (`medium`), and a `high` coverage finding when under half the inspected sitemap URLs are indexed. Findings derived from `indexing.md` rows are `Confirmed` (cite `Evidence: indexing.md § <URL>`); URLs its "Not inspected" section lists have NO verdict — never claim anything about them. **If the CLI is logged out** (`seoagent indexing` says login is required), do NOT guess indexing state — and do NOT use `site:` searches as a substitute (they under-report) — state "indexing coverage not verified (needs the free `seoagent login`, which connects Search Console)" in the audit output and move on.
+
+10. **AI-readability pass (always — this is the free tier's sharpest finding).** Two files decide whether ChatGPT, Claude, Perplexity and AI Overviews can describe this site accurately: `/llms.txt` and the OKF bundle at `/.well-known/okf/index.md`. WebFetch both and run `llms_txt_missing`, `okf_bundle_missing`, and `ai_files_unpublished` from `audit-checks.md`. Judge what the LIVE SITE SERVES — a bundle sitting in `.seoagent/okf/` that nobody published is a FAIL, and the most common one. Fixing `llms.txt` is a single command (`seoagent llms`); offer to run it in the "What do you want to do?" options rather than describing it.
 
 > **If the audit raises any `critical` finding from `upstream_dependency_unreachable` or `page_renders_empty`**, do not proceed to Phase 2. Jump to the **Publishing Target Decision** section below — every keyword, brief, and article generated against a broken publishing path is wasted work.
 
@@ -951,10 +961,11 @@ When the user asks to "publish an OKF bundle", "make my site AI-readable", "get 
 
 **Read `references/open-knowledge-format.md` first** — it has the full frontmatter rules, the `.seoagent/` → OKF mapping table, and the quality bar. Then:
 
-1. `seoagent okf scaffold` — create the `.seoagent/okf/` skeleton.
-2. Fill the bundle by mapping `.seoagent/` artifacts → OKF files (`index.md` from `context.md`/`project.md`; `concepts/*` from strategy clusters; `faqs/*`; `articles/*` from `content/` with `resource:` set to the live URL).
-3. `seoagent okf validate` — fix every error (missing `type`, bad `timestamp`, broken link).
-4. Tell the user to publish the bundle at `/.well-known/okf/` or `/okf/` on their site (or link it from `llms.txt`). Sync pushes it to the cloud automatically.
+1. `.seoagent/okf/` is already scaffolded — `seoagent init` does it, so there is nothing to create. (`seoagent okf scaffold` is still there for a project that predates that.)
+2. Fill the bundle by mapping `.seoagent/` artifacts → OKF files (`index.md` from `context.md`/`project.md`; `concepts/*` from strategy clusters; `faqs/*`; `articles/*` from `content/` with `resource:` set to the live URL). **Replace every placeholder line the scaffold left behind** — while any of them survives, the bundle will not be published (placeholder text in front of an answer engine is worse than nothing).
+3. `seoagent okf validate` — fix every error (missing `type`, bad `timestamp`, broken link). A bundle with errors is not published either.
+4. **Publishing is automatic.** The next `seoagent sync` copies the filled, valid bundle into the project's static dir (`public/.well-known/okf/` or `static/.well-known/okf/`, per `public_dir:` in `project.md`) and regenerates + publishes `llms.txt` alongside it. Run `seoagent sync`, then **tell the user to commit and deploy the published files** — that last step is theirs, and it is the one that makes any of this visible. Use `seoagent okf publish` / `seoagent llms` if you want either half on demand.
+   - If sync reports it couldn't find a static dir, set `public_dir:` in `.seoagent/project.md` (`public` for Next.js/Vite/Astro, `static` for SvelteKit/Gatsby/Hugo) and re-run.
 5. **Measure it.** The OKF bundle makes the business _citable_ — `seoagent citations` checks whether it's _working_. It runs buyer-intent queries through the Claude Agent SDK with live web search and writes `.seoagent/citations/scorecard.md` (which queries surface the business, and where it's missing). It's a real **tracker**, not a one-shot read: every run is saved to `.seoagent/citations/history/<ts>.json` and the scorecard shows the **trend** vs the last run, the **URL each engine cited** per query (theirs when the business loses — so you know what to beat), and a competitor **share-of-voice** table when you pass `seoagent citations --competitors "Frase,Otterly"` (or set a `competitors:` line in `context.md`). Run it after publishing, and again on a cadence to watch the trend. When the user asks "am I getting cited by AI?", "measure my AI visibility", "how do I compare to a competitor in AI answers?", or "is the OKF bundle working?", this is the command. It's a web-grounded proxy for ChatGPT/Perplexity/AI Overviews — directional, not a per-engine guarantee.
 
 This is the AEO/GEO complement to schema markup: schema describes a single page in HTML; the OKF bundle describes the whole business for agents to load wholesale — and `seoagent citations` closes the loop by measuring whether answer engines actually cite it.
@@ -975,11 +986,12 @@ seoagent_version: 0.2.0
 image_provider: openai           # optional: openai | fal | replicate | none — auto-detected by `init`/`seoagent env-check` from OPENAI_API_KEY / FAL_KEY / REPLICATE_API_TOKEN
 cms: strapi                      # optional: strapi | wordpress | sanity | contentful | ghost | webflow | shopify | payload | directus | mdx-local | none
 blog_path: /blog                 # optional: detected from app/blog/, pages/blog/, etc.
+public_dir: public               # optional: the dir this project serves as static files — `public` (Next.js/Vite/Astro) or `static` (SvelteKit/Gatsby/Hugo). Auto-detected by `init`; it is where llms.txt and the OKF bundle get PUBLISHED, so a wrong value means none of that work is served.
 ---
 # SEOAgent Project — example.com
 ```
 
-`cms`, `blog_path`, and `image_provider` are detected by `seoagent init` from package.json deps, env files, and the filesystem. Update them manually if detection got it wrong. If a user adds an image-provider key after init, `seoagent env-check` re-detects and records it (see Phase 4 → Image Generation).
+`cms`, `blog_path`, `image_provider`, and `public_dir` are detected by `seoagent init` from package.json deps, env files, and the filesystem. Update them manually if detection got it wrong. If a user adds an image-provider key after init, `seoagent env-check` re-detects and records it (see Phase 4 → Image Generation).
 
 ### `.seoagent/context.md`
 
