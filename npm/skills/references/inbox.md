@@ -1,0 +1,90 @@
+# Processing the SEOAgent Inbox
+
+`seoagent sync` pulls **pending actions** from the dashboard into `.seoagent/inbox/`. These are autonomous decisions the cloud has made that need a human (or you, the AI agent) to apply in the user's local repo. Run `seoagent inbox` (or `--json`) to list them; each inbox file's body carries its own instructions too.
+
+**Golden rules (these also live in the skill body):**
+
+- **Never delete a file without explicit user confirmation on the first destructive action of the session.** Auto-prune is conservative (requires <5 clicks in 90 days, zero inbound internal links, etc.) but it can still surprise the user. Show them what's about to go. Technical-fix actions edit an existing page rather than delete, so they only need a diff review, not a destructive-action confirmation.
+- Acknowledge every action you finish: `seoagent ack <action_id>` (or `seoagent ack <action_id> --failed --reason "..."` to decline). That marks it `completed` on the dashboard and removes the inbox file on the next sync.
+- After processing, run `seoagent sync` once more to clean stale inbox files, then report a summary: how many applied, how many declined (and why).
+
+## Action types
+
+| Type | What it is | Risk |
+|---|---|---|
+| `cli_prune_pending` | Auto-prune decided an underperforming article should be removed from the repo | **Destructive — confirm first** |
+| `cli_technical_fix` | Open technical-SEO issue (meta, schema, canonical, internal linking, …) to fix in a page's source | Safe/reversible |
+| `cli_new_content` | A content brief with no article written yet — write + publish it | Safe (new content) |
+| `cli_content_update` | An existing page flagged for revision (declining GSC clicks, low CTR, stale/thin) | Reversible |
+| `cli_sitemap_update` | GSC can't fetch a sitemap at `/sitemap.xml` — write/refresh the project's sitemap | Safe |
+| `cli_ai_files_update` | The AI-readable file layer (OKF bundle + `llms.txt`) is missing, unmanaged, or stale | Safe |
+| `cli_new_landing_page` | High-value keyword (`easy_win`/`competitor_gap`) with no page covering it — write a landing page | Safe (new content) |
+| `cli_draft_ready` | The cloud already wrote a complete article and synced it to `.seoagent/content/<slug>.md` — review and place it | Safe (new content) |
+
+## Per-type procedure
+
+**Trigger:** the user says "process the inbox", "handle pending actions", "what's in my inbox", or similar — OR `.seoagent/inbox/README.md` / `seoagent inbox` / `seoagent doctor` reports pending actions after a sync.
+
+Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the list, then handle each file:
+
+### `cli_prune_pending-<id>.md`
+
+- `Read` it. The frontmatter has `action_id`, `article_id`, `slug`, and `cms_type`. The body has the original URL and title.
+- **Find the local file** that corresponds to the article. Look under `content/`, `src/content/`, `app/blog/`, `posts/`, `pages/blog/`, or wherever this project's articles live. Match by slug first, then by URL path. If you can't find an exact match, ask the user before doing anything destructive.
+- **Confirm with the user once per session** before deleting the first article. Show the title, slug, and the file path you intend to delete. After they confirm, proceed for the rest without re-prompting unless something looks ambiguous.
+- Delete the file. If the repo uses a content frontmatter pattern (e.g., Astro, Next.js MDX), also remove any references from index/sitemap files you find.
+- Acknowledge: `seoagent ack <action_id>`. If the user wants to keep the article (you disagree, false positive, etc.): `seoagent ack <action_id> --failed --reason "kept; performs well off-search"`.
+
+### `cli_technical_fix-<id>.md`
+
+- `Read` it. The frontmatter has `action_id`, `issue` (`meta`|`schema`|`canonical`|`internal_link`|`other`), `severity`, and `page_url`. The body describes the recommended fix per issue type.
+- **Find the page's source** that renders `page_url` — the route/template/markdown under `app/`, `pages/`, `src/`, or `content/`. Match by URL path.
+- Apply the fix in the source (use `Edit`/`Write`): meta → title/description (or the framework's metadata API/frontmatter); schema → JSON-LD; canonical → `<link rel="canonical">`; internal_link → add relevant internal links. Safe/reversible edits — no hard delete-confirmation needed, but still **show the user the diff** (confirm once per session, then proceed).
+- Acknowledge: `seoagent ack <action_id>` (or `--failed --reason "not applicable; ..."` to decline).
+
+### `cli_new_content-<id>.md`
+
+- `Read` it. The frontmatter has `action_id`, `brief_slug`, `primary_keyword`, `cluster`, and `priority`. The body points at the synced brief.
+- **Read the full brief** under `.seoagent/` (briefs file or `strategy/` entry matching `brief_slug`) for the outline, word-count target, and internal-link plan.
+- Write the article following the skill's content-production protocol (Phase 4), then publish it where this project's content lives (repo `content/` or the connected CMS — you are the publishing engine). Show the user the draft before publishing (interactive sessions can use the visual review loop — `references/draft-review.md`).
+- **If the action body has a "Screenshots to capture" section** (autopilot flagged this as a SaaS product), follow `references/screenshots.md` — capture real product screenshots from this repo's UI for the relevant sections instead of shipping illustration-only.
+- Acknowledge: `seoagent ack <action_id>` (or `--failed --reason "skipped; off-strategy"`).
+
+### `cli_content_update-<id>.md`
+
+- `Read` it. The frontmatter has `action_id`, `reason` (`declining_clicks`|`low_ctr`|`stale_thin`), and `page_url`; the body has the signals.
+- **Find the page's source** for `page_url`. Apply the revision per `reason`: `declining_clicks` → refresh/expand the content; `low_ctr` → rewrite title + meta description; `stale_thin` → expand and update. Follow the rewrite protocol (`references/rewrite-protocol.md`). Reversible edit — show the user the diff (confirm once per session, then proceed; interactive sessions can review the revised draft via `references/draft-review.md`).
+- Acknowledge: `seoagent ack <action_id>` (or `--failed --reason "kept as-is; ..."`).
+
+### `cli_sitemap_update-<id>.md`
+
+- `Read` it. The frontmatter has `action_id` + `sitemap_url`; the body lists the URLs SEOAgent knows (crawled + GSC-discovered — this **includes CMS-hosted blog articles your repo doesn't contain**).
+- **Find how the project serves its sitemap** (framework sitemap like Next.js `app/sitemap.ts` / `next-sitemap` / Astro integration, or a static `public/sitemap.xml`, or none yet). Prefer extending the framework sitemap so it stays current.
+- **Union** the repo's own routes (which the framework sitemap usually covers) with the URL list in the file (which adds off-repo CMS articles), dedup, and ensure the result is served at `sitemap_url`. Show the user the diff. Deploy if needed — GSC fetches the live URL. See `references/sitemaps.md` for the generator-detection table.
+- **Verify with `seoagent sitemap`** once deployed — it should report 200, no private leakage, and the expected URL count.
+- Acknowledge: `seoagent ack <action_id>` (or `--failed --reason "sitemap already served"`). SEOAgent re-submits the sitemap to GSC on its schedule.
+
+### `cli_ai_files_update-<id>.md`
+
+- `Read` it. The frontmatter has `action_id` and `needs` (e.g. `okf:unmanaged, llms_txt:missing`); the body says what to do per file and lists the site's published pages.
+- **`okf`** — fill `.seoagent/okf/` per `references/open-knowledge-format.md` (it is already scaffolded; `seoagent okf scaffold` covers an older project). **Replace every scaffold placeholder** and make `seoagent okf validate` pass — a placeholder or invalid bundle is deliberately NOT published. Then `seoagent sync` copies it to `<public_dir>/.well-known/okf/` (or `seoagent okf publish` on demand), and **you tell the user to commit + deploy**. `.seoagent/okf/` is the source; crawlers only read `/.well-known/okf/index.md`.
+- **`llms_txt`** — run `seoagent llms`. **Do not hand-write it.** It is generated from `pages.md`, published `content/`, crawl evidence and `context.md`, so every link resolves and it regenerates on every sync instead of going stale after the next publish. If the page inventory is thin, run `seoagent refresh --crawl` first.
+- **Both files must agree with the live site** on pricing, plan names, and positioning. A bundle that contradicts your own pages is worse than none. Cross-check `/pricing` before you write numbers.
+- Show the user the diff, deploy, then acknowledge: `seoagent ack <action_id>` (or `--failed --reason "..."`).
+
+### `cli_new_landing_page-<id>.md`
+
+- `Read` it. The frontmatter has `action_id`, `keyword`, `opportunity` (`easy_win` | `competitor_gap`), `volume`, `difficulty`, and `intent`. The body explains why this keyword is worth a page.
+- Cross-reference `.seoagent/keywords.md` for related keywords — they tell you which cluster this page belongs to and which secondary keywords to weave in.
+- Pick an article type from `intent` (commercial/transactional → product or comparison page; informational → guide or pillar). Pick a clean URL slug from `keyword`.
+- Write the article following the content-production protocol (Phase 4 — match the article type's quality rules, add internal links from related cluster pages, etc.). Show the user the draft before publishing (interactive sessions can use the visual review loop — `references/draft-review.md`).
+- **If the action body has a "Screenshots to capture" section** (SaaS product), follow `references/screenshots.md` — a landing page for a SaaS product should lead with a real product screenshot in the hero + feature sections, captured from this repo's UI.
+- Publish where this project's content lives (repo `content/` or the connected CMS). Safe (new content) — but still confirm the user wants this specific page before committing.
+- Acknowledge: `seoagent ack <action_id>` (or `--failed --reason "already covered by /existing-page"`).
+
+### `cli_draft_ready-<id>.md`
+
+- `Read` it. The frontmatter has `action_id`, `article_slug`, `path`, and (when drafted from a brief) `brief_slug`. The draft itself is at `.seoagent/<path>` — pulled in the same sync that delivered this task.
+- **Review the draft** (frontmatter carries title, meta description, status), then place it where this project's content renders: repo-native (mdx_sync) → copy/adapt into the repo's content directory and `seoagent content track` it; CMS → create the entry and track it; cloud-hosted → flip frontmatter `status` to `published` and sync. The inbox file body walks through each strategy.
+- Edit freely before publishing — the `.seoagent` copy is the user's now. Show the user the draft before publishing.
+- Acknowledge: `seoagent ack <action_id>` (or `--failed --reason "not publishing; ..."`).
