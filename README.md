@@ -376,3 +376,7 @@ Most Claude skills are markdown-only or marketplace plugins. SEOAgent uses **npm
 ## License
 
 MIT
+
+## 1.87.0 — the skill attention diet
+
+SKILL.md body cut 17,237 → 5,228 words (~27k → ~9k activation tokens); situational protocols moved to `skills/references/` (inbox, pull-receipt, session-protocol, publishing, cloud-cta, schemas); `seoagent doctor` routes the agent to the right reference file (`inbox_pending` finding added). Trigger description unchanged. Methodology: seoagent.com/blog/claude-skills-token-cost
