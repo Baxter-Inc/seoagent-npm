@@ -20,6 +20,7 @@
 | `cli_ai_files_update` | The AI-readable file layer (OKF bundle + `llms.txt`) is missing, unmanaged, or stale | Safe |
 | `cli_new_landing_page` | High-value keyword (`easy_win`/`competitor_gap`) with no page covering it — write a landing page | Safe (new content) |
 | `cli_draft_ready` | The cloud already wrote a complete article and synced it to `.seoagent/content/<slug>.md` — review and place it | Safe (new content) |
+| `cli_send_outreach_email` | A human-approved link-building email to send **from the user's own email account** | **Outward-facing — confirm first send of the session** |
 
 ## Per-type procedure
 
@@ -88,3 +89,12 @@ Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the li
 - **Review the draft** (frontmatter carries title, meta description, status), then place it where this project's content renders: repo-native (mdx_sync) → copy/adapt into the repo's content directory and `seoagent content track` it; CMS → create the entry and track it; cloud-hosted → flip frontmatter `status` to `published` and sync. The inbox file body walks through each strategy.
 - Edit freely before publishing — the `.seoagent` copy is the user's now. Show the user the draft before publishing.
 - Acknowledge: `seoagent ack <action_id>` (or `--failed --reason "not publishing; ..."`).
+
+### `cli_send_outreach_email-<id>.md`
+
+- `Read` it. The frontmatter has `action_id`, `to_email`, `to_name`, and `prospect_url`; the body carries the exact subject + email text the user **already reviewed and approved in the SEOAgent dashboard**. Your job is delivery only.
+- **Send it from the user's own email account** using whatever email tooling this session has (Gmail connector/MCP, AgentMail, a mail CLI, …). SEOAgent never sends email itself.
+- **Confirm once per session** before the first outbound email (show recipient + subject); then send subsequent approved emails without re-prompting. Send **verbatim** — no added signature, links, or attachments; the one allowed edit is fixing an obviously wrong greeting name.
+- No `to_email`? Check the prospect page for the author's address or a contact form — a form submission with the body text counts as sent.
+- Acknowledge after sending: `seoagent ack <action_id>` — the dashboard marks the draft **sent** and the prospect **contacted**. Declining (`--failed --reason "not sending; ..."`) dismisses the draft. A transient tooling failure should NOT be acked — leave it pending and it returns next sync.
+- **No email tooling available at all?** Leave the action pending and tell the user what tooling would enable sending (or that they can send manually from the dashboard's drafts queue).
