@@ -23,6 +23,7 @@
 | `cli_send_outreach_email` | A human-approved link-building email to send **from the user's own email account** | **Outward-facing — confirm first send of the session** |
 | `cli_draft_context` | Business context is missing while suggested keywords wait on the relevance judge — draft `.seoagent/context.md` | Safe (repo-local file) |
 | `cli_run_audit` | The full technical audit is stale (>28 days) or has never run — re-run Skill Phase 1 and sync | Safe (read-only crawl + report) |
+| `cli_outreach_drafts_ready` | Outreach email drafts await the owner's review on the dashboard — tell the user, then ack | Safe (informational) |
 
 ## Per-type procedure
 
@@ -114,3 +115,10 @@ Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the li
 - **Run the Skill's audit protocol (Phase 1)**: fresh evidence first (`seoagent crawl`, plus `seoagent indexing` when GSC is connected — evidence older than 24h doesn't count), then the per-page checks from `references/audit-checks.md`, then write `.seoagent/audit/latest.md`. If `reason` is `stale`, this is a **re-audit**: diff against the previous `latest.md` and mark what's fixed / new / regressed (skill § re-audit protocol).
 - Push with `seoagent sync` — the server marks the previous report's still-open findings `superseded`, so the dashboard shows only the current audit.
 - Acknowledge: `seoagent ack <action_id>` (or `--failed --reason "declined; ..."` — autopilot won't ask again until next month).
+
+### `cli_outreach_drafts_ready-<id>.md`
+
+- `Read` it. The frontmatter has `action_id`, `awaiting_drafts`, and `site_url`.
+- **Informational — nothing to change in this repo.** The backlinks autopilot drafted link-building emails, but only the owner can approve outreach, and the approval queue lives in the SEOAgent dashboard (the site's **Outreach** tab, drafts filter). Tell the user how many drafts await and where; each shows the prospect page, pitch angle, and the exact email text (edit / approve / dismiss).
+- Approved drafts return to this inbox as `cli_send_outreach_email` actions for delivery.
+- Acknowledge after surfacing it: `seoagent ack <action_id>`. Decline (`--failed --reason "not now; ..."`) if the user isn't interested — the reminder returns only when the awaiting count changes on a later weekly run.
