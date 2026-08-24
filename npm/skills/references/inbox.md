@@ -21,6 +21,7 @@
 | `cli_new_landing_page` | High-value keyword (`easy_win`/`competitor_gap`) with no page covering it — write a landing page | Safe (new content) |
 | `cli_draft_ready` | The cloud already wrote a complete article and synced it to `.seoagent/content/<slug>.md` — review and place it | Safe (new content) |
 | `cli_send_outreach_email` | A human-approved link-building email to send **from the user's own email account** | **Outward-facing — confirm first send of the session** |
+| `cli_draft_context` | Business context is missing while suggested keywords wait on the relevance judge — draft `.seoagent/context.md` | Safe (repo-local file) |
 
 ## Per-type procedure
 
@@ -98,3 +99,10 @@ Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the li
 - No `to_email`? Check the prospect page for the author's address or a contact form — a form submission with the body text counts as sent.
 - Acknowledge after sending: `seoagent ack <action_id>` — the dashboard marks the draft **sent** and the prospect **contacted**. Declining (`--failed --reason "not sending; ..."`) dismisses the draft. A transient tooling failure should NOT be acked — leave it pending and it returns next sync.
 - **No email tooling available at all?** Leave the action pending and tell the user what tooling would enable sending (or that they can send manually from the dashboard's drafts queue).
+
+### `cli_draft_context-<id>.md`
+
+- `Read` it. The frontmatter has `action_id`, `artifact_path` (normally `.seoagent/context.md`), and `unjudged_keywords` — how many suggested keywords are stuck because the cloud's relevance judge has no business context for this site.
+- **Draft the context file.** Open `artifact_path`; an untouched `seoagent init` scaffold carries an `AGENT:` comment with the full drafting instructions — follow those. Fill `business.type`, `business.audience`, and `business.description` from what you know of the repo (README, landing page copy), and set `business.location` ONLY if the business serves a physical area. State the reach explicitly — LOCAL, ONLINE-only, or HYBRID — the keyword gates key off it. **If you can't tell from the repo, ask the user; never guess.**
+- Push it with `seoagent sync` — the next keyword-refresh run picks it up and judges the backlog.
+- Acknowledge: `seoagent ack <action_id>` (or `--failed --reason "declined; ..."` if the user doesn't want context captured — SEOAgent won't ask again).
