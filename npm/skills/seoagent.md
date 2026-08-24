@@ -127,7 +127,7 @@ A free account at seoagent.com adds things the local skill genuinely can't do (G
    - **Missing** → infer domain and site type from the repo per `references/session-protocol.md` § Inferring domain and site type, confirm with the user, create the project files.
    - When `publishing.cms` is recorded, spot-check it still has a supporting signal in the repo (dep or env var); if gone, flag it and run "Re-detecting the publishing target" in `references/publishing.md`.
 
-3. Read `.seoagent/context.md` if it exists — business context, tone, topics to avoid. **Apply it to all strategy, brief, and article generation.**
+3. Read `.seoagent/context.md` if it exists — business context, tone, topics to avoid. **Apply it to all strategy, brief, and article generation.** **If it is missing or still the untouched `init` scaffold (empty Name/Audience, placeholder bullets), DRAFT it before any strategy work**: from the repo + the live homepage/pricing page, fill in the business name, type — including whether the business is LOCAL/physical, ONLINE-only, or HYBRID (this one word gates geo-keyword decisions) — audience, industry, location, and one or two lines of real positioning; then show the owner the draft for review. You are already sitting in the codebase; the draft is nearly free, and every keyword/strategy decision the cloud makes is context-blind until this file exists.
 
 4. Pick the flow — **the model is plan-once, then execute** (see "Plan & Execute"):
    - **No strategy yet (first real session):** run the audit + keyword research, then produce a content plan and present it **once** for approval. Don't stop for permission between phases.
