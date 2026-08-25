@@ -65,3 +65,9 @@ When `.seoagent/project.md` doesn't exist, or `domain`/`site_type` is `unknown`:
 If the repo alone is inconclusive, WebFetch the homepage and infer from the visible content — pricing pages and trial CTAs → `saas`, product listings/cart → `product`, blog-heavy with no auth → `content`. `Edit` `project.md` to update `site_type` **before any audit or strategy work** — every later phase makes worse decisions when this is `unknown`.
 
 **Confirm inferences**: state domain and site type with evidence (which env key, `package.json` field, or dependency pattern). Ask the user to confirm or correct before writing `project.md`.
+
+## Starting a session: fast path and first session
+
+**Fresh project (fast path).** When `init` ran this session or moments before — no `audit/latest.md`, no `strategy/`, changelog holds only the init line — there is **nothing to reconcile**. Skip the bookkeeping and go straight to Phase 1: `seoagent crawl` → read `evidence.md` → audit → **deliver evidence-grounded findings first, workspace bookkeeping second**. One `seoagent doctor` is still worth running, but act only on `domain_unknown` / `site_type_unknown` before the crawl; every other finding waits until the findings are delivered. `seoagent sync` must never block, gate, or precede audit work on a fresh project — run it after the findings are out.
+
+**First session on an existing project, no audit yet.** Before the Phase 1 audit: WebFetch the homepage plus up to 3 key pages; run `seoagent sitemap` to validate the **live** sitemap — never judge it by committed files, since a dynamic `app/sitemap.ts` serves `/sitemap.xml` with no file in the repo; WebFetch `{domain}/robots.txt`; and scan headings/nav for topic clusters that already exist. Then run the full audit.

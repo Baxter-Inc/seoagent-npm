@@ -88,3 +88,20 @@ Then:
 5. Append to `changelog.md`: `[date] Publishing re-detected: {old} → {new}`. Run `seoagent sync`.
 
 If you spot the drift incidentally (mid-audit, mid-edit), surface it as a one-line heads-up + offer rather than blocking — re-detect only when the user agrees, or when you're about to act on the stale target (Phase 3+).
+
+## Where the article body lives — one source of truth
+
+The publishing strategy decides where an article's **body** is written. Never write it twice.
+
+- **`mdx_sync` / `custom`** — the body lives in the **repo file or CMS entry**, NOT in `.seoagent/`. Match the site's existing frontmatter and content model exactly (read an existing article first). Tracking is automatic once `publishing.content_dir` is set: the next sync registers the file. Only when no content dir is declared *and* nothing is tracked yet, run once:
+  `seoagent content track --slug {slug} --url https://{domain}{blog_path}/{slug} --file {path}`
+  (it self-records `content_dir`). **Never hand-write a duplicate full-body `.seoagent/content/{slug}.md`** — two copies of one article drift, and the sync then reports both.
+- **`managed_proxy` / `subdomain`** (cloud-hosted) — the body **does** live in `.seoagent/content/{slug}.md` with full SEO frontmatter (schema in `references/schemas.md`), published by `seoagent sync`.
+
+Either way: ship repo articles the way the repo ships — PR or branch, never straight to the default branch without asking.
+
+## Images — never block publishing on them
+
+Always write `images:` frontmatter with `alt` + `prompt` (or `src` for a captured screenshot). If `project.md` has `image_provider`, offer `seoagent generate-image --prompt "..." --out .seoagent/content/images/{slug}-hero.png`. If it's absent, run `seoagent env-check` first — it detects keys added after `init` and records the provider. Still nothing → offer the one-line key ask, then **write prompts only and continue publishing**. Images are never a blocker.
+
+For SaaS sites (`site_type: saas`, or a repo rendering real product UI), capture real product screenshots per `references/screenshots.md` for hero/feature/how-to spots **before** falling back to generated images.

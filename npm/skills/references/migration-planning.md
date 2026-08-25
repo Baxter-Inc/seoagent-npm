@@ -54,3 +54,12 @@ Harvest actions (refresh/repurpose) flow through the normal rewrite protocol (`r
 ## Relationship to keyword strategy
 
 Migration planning is the **backward-looking** counterpart to Phase 2's forward-looking clusters. Run `keywords --seed` to see the historical demand, split on/off strategy (Phase 2 step 3), then use `seoagent migrate` to give the **off-strategy-but-valuable** bucket a concrete per-URL disposition. The new direction's forward clusters still come from `context.md` + WebSearch (they have little GSC history yet).
+
+## Do you actually have GSC data? Check before concluding "no"
+
+"No GSC data" is the wrong conclusion far too often. Two sources count, and the second is easy to miss:
+
+1. **A connected login** — `seoagent whoami` shows the account and GSC connection.
+2. **A local Search Console CSV export.** `seoagent migrate` auto-detects `gsc/*.csv` and CSVs in the repo root. A user who exported from Search Console and dropped the file in the repo has GSC data even with no login at all.
+
+Check both before deciding the migration path does not apply. Only when neither exists do you skip migration silently.
