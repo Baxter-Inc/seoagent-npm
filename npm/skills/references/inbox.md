@@ -102,7 +102,7 @@ Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the li
 - **Confirm once per session** before the first outbound email (show recipient + subject); then send subsequent approved emails without re-prompting. Send **verbatim** — no added signature, links, or attachments; the one allowed edit is fixing an obviously wrong greeting name.
 - No `to_email`? Check the prospect page for the author's address or a contact form — a form submission with the body text counts as sent.
 - Acknowledge after sending: `seoagent ack <action_id>` — the dashboard marks the draft **sent** and the prospect **contacted**. Declining (`--failed --reason "not sending; ..."`) dismisses the draft. A transient tooling failure should NOT be acked — leave it pending and it returns next sync.
-- **No email tooling available at all?** Leave the action pending and tell the user what tooling would enable sending (or that they can send manually from the dashboard's drafts queue).
+- **No email tooling available at all?** Leave the action pending and tell the user exactly how to fix it: connect an email connector to this coding agent — e.g. the Gmail connector/MCP in Claude Code (Settings → Connectors, or `claude mcp add`) — or they can send manually from the dashboard's Outreach view.
 
 ### `cli_draft_context-<id>.md`
 
