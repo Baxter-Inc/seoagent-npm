@@ -88,10 +88,12 @@ Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the li
 
 ### `cli_draft_ready-<id>.md`
 
-- `Read` it. The frontmatter has `action_id`, `article_slug`, `path`, and (when drafted from a brief) `brief_slug`. The draft itself is at `.seoagent/<path>` — pulled in the same sync that delivered this task.
-- **Review the draft** (frontmatter carries title, meta description, status), then place it where this project's content renders: repo-native (mdx_sync) → copy/adapt into the repo's content directory and `seoagent content track` it; CMS → create the entry and track it; cloud-hosted → flip frontmatter `status` to `published` and sync. The inbox file body walks through each strategy.
-- Edit freely before publishing — the `.seoagent` copy is the user's now. Show the user the draft before publishing.
-- Acknowledge: `seoagent ack <action_id>` (or `--failed --reason "not publishing; ..."`).
+- `Read` it. The frontmatter has `action_id`, `article_slug`, `path`, `mode`, and (when drafted from a brief) `brief_slug`. The draft itself is at `.seoagent/<path>` — pulled in the same sync that delivered this task.
+- **Check `mode:` first.** It is the whole contract:
+  - **`mode: new`** — the slug is free. Review the draft (frontmatter carries title, meta description, status), then place it where this project's content renders: repo-native (mdx_sync) → copy/adapt into the repo's content directory and `seoagent content track` it; CMS → create the entry and track it; cloud-hosted → flip frontmatter `status` to `published` and sync.
+  - **`mode: revision`** — that slug **already renders live on this site** (`replaces_path` names the file). **Do not place it as a new post and do not overwrite the live file.** `diff` the two, fold in only what is genuinely new or better, and keep the live article's URL, frontmatter and dates. If the draft adds nothing, decline — that is a real answer.
+- **Renaming the slug is encouraged** when the generated one reads as a full sentence; a short slug is the better URL. When you rename, pass `--supersedes <the-delivered-slug>` to `content track`. That is what tells the cloud it is the SAME article under a new name — without it the cloud keeps the original as an unfinished draft and delivers it to you all over again.
+- **Close it out with `--action <action_id>` on the `content track`** — that acks the action for you, in the step you were already running. `seoagent ack <action_id>` by hand still works (or `--failed --reason "not publishing; ..."` to decline).
 
 ### `cli_send_outreach_email-<id>.md`
 

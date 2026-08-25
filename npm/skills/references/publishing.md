@@ -96,6 +96,7 @@ The publishing strategy decides where an article's **body** is written. Never wr
 - **`mdx_sync` / `custom`** — the body lives in the **repo file or CMS entry**, NOT in `.seoagent/`. Match the site's existing frontmatter and content model exactly (read an existing article first). Tracking is automatic once `publishing.content_dir` is set: the next sync registers the file. Only when no content dir is declared *and* nothing is tracked yet, run once:
   `seoagent content track --slug {slug} --url https://{domain}{blog_path}/{slug} --file {path}`
   (it self-records `content_dir`). **Never hand-write a duplicate full-body `.seoagent/content/{slug}.md`** — two copies of one article drift, and the sync then reports both.
+  **Publishing a cloud-delivered draft under a different slug?** Add `--supersedes {the-delivered-slug}` (and `--action {action_id}`). Renaming a generated slug is good editorial practice, but `content track` keys on the slug — without the claim the cloud keeps the original as an unfinished draft and re-delivers the same article. See `docs/harness/DESIGN-article-identity.md`.
 - **`managed_proxy` / `subdomain`** (cloud-hosted) — the body **does** live in `.seoagent/content/{slug}.md` with full SEO frontmatter (schema in `references/schemas.md`), published by `seoagent sync`.
 
 Either way: ship repo articles the way the repo ships — PR or branch, never straight to the default branch without asking.
