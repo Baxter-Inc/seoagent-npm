@@ -15,6 +15,7 @@ image_provider: openai           # optional: openai | fal | replicate | none —
 cms: strapi                      # optional: strapi | wordpress | sanity | contentful | ghost | webflow | shopify | payload | directus | mdx-local | none
 blog_path: /blog                 # optional: detected from app/blog/, pages/blog/, etc.
 public_dir: public               # optional: the dir this project serves as static files — `public` (Next.js/Vite/Astro) or `static` (SvelteKit/Gatsby/Hugo). Auto-detected by `init`; it is where llms.txt and the OKF bundle get PUBLISHED, so a wrong value means none of that work is served.
+llms_owner: route                # optional: only value is `route`. Set it when the project serves /llms.txt from its own route (app/llms.txt/route.ts and friends) — SEOAgent never publishes over a route, and this stops `sync` mentioning the skipped publish. Without it, sync says so once each time the generated .seoagent/llms.md changes, so the two can be compared.
 ---
 # SEOAgent Project — example.com
 ```
