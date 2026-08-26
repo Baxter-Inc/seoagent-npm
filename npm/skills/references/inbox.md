@@ -88,7 +88,8 @@ Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the li
 
 ### `cli_draft_ready-<id>.md`
 
-- `Read` it. The frontmatter has `action_id`, `article_slug`, `path`, `mode`, and (when drafted from a brief) `brief_slug`. The draft itself is at `.seoagent/<path>` — pulled in the same sync that delivered this task.
+- `Read` it. The frontmatter has `action_id`, `article_slug`, `path`, `mode`, and (when drafted from a brief) `brief_slug`. The draft itself is at `.seoagent/<path>`.
+- **Believe the task's own delivery line, not the word count.** It says either "pulled in the same sync that delivered this task" or "**NOT delivered by this sync**". The second means the pull kept your local copy and the cloud draft never reached disk: read the local file, then run the `seoagent sync --force <path>` the task prints to take the cloud version for that one file. Never publish a file whose body is a `Tracked record` pointer stub — that is the tracking placeholder, not the article.
 - **Check `mode:` first.** It is the whole contract:
   - **`mode: new`** — the slug is free. Review the draft (frontmatter carries title, meta description, status), then place it where this project's content renders: repo-native (mdx_sync) → copy/adapt into the repo's content directory and `seoagent content track` it; CMS → create the entry and track it; cloud-hosted → flip frontmatter `status` to `published` and sync.
   - **`mode: revision`** — that slug **already renders live on this site** (`replaces_path` names the file). **Do not place it as a new post and do not overwrite the live file.** `diff` the two, fold in only what is genuinely new or better, and keep the live article's URL, frontmatter and dates. If the draft adds nothing, decline — that is a real answer.

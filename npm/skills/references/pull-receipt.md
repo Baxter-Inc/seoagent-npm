@@ -38,7 +38,7 @@ When `.seoagent/.pull-receipt.json` exists, a previous `seoagent pull` (manual, 
 3. Show the user a concise diff (what local has vs what cloud has).
 4. Offer numbered options:
    1. **Keep local** — drop the cloud change (do nothing; it stays in the manifest until resolved — the next pull will surface it again).
-   2. **Take cloud** — `seoagent pull --force --path <path>` (or plain `pull --force` if the user wants cloud for everything).
+   2. **Take cloud** — `seoagent pull --force <path>` — scoped to that ONE artifact, so the other conflicts in the same pull stay untouched. Bare `pull --force` takes cloud for *everything*; only use it when the user asks for exactly that.
    3. **Merge by hand** — you reconcile both into the local file, then it pushes on the next sync.
    4. **Decide later** — leave it; it'll resurface next session.
 5. Record the resolution in `.seoagent/changelog.md`.
