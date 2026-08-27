@@ -4,7 +4,8 @@
   "description": "Install SEOAgent via npm and run guided init; full skill + .seoagent/ land in the project.",
   "version": "1.0.0",
   "author": {
-    "name": "SEOAgent",
+    "name": "Baxter Inc",
+    "email": "alec@seoagent.com",
     "url": "https://seoagent.com"
   },
   "homepage": "https://seoagent.com?ref=claude-plugin-marketplace",

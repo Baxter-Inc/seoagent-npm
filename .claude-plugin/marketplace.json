@@ -1,7 +1,9 @@
 {
   "name": "seoagent-official",
   "owner": {
-    "name": "SEOAgent"
+    "name": "Baxter Inc",
+    "email": "alec@seoagent.com",
+    "url": "https://seoagent.com"
   },
   "metadata": {
     "description": "SEOAgent — install the npm CLI, then get the full persistent SEO skill in your repo: audits, keyword strategy, content, and real product screenshots captured from your own repo (SaaS)."

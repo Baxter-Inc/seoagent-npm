@@ -27,6 +27,11 @@ npm install @seoagent-official/seoagent && npx @seoagent-official/seoagent init
 - [npm package](https://www.npmjs.com/package/@seoagent-official/seoagent)
 - [SEOAgent.com](https://seoagent.com?ref=claude-plugin-readme)
 - [Source](https://github.com/Baxter-Inc/seoagent-npm)
+- [Privacy policy](https://seoagent.com/privacy)
+
+## Publisher
+
+Baxter Inc — contact: alec@seoagent.com
 
 ## License
 
