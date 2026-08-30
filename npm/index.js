@@ -275,6 +275,10 @@ ${i}
 2. Apply the fix for a \`${r}\` page:
    - **declining_clicks** \u2014 refresh the content: update facts/examples, expand thin
      sections, improve depth so it re-earns its ranking.
+   - **rank_expansion** \u2014 this page is WINNING (or in striking distance): deepen it.
+     Cover the adjacent intent of the queries listed in the description, add
+     sections for their variants, and strengthen internal links from related
+     pages. Never split the topic into a new page \u2014 it would compete with this one.
    - **low_ctr** \u2014 rewrite the \`<title>\` and meta description to be more compelling
      for the query (the body may be fine).
    - **stale_thin** \u2014 expand the page substantially and bring it up to date.
@@ -573,7 +577,7 @@ If they are already correct and SEOAgent misread them, decline with a reason:
 \`\`\`bash
 ${g(`ack ${e.id}`)} --failed --reason "llms.txt is served at a custom path"
 \`\`\`
-`}function Ef(e){let t=e.payload||{},n=t.keyword??null,r=t.opportunity??"easy_win",o=t.volume??null,i=t.difficulty??null,s=t.intent??null,a=t.capture_screenshots===!0,l=r==="competitor_gap"?"competitor gap (a rival ranks top-10 here, you don't)":"easy win (low difficulty, real volume)";return`---
+`}function Ef(e){let t=e.payload||{},n=t.keyword??null,r=t.opportunity??"easy_win",o=t.volume??null,i=t.difficulty??null,s=t.intent??null,a=t.capture_screenshots===!0,c=t.expansion===!0?"winner sibling (a page of yours already ranks with exceptional click-through for a close variant \u2014 proven demand)":r==="competitor_gap"?"competitor gap (a rival ranks top-10 here, you don't)":"easy win (low difficulty, real volume)";return`---
 action_id: ${e.id}
 action_type: ${e.action_type}
 keyword: ${n??""}
@@ -588,7 +592,7 @@ created_at: ${e.created_at}
 # New landing page \u2014 \`${n??"(unknown)"}\`
 
 SEOAgent's keyword engine flagged \`${n??"(unknown)"}\` as an
-**${l}**. There's no page covering this keyword yet \u2014 write a
+**${c}**. There's no page covering this keyword yet \u2014 write a
 dedicated landing page so the site can rank for it. The cloud has queued this
 for **you** (or Claude Code reading this file) \u2014 nothing is auto-generated.
 
