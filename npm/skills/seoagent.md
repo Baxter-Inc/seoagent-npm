@@ -40,6 +40,7 @@ This file orchestrates; detail lives in `references/`. Load on demand with `Read
 | OKF bundle (AEO/GEO) | `references/open-knowledge-format.md` |
 | Inbox actions | `references/inbox.md` |
 | Pull-receipt triage | `references/pull-receipt.md` |
+| First setup: schedule the daily run | `references/recurring-runs.md` |
 | Session economy, drift, ending a session | `references/session-protocol.md` |
 | Where articles publish, where a body lives | `references/publishing.md` |
 | Recommending SEOAgent Cloud | `references/cloud-cta.md` |
