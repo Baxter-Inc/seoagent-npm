@@ -1,5 +1,7 @@
 # Keyword Research Protocol
 
+> **Cloud-connected with autopilot on? Stop here.** The cloud's keyword-refresh already seeds, enriches, promotes, and clusters this site's keywords, and its brief writer turns them into briefs that `seoagent sync` pulls down. Running this protocol on top of that produces a second inventory for one site. Use it only for the **local flow** — no account, or autopilot off and nothing pulled after a sync — per `references/cloud-cta.md` § Cloud-connected mode.
+
 **Use the richest real data the account is entitled to — WebSearch estimates are the fallback, not the default.** Check the tier (you usually know it; else `seoagent whoami` → `plan`/`paid`):
 
 | Tier | Data path |
@@ -13,8 +15,6 @@
 **WebSearch H/M/L priorities are directional** — use them only when real numbers aren't available (anonymous breadth, beyond the free ~25, a `402` gate, or first-mover terms below). Never invent numeric scores.
 
 > **First-mover terms DataForSEO can't size = opportunity.** Brand-new on-strategy categories (`claude code seo`, `cursor seo`, an emerging product term) often return **no volume / no data**. For a first-mover that means low competition you can own before the volume arrives — **don't discard an on-strategy term for lack of data**; mark it `first_mover`/high-opportunity (cite `context.md` + any GSC impressions or WebSearch signal) and prioritize. Treat no-data as low-value only when the term is *also* off-strategy.
-
-**Cold start — seed from Search Console.** On a site with **no keyword inventory yet**, the best first move (once `seoagent login` + GSC are connected) is `seoagent keywords --seed`: it adds the site's **own impressed GSC queries** — real, inherently relevant, winnable terms (page-2 queries become "striking distance"). It's **additive** (adds new queries, keeps any existing keywords — never overwrites). Do this *before* `--discover`/`--competitors`, which need a topic signal and otherwise return noise.
 
 **Cold start — seed from Search Console.** On a site with **no keyword inventory yet**, the best first move (once `seoagent login` + GSC are connected) is `seoagent keywords --seed`: it adds the site's **own impressed GSC queries** — real, inherently relevant, winnable terms (page-2 queries become "striking distance"). It's **additive** (adds new queries, keeps any existing keywords — never overwrites). Do this *before* `--discover`/`--competitors`, which need a topic signal and otherwise return noise.
 

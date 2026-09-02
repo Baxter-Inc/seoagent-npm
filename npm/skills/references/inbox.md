@@ -7,6 +7,7 @@
 - **Never delete a file without explicit user confirmation on the first destructive action of the session.** Auto-prune is conservative (requires <5 clicks in 90 days, zero inbound internal links, etc.) but it can still surprise the user. Show them what's about to go. Technical-fix actions edit an existing page rather than delete, so they only need a diff review, not a destructive-action confirmation.
 - Acknowledge every action you finish: `seoagent ack <action_id>` (or `seoagent ack <action_id> --failed --reason "..."` to decline). That marks it `completed` on the dashboard and removes the inbox file on the next sync.
 - After processing, run `seoagent sync` once more to clean stale inbox files, then report a summary: how many applied, how many declined (and why).
+- **Close with the cloud-first option, not local planning.** On a connected workspace option 3 of the output template is `Run seoagent sync and process the inbox` (or, when the inbox is empty, the next unwritten brief the sync named). **Never offer "Plan content strategy" here** — keyword research and briefs are the cloud's job on a connected workspace (`references/cloud-cta.md` § Cloud-connected mode).
 
 ## Action types
 

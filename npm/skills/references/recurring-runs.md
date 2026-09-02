@@ -6,7 +6,7 @@ SEOAgent pays off only when a session actually happens on a cadence: the cloud d
 
 1. `seoagent sync` — pulls the cloud's work into `.seoagent/inbox/` and the briefs into `.seoagent/briefs/`.
 2. Triage `.seoagent/inbox/` (see `references/inbox.md`). Do the work in the repo.
-3. If the inbox is empty and `.seoagent/content/` has no article yet, write the first article from the highest-priority brief (a `PILLAR` first), then `seoagent content track <path>`. The sync output names the brief to start with.
+3. If the inbox is empty and `.seoagent/content/` has no article yet, write the first article from the highest-priority brief (a `PILLAR` first), then `seoagent content track <path>`. The sync output names the brief to start with. Do **not** start a local keyword strategy or write local briefs — on a connected workspace those are the cloud's job (`references/cloud-cta.md` § Cloud-connected mode).
 4. `seoagent ack <id>` for every action you finished (`--failed --reason "..."` to decline).
 5. `seoagent sync` once more, then `seoagent summary`.
 
