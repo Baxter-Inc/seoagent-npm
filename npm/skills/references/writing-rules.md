@@ -4,6 +4,10 @@ Prose-craft rules for EVERY article, landing page, brief, and rewrite this skill
 
 These rules also ship inside cloud-generated briefs as a "## Writing rules (no AI slop)" section. When a brief carries that section, it is the same contract as this file — don't apply the rules twice, just follow them.
 
+## Language
+
+Write in the site's language — the `language:` value in `project.md` (`nl`, `da`, `de`, `en-GB`…). It applies to everything: headings, meta title and description, FAQ, image alt text, slug words. Brand and product names stay as they are. Cloud briefs carry the same instruction as a `Language:` line in their site context. If `project.md` says `en` but the live site is plainly not in English, fix `project.md` first (`seoagent init` guesses it from the domain's ccTLD; a `.com` site in Dutch needs `language: nl` by hand, an English site on `.nl` needs `language: en-NL`) — the cloud uses that value for keyword data too.
+
 ## Banned words
 
 Never use: delve, foster, leverage, utilize, facilitate, empower, streamline, robust, cutting-edge, paradigm shift, game changer, "this is huge", "this changes everything", tapestry, realm, beacon, multifaceted, meticulous, intricate, paramount, transformative, elevate, embark, supercharge, harness, ever-evolving.

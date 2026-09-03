@@ -158,7 +158,7 @@ Then per article in priority order: read the cluster file for role and metadata;
 ## Phase 4 — Article writing
 
 1. Read the brief, `context.md` (tone, audience, banned topics), and the cluster file for link targets.
-2. **Read the page-type reference** (plus `listicle-articles.md` for listicles, `schema-markup.md` for JSON-LD) and **`references/writing-rules.md`** — apply its prose rules while drafting and run its self-check before publishing.
+2. **Read the page-type reference** (plus `listicle-articles.md` for listicles, `schema-markup.md` for JSON-LD) and **`references/writing-rules.md`** — apply its language and prose rules while drafting; self-check before publishing.
 3. **Write the body where it actually renders — one source of truth.** Which file that is, plus screenshots and the never-block-on-images rule, is in `references/publishing.md`.
 4. **Update the link graph** — sub-pillar and long-tail writes link UP to the parent; pillar writes reference all sub-pillars. Then sync.
 
