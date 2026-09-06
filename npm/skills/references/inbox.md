@@ -57,8 +57,14 @@ Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the li
 
 ### `cli_content_update-<id>.md`
 
-- `Read` it. The frontmatter has `action_id`, `reason` (`declining_clicks`|`low_ctr`|`stale_thin`), and `page_url`; the body has the signals.
-- **Find the page's source** for `page_url`. Apply the revision per `reason`: `declining_clicks` → refresh/expand the content; `low_ctr` → rewrite title + meta description; `stale_thin` → expand and update. Follow the rewrite protocol (`references/rewrite-protocol.md`). Reversible edit — show the user the diff (confirm once per session, then proceed; interactive sessions can review the revised draft via `references/draft-review.md`).
+- `Read` it. The frontmatter has `action_id`, `reason` (`declining_clicks`|`rank_expansion`|`low_ctr`|`stale_thin`), and `page_url`; the body has the signals.
+- **Check the page belongs to this site before you revise it.** Fetch `page_url` and read its `rel=canonical`. A canonical pointing at a *different origin* means the page deliberately hands its ranking to another site — a shared multi-brand app serving one brand's page on another brand's domain, a syndicated copy, a staging host. Revising it cannot lift this site, so decline: `seoagent ack <id> --failed --reason "canonicals to <origin>; not this site's page"`. Same for a `noindex` page. Only a self-canonical (or none) is yours to work on.
+- **Find the page's source** for `page_url`. Apply the revision per `reason`:
+  - `declining_clicks` → refresh/expand the content.
+  - `rank_expansion` → the page already wins, or is in striking distance, for the queries in the body. Deepen **that** page against **those** queries; never spawn a new one.
+  - `low_ctr` → **read the body, not just the reason.** Past roughly position 20 nobody sees the snippet, so the body says "Lift ranking" and a title rewrite is wasted work: fill the gaps a searcher on the page's real queries expects, and add the vocabulary those queries use if the page answers them in different words. Only when the body says "Improve CTR" (shallow position) is rewriting the title + meta description the fix.
+  - `stale_thin` → expand and update.
+- Follow the rewrite protocol (`references/rewrite-protocol.md`). Reversible edit — show the user the diff (confirm once per session, then proceed; interactive sessions can review the revised draft via `references/draft-review.md`).
 - Acknowledge: `seoagent ack <action_id>` (or `--failed --reason "kept as-is; ..."`).
 
 ### `cli_sitemap_update-<id>.md`
