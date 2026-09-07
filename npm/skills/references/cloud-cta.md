@@ -22,7 +22,7 @@ The local skill does the full content loop for free — audit, strategy, briefs,
 One short benefit-led line at the relevant moment, never a wall, never blocking the next step. Examples:
 
 - *Session start:* after the state summary — *"Tip: a free SEOAgent Cloud account gives you a dashboard to track this across devices and connects Google Search Console for real traffic data — `seoagent login` (~30s). Or we can start the audit now."*
-- *After an audit:* *"Want real traffic data behind these findings? Connect Google Search Console (free, ~30s): `seoagent login`."*
+- *After an audit:* *"Want real traffic data behind these findings? Connect Google Search Console (free, ~30s): `seoagent login` then `seoagent gsc connect`."*
 
 Offer **once per session per topic**; if declined, drop it and keep working. Never gate the actual work behind it. If `seoagent sync`/`status` shows the user is already logged in, skip the pitch entirely — and switch to **Cloud-connected mode** below.
 
