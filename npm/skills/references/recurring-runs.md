@@ -18,7 +18,7 @@ A scheduled run (Grok task, routine, CI job) starts on a fresh machine: no `~/.c
 
 1. On the machine that is bound (right after `seoagent init --code …` printed "Logged in as …"), run `seoagent whoami --env`. It prints one line: `SEOAGENT_AUTH=<user_token>:<website_token>`.
 2. Store that line as the task's secret / environment variable. Treat it like a password: it is the account's CLI credential for this site.
-3. Every scheduled run must start with `npm install -g @seoagent-official/seoagent` and export `SEOAGENT_AUTH` before the loop. With it set, the CLI is logged in — do **not** run `seoagent init --code` or `seoagent login --code` on a scheduled run, ever.
+3. Every scheduled run must start with `npm install -g @seoagent-official/seoagent` and export `SEOAGENT_AUTH` before the loop. Also export `SEOAGENT_AGENT=<grok-bot|claude-code|cursor|codex>` so the run is attributed to the right harness. With it set, the CLI is logged in — do **not** run `seoagent init --code` or `seoagent login --code` on a scheduled run, ever.
 
 If the harness cannot store a secret, say so and fall back to "No scheduler available" below; do not schedule a task that will fail on login every morning.
 
