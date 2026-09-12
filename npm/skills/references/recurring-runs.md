@@ -10,7 +10,17 @@ SEOAgent pays off only when a session actually happens on a cadence: the cloud d
 4. `seoagent ack <id>` for every action you finished (`--failed --reason "..."` to decline).
 5. `seoagent sync` once more, then `seoagent summary`.
 
-Never skip step 1 because a login failed. An unbound CLI cannot sync. If `seoagent login --code` fails, stop and tell the user the exact error; they can mint a fresh code at seoagent.com/grok.
+Never skip step 1 because a login failed. An unbound CLI cannot sync. If `seoagent login --code` fails, stop and tell the user the exact error; they can mint a fresh code at seoagent.com/grok. **Never guess, invent, or retype a setup code from memory** — a code is `sa_` + 24 random hex characters that only the server issues, it works exactly once, and a made-up one fails with `not recognized` every time.
+
+## Cold machines: the schedule needs a credential, not a code
+
+A scheduled run (Grok task, routine, CI job) starts on a fresh machine: no `~/.config/seoagent/auth.json`, and the setup code from first setup is already consumed. Give the task a credential instead:
+
+1. On the machine that is bound (right after `seoagent init --code …` printed "Logged in as …"), run `seoagent whoami --env`. It prints one line: `SEOAGENT_AUTH=<user_token>:<website_token>`.
+2. Store that line as the task's secret / environment variable. Treat it like a password: it is the account's CLI credential for this site.
+3. Every scheduled run must start with `npm install -g @seoagent-official/seoagent` and export `SEOAGENT_AUTH` before the loop. With it set, the CLI is logged in — do **not** run `seoagent init --code` or `seoagent login --code` on a scheduled run, ever.
+
+If the harness cannot store a secret, say so and fall back to "No scheduler available" below; do not schedule a task that will fail on login every morning.
 
 ## First setup: create ONE weekday task
 
@@ -18,8 +28,8 @@ If the harness supports scheduled or recurring tasks, create **one** task that r
 
 How to schedule, by harness:
 
-- **Grok bot** — create a scheduled task named `seoagent-daily` with the prompt: "In the repo that builds <domain>: run `seoagent sync`, triage `.seoagent/inbox/`, do the work, `seoagent ack <id>` each finished action, then `seoagent sync` and `seoagent summary`." Weekdays, 09:00 local.
-- **Claude Code** — if the harness offers routines or scheduled tasks (the `/schedule` command where available), create one with that prompt on a weekday-morning cron (`0 9 * * 1-5`). Otherwise fall back to the cron line below and tell the user.
+- **Grok bot** — first run `seoagent whoami --env` and save its output as the task's secret. Then create a scheduled task named `seoagent-daily` with the prompt: "Install the CLI (`npm install -g @seoagent-official/seoagent`), export the SEOAGENT_AUTH secret, then in the repo that builds <domain>: run `seoagent sync`, triage `.seoagent/inbox/`, do the work, `seoagent ack <id>` each finished action, then `seoagent sync` and `seoagent summary`. Never run `seoagent init --code` or `seoagent login --code` here." Weekdays, 09:00 local.
+- **Claude Code** — if the harness offers routines or scheduled tasks (the `/schedule` command where available), create one with that prompt on a weekday-morning cron (`0 9 * * 1-5`); when each firing starts from a fresh environment, give it the `SEOAGENT_AUTH` secret the same way. Otherwise fall back to the cron line below and tell the user.
 - **Cursor / Codex / any shell** — a cron entry or CI schedule that runs `seoagent sync --silent` on weekday mornings keeps the inbox fresh, but it cannot do the work; ask the user to open the agent in the repo each weekday, or to wire a scheduled agent run if their harness has one:
 
   ```
