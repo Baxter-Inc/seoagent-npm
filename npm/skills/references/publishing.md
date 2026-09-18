@@ -6,6 +6,7 @@ Articles need a working place to live before they're worth generating. The good 
 
 - **A. In the repo** (markdown / MDX / Astro content collections / a static-site generator) → you write the file.
 - **B. In a CMS** (WordPress, Sanity, Contentful, Strapi, Shopify, Ghost, Webflow, Payload, Notion, …) → you publish via the API the repo already uses.
+- **B2. In a hosted CMS with no repo at all** (a wordpress.com blog, self-hosted WordPress with no code checkout, Shopify, Webflow, Squarespace, Wix, …) → there is no repo to find; you publish through the platform's API after the user enables it, or hand the article over as a file when the platform has no API. See § "No repo" below.
 
 SEOAgent Cloud *hosting* (option C below) exists only as a convenience for users who have **no** content home and no engineering resources — it is NOT the default. Never lead with it.
 
@@ -41,6 +42,23 @@ The site pulls content from a CMS. You don't need a SEOAgent adapter — **read 
 - **How you publish:** find the CMS client/credentials the app already uses (`.env*`, an SDK import, an API base). Map the article (`title`, `slug`, body, meta, canonical, JSON-LD) to that CMS's content model and create the entry — print the exact `curl`/SDK call for the user to run, or, with explicit consent, run it yourself using their existing credentials. Confirm the post is a draft vs. published per the user's preference. The CMS holds the body; **then `seoagent content track --slug {slug} --url {live-url}` so the dashboard tracks it** (the cloud can't see your CMS).
 - **Mapping starting points:** Strapi → `POST /api/articles` `{data:{…}}`. Sanity → `client.create({_type:'post',…})`. Contentful → Management API `createEntry`. Webflow → `POST /collections/:id/items`. Shopify → `POST /admin/api/.../articles.json`. Ghost → Admin API `posts.add`. WordPress → `POST /wp-json/wp/v2/posts`. For anything unfamiliar, ask the user once how a post gets created, then store the mapping in `project.md` so future articles are one step.
 - **Best for:** teams with an existing CMS — keep it, just get SEOAgent's content into it.
+
+## No repo: the site lives on a hosted CMS — `strategy: custom`
+
+You were set up in an empty folder (the setup block says so for wordpress.com, myshopify.com, webflow.io, blogspot.com, … domains), or `init` found no code that builds the site and the live site is plainly a hosted platform. **Do not hunt for a repository and do not ask the user for one — there isn't one.** The platform holds the content, and the way in is its API.
+
+1. **Identify the platform from the live site, once.** `WebFetch https://{domain}/wp-json/` — a JSON body with `name`/`namespaces` is WordPress (self-hosted or WordPress.com). Otherwise read the homepage HTML: `<meta name="generator" content="WordPress …">`, `cdn.shopify.com` assets / `/products.json` answering, `data-wf-site` (Webflow), `static1.squarespace.com`, `static.wixstatic.com`, `blogger.com` assets. Record it in `project.md` as `publishing.strategy: custom`, `publishing.cms: <platform>`, `blog_path` from the live blog URL.
+2. **Ask the user to enable API access — one message, the exact steps, nothing else.**
+   - **WordPress (self-hosted, or WordPress.com Business/Commerce with plugins):** Users → Profile → Application Passwords → create one named `seoagent`. You need `WORDPRESS_API_URL=https://{domain}/wp-json`, `WORDPRESS_USERNAME`, `WORDPRESS_APP_PASSWORD`.
+   - **WordPress.com (Free/Personal/Premium):** the REST API lives at `https://public-api.wordpress.com/wp/v2/sites/{domain}/posts` and needs an OAuth2 bearer token from a WordPress.com app (developer.wordpress.com/apps — the user creates one, authorizes it, and gives you the token). Ask which of the two they can do; print the exact call either way.
+   - **Shopify:** a custom app in the store admin with `write_content` scope → Admin API access token; posts go to `POST /admin/api/{version}/blogs/{blog_id}/articles.json`.
+   - **Webflow:** a site API token with CMS write access; items go to `POST https://api.webflow.com/v2/collections/{collection_id}/items`.
+   - **Ghost:** an Admin API key from Settings → Integrations; `POST /ghost/api/admin/posts/` with a Ghost Admin JWT.
+   - **Blogger:** Blogger API v3 with an OAuth token; `POST https://www.googleapis.com/blogger/v3/blogs/{blogId}/posts`.
+   - **No post API you can use (Squarespace, Wix, Weebly, GoDaddy, Carrd, Notion, Substack, Medium, Tumblr, Framer):** say so plainly. Write each article to `.seoagent/content/{slug}.md` in this folder and hand it to the user to paste into the platform's editor. Report audit findings that need a template, header or DNS change with the exact setting to change.
+3. **Keep the credential in `.env` in this folder** (add `.env` to `.gitignore` if a git repo ever appears here). Never write it into `project.md`, a brief, or any tracked file. Never ask the user to paste it into chat if they can put it in the file themselves.
+4. **Publish as a draft unless the user says otherwise**, exactly as option B: map `title`, `slug`, body (HTML for WordPress/Ghost/Shopify/Blogger; Webflow takes rich text), excerpt/meta description, and the canonical. Show the user the draft URL. Then `seoagent content track --slug {slug} --url {live-url}` once it is live, so the dashboard tracks it.
+5. **Never fall back to SEOAgent Cloud hosting or a `/blog` proxy for these sites** — the user's blog already exists on the platform; putting a second one next to it splits their content.
 
 ## C. SEOAgent Cloud hosting (optional — only when there's no content home) — `strategy: managed_proxy` | `subdomain`
 

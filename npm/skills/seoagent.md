@@ -149,7 +149,7 @@ Outputs: `strategy/clusters/{slug}.md`, `strategy/discovery.md` (all metrics), `
 
 > Autopilot on → **skip the briefs** (they arrive via sync + inbox); the publishing target still applies.
 
-Articles need a working home first, and **you are the publishing engine** — publish where the content already lives: **repo files (`mdx_sync`) or the user's CMS (`custom`)**; cloud hosting is only for users with no content home, never the default. **Guardrail:** a blog route rendering DB/headless rows with no repo content files is NOT a publishing path — never INSERT into a production database. **Read `references/publishing.md`** for the full decision. **Generate no briefs or articles until `publishing.setup_status: done`.**
+Articles need a working home first, and **you are the publishing engine** — publish where the content already lives: **repo files (`mdx_sync`) or the user's CMS (`custom`)**; cloud hosting is never the default. **Guardrail:** a blog route rendering DB/headless rows with no repo content files is NOT a publishing path — never INSERT into production. **No repo** (hosted wordpress.com/Shopify-style site) → never hunt; see § "No repo". **Read `references/publishing.md`.** **Generate no briefs or articles until `publishing.setup_status: done`.**
 
 Brief pre-check: `done` → WebFetch `https://{domain}{blog_path}`, expecting 200 with a body; failure = the target regressed — raise a `critical` finding, no briefs. `pending` → stop and remind the user of their open task.
 
