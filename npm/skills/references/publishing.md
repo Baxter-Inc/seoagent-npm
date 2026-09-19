@@ -45,20 +45,41 @@ The site pulls content from a CMS. You don't need a SEOAgent adapter — **read 
 
 ## No repo: the site lives on a hosted CMS — `strategy: custom`
 
-You were set up in an empty folder (the setup block says so for wordpress.com, myshopify.com, webflow.io, blogspot.com, … domains), or `init` found no code that builds the site and the live site is plainly a hosted platform. **Do not hunt for a repository and do not ask the user for one — there isn't one.** The platform holds the content, and the way in is its API.
+You were set up in an empty folder (`seoagent init` and the setup block both say so for wordpress.com, wixsite.com, squarespace.com, myshopify.com, webflow.io, ghost.io, blogspot.com, … domains), or `init` found no code that builds the site and the live site is plainly a hosted platform. **Do not hunt for a repository and do not ask the user for one — there isn't one.** This folder is the workspace. A hosted site gets the full SEOAgent loop: the audit runs against the live site, keywords and strategy and briefs are the same, articles are written the same. **Only delivery differs**, and it goes through the platform's connector — its API where it has one, its editor where it does not. Set the connector up once, in the first session, before the first brief.
 
-1. **Identify the platform from the live site, once.** `WebFetch https://{domain}/wp-json/` — a JSON body with `name`/`namespaces` is WordPress (self-hosted or WordPress.com). Otherwise read the homepage HTML: `<meta name="generator" content="WordPress …">`, `cdn.shopify.com` assets / `/products.json` answering, `data-wf-site` (Webflow), `static1.squarespace.com`, `static.wixstatic.com`, `blogger.com` assets. Record it in `project.md` as `publishing.strategy: custom`, `publishing.cms: <platform>`, `blog_path` from the live blog URL.
-2. **Ask the user to enable API access — one message, the exact steps, nothing else.**
-   - **WordPress (self-hosted, or WordPress.com Business/Commerce with plugins):** Users → Profile → Application Passwords → create one named `seoagent`. You need `WORDPRESS_API_URL=https://{domain}/wp-json`, `WORDPRESS_USERNAME`, `WORDPRESS_APP_PASSWORD`.
-   - **WordPress.com (Free/Personal/Premium):** the REST API lives at `https://public-api.wordpress.com/wp/v2/sites/{domain}/posts` and needs an OAuth2 bearer token from a WordPress.com app (developer.wordpress.com/apps — the user creates one, authorizes it, and gives you the token). Ask which of the two they can do; print the exact call either way.
-   - **Shopify:** a custom app in the store admin with `write_content` scope → Admin API access token; posts go to `POST /admin/api/{version}/blogs/{blog_id}/articles.json`.
-   - **Webflow:** a site API token with CMS write access; items go to `POST https://api.webflow.com/v2/collections/{collection_id}/items`.
-   - **Ghost:** an Admin API key from Settings → Integrations; `POST /ghost/api/admin/posts/` with a Ghost Admin JWT.
-   - **Blogger:** Blogger API v3 with an OAuth token; `POST https://www.googleapis.com/blogger/v3/blogs/{blogId}/posts`.
-   - **No post API you can use (Squarespace, Wix, Weebly, GoDaddy, Carrd, Notion, Substack, Medium, Tumblr, Framer):** say so plainly. Write each article to `.seoagent/content/{slug}.md` in this folder and hand it to the user to paste into the platform's editor. Report audit findings that need a template, header or DNS change with the exact setting to change.
-3. **Keep the credential in `.env` in this folder** (add `.env` to `.gitignore` if a git repo ever appears here). Never write it into `project.md`, a brief, or any tracked file. Never ask the user to paste it into chat if they can put it in the file themselves.
-4. **Publish as a draft unless the user says otherwise**, exactly as option B: map `title`, `slug`, body (HTML for WordPress/Ghost/Shopify/Blogger; Webflow takes rich text), excerpt/meta description, and the canonical. Show the user the draft URL. Then `seoagent content track --slug {slug} --url {live-url}` once it is live, so the dashboard tracks it.
-5. **Never fall back to SEOAgent Cloud hosting or a `/blog` proxy for these sites** — the user's blog already exists on the platform; putting a second one next to it splits their content.
+### 1. Identify the platform from the live site, once
+
+`WebFetch https://{domain}/wp-json/` — a JSON body with `name`/`namespaces` is WordPress (self-hosted or WordPress.com). Otherwise read the homepage HTML: `<meta name="generator" content="WordPress …">`; `static.wixstatic.com` / `wix-` assets (Wix); `static1.squarespace.com` (Squarespace); `cdn.shopify.com` assets or `/products.json` answering (Shopify); `data-wf-site` (Webflow); `ghost` assets (Ghost); `blogger.com` assets (Blogger). Record it in `project.md`: `publishing.strategy: custom`, `publishing.cms: <wordpress | wix | squarespace | shopify | webflow | ghost | blogger | other>`, `blog_path` from the live blog URL.
+
+### 2. Set up the connector — ask the user ONCE, with the exact steps, nothing else in that message
+
+Before the first API call, `WebFetch` the platform's current API reference for creating a post and use what it says — endpoints and versions move; the notes below say where to look and what to ask for, not the exact request shape. Record the working call in `project.md` under `publishing.notes` so the next article is one step.
+
+- **WordPress (self-hosted, or WordPress.com Business/Commerce):** Users → Profile → Application Passwords → create one named `seoagent`. Env: `WORDPRESS_API_URL=https://{domain}/wp-json`, `WORDPRESS_USERNAME`, `WORDPRESS_APP_PASSWORD`. Posts: `POST {WORDPRESS_API_URL}/wp/v2/posts` with HTTP Basic auth, `status: draft`. Titles and meta descriptions of existing pages are editable the same way (`/wp/v2/pages`, plus the SEO plugin's fields when Yoast or Rank Math is installed).
+- **WordPress.com (Free / Personal / Premium):** the REST API lives at `https://public-api.wordpress.com/wp/v2/sites/{domain}/posts` and needs an OAuth2 bearer token from a WordPress.com app (developer.wordpress.com/apps — the user creates the app, authorizes it, and gives you the token). Env: `WPCOM_SITE`, `WPCOM_TOKEN`. Ask which of the two WordPress routes applies; the `/wp-json/` probe in step 1 answers it (Business sites answer on their own domain).
+- **Wix:** Wix account → API Keys Manager → create a key with **Blog** (and Site) permissions; the **site ID** is in the site dashboard URL / Settings. Env: `WIX_API_KEY`, `WIX_SITE_ID`. The Wix REST Blog API creates a draft post (headers: `Authorization: {WIX_API_KEY}`, `wix-site-id: {WIX_SITE_ID}`), which the user publishes from the editor or you publish through the API when told to. Page titles and descriptions: the Wix SEO settings API where the key has permission, otherwise the page's SEO panel.
+- **Squarespace:** no public API for posts — the connector **is the editor**. Write each article to `.seoagent/content/{slug}.md` with the exact title, URL slug, SEO title, meta description, body (headings, links, image alt text) and a one-line paste plan (Blog → + → paste body → Settings → SEO → title/description/slug). Walk the user through the first one. Titles, descriptions, redirects (Settings → Developer Tools → URL Mappings) and sitemap/GSC verification are reported with the exact panel.
+- **Shopify:** custom app in the store admin with `write_content` (blog) scope → Admin API access token. Env: `SHOPIFY_STORE`, `SHOPIFY_ADMIN_TOKEN`. Articles go to the blog articles endpoint under `/admin/api/{version}/blogs/{blog_id}/articles.json`, `published: false`.
+- **Webflow:** a site API token with CMS write access. Env: `WEBFLOW_TOKEN`, `WEBFLOW_COLLECTION_ID` (the blog collection). Items go to `POST https://api.webflow.com/v2/collections/{collection_id}/items` as drafts; publishing the site is the user's step unless told otherwise.
+- **Ghost:** an Admin API key from Settings → Integrations. Env: `GHOST_URL`, `GHOST_ADMIN_KEY`. `POST /ghost/api/admin/posts/` with a Ghost Admin JWT, `status: draft`.
+- **Blogger:** Blogger API v3 with an OAuth token from a Google Cloud project. Env: `BLOGGER_BLOG_ID`, `BLOGGER_TOKEN`. `POST https://www.googleapis.com/blogger/v3/blogs/{blogId}/posts?isDraft=true`.
+- **Weebly, GoDaddy Website Builder, Carrd, Notion, Substack, Medium, Tumblr, Framer, or anything else with no post API you can use:** same as Squarespace — the editor is the connector. Say so plainly in the first session; do not promise API publishing you cannot verify.
+
+### 3. Keep the credential in `.env` in this folder
+
+Add `.env` to `.gitignore` if a git repo ever appears here. Never write a credential into `project.md`, a brief, `context.md` or any tracked file; record only the **env var names** in `publishing.notes`. Never ask the user to paste a key into chat when they can put it in the file themselves. If the key stops working (401/403), tell the user which variable to refresh — do not retry blindly.
+
+### 4. Publish as a draft unless the user says otherwise
+
+Exactly as option B: map `title`, `slug`, body (HTML for WordPress / Ghost / Shopify / Blogger / Wix; Webflow takes rich text), excerpt / meta description, and the canonical. Show the user the draft URL. When it is live, `seoagent content track --slug {slug} --url {live-url}` so the dashboard tracks it — the cloud cannot see the platform.
+
+### 5. What else you can change on a hosted site
+
+Most audit findings on a hosted site are settings, not code: page titles and meta descriptions, image alt text, redirects, the sitemap and robots (the platform generates them — verify, do not rewrite), Search Console verification, structured data where the platform allows custom code. Fix them through the connector when it has the permission (WordPress pages, Wix SEO settings), otherwise report each one with the exact panel and value. Never say a fix is done until you have re-fetched the live page and seen it.
+
+### 6. Never fall back to SEOAgent Cloud hosting or a `/blog` proxy for these sites
+
+The user's blog already exists on the platform; putting a second one next to it splits their content.
 
 ## C. SEOAgent Cloud hosting (optional — only when there's no content home) — `strategy: managed_proxy` | `subdomain`
 
@@ -79,7 +100,7 @@ Homemade CMS, an unusual static pipeline, Notion-as-CMS, etc. Ask the user to de
 ```yaml
 publishing:
   strategy: managed_proxy | subdomain | mdx_sync | custom | other
-  cms: strapi | wordpress | sanity | contentful | webflow | shopify | ghost | payload | other  # only when strategy is custom or other
+  cms: strapi | wordpress | sanity | contentful | webflow | shopify | ghost | payload | wix | squarespace | blogger | other  # only when strategy is custom or other
   blog_path: /blog                          # canonical URL prefix on the live site
   content_dir: content/blog                 # repo-root-relative dir where article files live (mdx_sync — lets sync auto-track from article #1)
   setup_status: pending | done              # done = the one-time setup task is complete
