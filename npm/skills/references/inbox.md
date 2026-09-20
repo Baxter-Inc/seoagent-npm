@@ -1,11 +1,12 @@
 # Processing the SEOAgent Inbox
 
-`seoagent sync` pulls **pending actions** from the dashboard into `.seoagent/inbox/`. These are autonomous decisions the cloud has made that need a human (or you, the AI agent) to apply in the user's local repo. Run `seoagent inbox` (or `--json`) to list them; each inbox file's body carries its own instructions too.
+`seoagent sync` pulls **pending actions** from the dashboard into `.seoagent/inbox/`. These are autonomous decisions the cloud has made that need a human (or you, the AI agent) to apply in the user's local repo. Run `seoagent inbox` (or `--json`) to list them; each inbox file's body carries its own instructions too. The listing also says when the inbox was last pulled from the dashboard: in `--json`, `pull_status` is `fresh`, `stale` or `never`, and a `warning` field means the list may be behind — run `seoagent pull` before trusting an empty inbox in that case (a sync the 30s watchdog cut short during a large push has not refreshed it).
 
 **Golden rules (these also live in the skill body):**
 
 - **Never delete a file without explicit user confirmation on the first destructive action of the session.** Auto-prune is conservative (requires <5 clicks in 90 days, zero inbound internal links, etc.) but it can still surprise the user. Show them what's about to go. Technical-fix actions edit an existing page rather than delete, so they only need a diff review, not a destructive-action confirmation.
-- Acknowledge every action you finish: `seoagent ack <action_id>` (or `seoagent ack <action_id> --failed --reason "..."` to decline). That marks it `completed` on the dashboard and removes the inbox file on the next sync.
+- **Read the decline memory first.** `.seoagent/inbox/README.md` ends with **Previously declined on this site** (also `declined` in `seoagent inbox --json`, and a **Related past declines** block inside any action file an earlier decline bears on): what you or a previous session already refused here, and why. A pending action that one of those reasons still covers (same page, same class of problem — e.g. the page is `noindex`, so canonical, meta and schema on it are all inert) is **declined citing that reason, not re-investigated**: `seoagent ack <id> <id> … --failed --reason "covered by #<earlier id>: <its reason>"`. Several ids take one verdict. Only apply a fix when the earlier reason no longer holds.
+- Acknowledge every action you finish: `seoagent ack <action_id>` (or `seoagent ack <action_id> --failed --reason "..."` to decline). That marks it `completed` on the dashboard and removes the inbox file on the next sync. **Write decline reasons for your future self**: state the fact that rules the action out (the page is noindex; the canonical points off-site; the finding is stale since <date>) — every decline is fed back into the next inbox as memory, and the issue is not proposed again.
 - After processing, run `seoagent sync` once more to clean stale inbox files, then report a summary: how many applied, how many declined (and why).
 - **Close with the cloud-first option, not local planning.** On a connected workspace option 3 of the output template is `Run seoagent sync and process the inbox` (or, when the inbox is empty, the next unwritten brief the sync named). **Never offer "Plan content strategy" here** — keyword research and briefs are the cloud's job on a connected workspace (`references/cloud-cta.md` § Cloud-connected mode).
 
@@ -30,7 +31,7 @@
 
 **Trigger:** the user says "process the inbox", "handle pending actions", "what's in my inbox", or similar — OR `.seoagent/inbox/README.md` / `seoagent inbox` / `seoagent doctor` reports pending actions after a sync.
 
-Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the list, then handle each file:
+Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the list **and its "Previously declined" section**. Decline everything an earlier reason still covers in one `seoagent ack <id> <id> … --failed --reason "covered by #…"` before you open the rest, then handle each remaining file:
 
 ### `cli_prune_pending-<id>.md`
 
@@ -45,6 +46,7 @@ Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the li
 - `Read` it. The frontmatter has `action_id`, `issue` (`meta`|`schema`|`canonical`|`internal_link`|`other`), `severity`, and `page_url`. The body describes the recommended fix per issue type.
 - **Find the page's source** that renders `page_url` — the route/template/markdown under `app/`, `pages/`, `src/`, or `content/`. Match by URL path.
 - Apply the fix in the source (use `Edit`/`Write`): meta → title/description (or the framework's metadata API/frontmatter); schema → JSON-LD; canonical → `<link rel="canonical">`; internal_link → add relevant internal links. Safe/reversible edits — no hard delete-confirmation needed, but still **show the user the diff** (confirm once per session, then proceed).
+- **Check the action file's "Related past declines" block first.** If it says the page was already ruled out (noindex, off-site canonical, not this site's page), decline with that reason and move on — do not re-fetch and re-derive it.
 - Acknowledge: `seoagent ack <action_id>` (or `--failed --reason "not applicable; ..."` to decline).
 
 ### `cli_new_content-<id>.md`
