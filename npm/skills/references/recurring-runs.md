@@ -22,6 +22,8 @@ A scheduled run (Grok task, routine, CI job) starts on a fresh machine: no `~/.c
 
 If the harness cannot store a secret, say so and fall back to "No scheduler available" below; do not schedule a task that will fail on login every morning.
 
+A run whose `seoagent sync` prints "Not logged in" (or "SEOAGENT_AUTH is set but is not `<user_token>:<website_token>`") and exits 1 did **nothing**: the secret is missing or was pasted wrong. Stop the loop, report that line verbatim, and fix the task's secret; do not retry, and never fall back to a setup code.
+
 ## First setup: create ONE weekday task
 
 If the harness supports scheduled or recurring tasks, create **one** task that runs the loop above **every weekday at 09:00 in the user's local time**. Check for an existing SEOAgent schedule first — never create a duplicate; re-running setup, re-initializing, or a second agent joining the repo must not stack a second task. One repo gets one cadence.
