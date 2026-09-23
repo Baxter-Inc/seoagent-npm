@@ -24,7 +24,7 @@
 | `cli_draft_ready` | The cloud already wrote a complete article and synced it to `.seoagent/content/<slug>.md` — review and place it | Safe (new content) |
 | `cli_send_outreach_email` | A human-approved link-building email to send **from the user's own email account** | **Outward-facing — confirm first send of the session** |
 | `cli_draft_context` | Business context is missing while suggested keywords wait on the relevance judge — draft `.seoagent/context.md` | Safe (repo-local file) |
-| `cli_run_audit` | The full technical audit is stale (>28 days) or has never run — re-run Skill Phase 1 and sync | Safe (read-only crawl + report) |
+| `cli_run_audit` | The full technical audit is stale (≥7 days) or has never run — re-run Skill Phase 1 and sync | Safe (read-only crawl + report) |
 | `cli_outreach_drafts_ready` | Outreach email drafts await the owner's review on the dashboard — tell the user, then ack | Safe (informational) |
 
 ## Per-type procedure
@@ -128,7 +128,7 @@ Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the li
 - `Read` it. The frontmatter has `action_id`, `reason` (`never_audited`|`stale`), `last_audit_at`, and `age_days`.
 - **Run the Skill's audit protocol (Phase 1)**: fresh evidence first (`seoagent crawl`, plus `seoagent indexing` when GSC is connected — evidence older than 24h doesn't count), then the per-page checks from `references/audit-checks.md`, then write `.seoagent/audit/latest.md`. If `reason` is `stale`, this is a **re-audit**: diff against the previous `latest.md` and mark what's fixed / new / regressed (skill § re-audit protocol).
 - Push with `seoagent sync` — the server marks the previous report's still-open findings `superseded`, so the dashboard shows only the current audit.
-- Acknowledge: `seoagent ack <action_id>` (or `--failed --reason "declined; ..."` — autopilot won't ask again until next month).
+- Acknowledge: `seoagent ack <action_id>` (or `--failed --reason "declined; ..."` — autopilot won't ask again until next week).
 
 ### `cli_outreach_drafts_ready-<id>.md`
 

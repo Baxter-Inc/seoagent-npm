@@ -745,7 +745,7 @@ won't ask again):
 \`\`\`bash
 ${m(`ack ${e.id}`)} --failed --reason "declined; ..."
 \`\`\`
-`}function Bm(e){let t=e.payload||{},n=t.reason??"stale",r=t.last_audit_at??null,o=t.age_days??null,i=t.stale_after_days??28,s=n==="never_audited"?"This site has **never synced a full technical audit** \u2014 autopilot is working without real findings.":`The last full audit synced **${o??"?"} days ago**${r?` (${r.slice(0,10)})`:""} \u2014 past the ${i}-day staleness line. Its findings no longer describe the site.`;return`---
+`}function Bm(e){let t=e.payload||{},n=t.reason??"stale",r=t.last_audit_at??null,o=t.age_days??null,i=t.stale_after_days??7,s=n==="never_audited"?"This site has **never synced a full technical audit** \u2014 autopilot is working without real findings.":`The last full audit synced **${o??"?"} days ago**${r?` (${r.slice(0,10)})`:""} \u2014 past the ${i}-day staleness line. Its findings no longer describe the site.`;return`---
 action_id: ${e.id}
 action_type: ${e.action_type}
 reason: ${n}
@@ -784,7 +784,7 @@ ${m(`ack ${e.id}`)}
 \`\`\`
 
 If the user doesn't want an audit now, decline \u2014 autopilot won't ask again
-until next month:
+until next week:
 
 \`\`\`bash
 ${m(`ack ${e.id}`)} --failed --reason "declined; ..."
