@@ -14,7 +14,7 @@
 
 | Type | What it is | Risk |
 |---|---|---|
-| `cli_prune_pending` | Auto-prune decided an underperforming article should be removed from the repo | **Destructive — confirm first** |
+| `cli_prune_pending` | Auto-prune flagged an underperforming article for removal from the repo (a suggestion when `source: repo`) | **Destructive — confirm first** |
 | `cli_technical_fix` | Open technical-SEO issue (meta, schema, canonical, internal linking, …) to fix in a page's source | Safe/reversible |
 | `cli_new_content` | A content brief with no article written yet — write + publish it | Safe (new content) |
 | `cli_content_update` | An existing page flagged for revision (declining GSC clicks, low CTR, stale/thin) | Reversible |
@@ -35,7 +35,9 @@ Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the li
 
 ### `cli_prune_pending-<id>.md`
 
-- `Read` it. The frontmatter has `action_id`, `article_id`, `slug`, and `cms_type`. The body has the original URL and title.
+- `Read` it. **Check `source:` in the frontmatter first — it changes what already happened.**
+  - **`source: repo`** — a *suggestion* for a page that lives in this repo. Nothing has been changed: the page is live and the cloud has not marked it pruned. The frontmatter has `slug` and `page_url`; the body has the 90-day Search Console numbers behind it. The cloud cannot see inbound internal links, so **search the repo for links to the page's path before anything else — any inbound link means decline** (`--failed --reason "kept; linked from <page>"`). Also decline when the page earns its place off-search (docs, changelog, emails). If a stronger page covers the topic, a 301 to it beats a bare deletion. A decline is remembered; the page is not proposed again.
+  - **No `source`** — a legacy cull from a cloud-published article: the cloud already archived it and serves 410. The frontmatter has `action_id`, `article_id`, `slug`, and `cms_type`; remove the leftover file.
 - **Find the local file** that corresponds to the article. Look under `content/`, `src/content/`, `app/blog/`, `posts/`, `pages/blog/`, or wherever this project's articles live. Match by slug first, then by URL path. If you can't find an exact match, ask the user before doing anything destructive.
 - **Confirm with the user once per session** before deleting the first article. Show the title, slug, and the file path you intend to delete. After they confirm, proceed for the rest without re-prompting unless something looks ambiguous.
 - Delete the file. If the repo uses a content frontmatter pattern (e.g., Astro, Next.js MDX), also remove any references from index/sitemap files you find.
