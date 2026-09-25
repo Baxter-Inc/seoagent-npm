@@ -48,6 +48,11 @@ Check: robots.txt contains a `Sitemap:` line.
 Severity: `medium`
 Recommendation: "Add `Sitemap: {domain}/sitemap.xml` to robots.txt so crawlers find it without GSC submission."
 
+### `sitemap_in_robots_not_absolute`
+Check: every `Sitemap:` value in robots.txt is a fully-qualified `http(s)://` URL. A relative value (`Sitemap: /sitemap.xml`) is invalid per the sitemaps protocol and every crawler ignores it — the line is present but does nothing, so `sitemap_in_robots` above passes on a declaration that never resolves.
+Severity: `medium` when no declaration in the file is absolute (the site effectively declares no sitemap); `low` when at least one other declaration is valid.
+Recommendation: "Rewrite each `Sitemap:` line as an absolute URL — `Sitemap: {domain}/sitemap.xml`."
+
 ### `noindex_on_important_page`
 Check: page HTML has `<meta name="robots" content="noindex">` or `X-Robots-Tag: noindex` header.
 Severity: `critical` if homepage; `high` otherwise.
