@@ -345,7 +345,11 @@ ${m(`ack ${e.id}`)} --failed --reason "skipped; ..."
    ${r}: fill the gaps a searcher on those
    queries expects, add the sections competitors cover and this page does not,
    and link to it from related pages. If the topic does not fit the business,
-   decline the action instead.`:"**Rewrite the `<title>` and meta description** to be more compelling for the\n   query. The page ranks where the snippet is visible, so the body may be fine."}default:return"**Expand the page substantially and bring it up to date.**"}}function Dm(e){return e.length===0?"":`
+   decline the action instead.`:`**Rewrite the \`<title>\` and meta description** to be more compelling for
+   ${r}. The page ranks where the snippet is visible, so the body may be
+   fine and the snippet is what is losing the click. Check the result does not
+   restate what another page of this site already says in its own snippet \u2014 two
+   results making one claim on the same query is the usual cause at this depth.`}default:return"**Expand the page substantially and bring it up to date.**"}}function Dm(e){return e.length===0?"":`
 ## Queries this page already ranks for
 
 Real Google Search Console queries from the last 28 days, most impressions
