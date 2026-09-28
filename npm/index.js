@@ -724,9 +724,10 @@ ${Ol(t)}
    \u2192 product or comparison; \`informational\` \u2192 guide or pillar; \`navigational\` \u2192
    probably already covered elsewhere).
 2. Pick a URL slug from the keyword \u2014 short, hyphenated, no stop words.
-3. Look at \`.seoagent/keywords.md\` for related keywords already in this site's
-   strategy so you can group this new page into the right cluster and weave in
-   the cluster's other keywords as secondaries.
+3. Look at this site's keyword inventory for related keywords already in its
+   strategy \u2014 \`.seoagent/strategy/keywords/<cluster>.md\` once the cloud shards
+   them, \`.seoagent/keywords.md\` otherwise \u2014 so you can group this new page into
+   the right cluster and weave in the cluster's other keywords as secondaries.
 4. **Write the article** following the skill's **content-production protocol**
    (Phase 4 \u2014 match the article type's quality rules, add internal links, etc.).
    Show the user the draft before publishing.
