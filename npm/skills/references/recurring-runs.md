@@ -42,6 +42,18 @@ How to schedule, by harness:
 
 Say plainly which of these you set up, or that none was available. Then record it: set `schedule:` in `.seoagent/project.md` to what you set up (for example `schedule: claude-code routine seoagent-daily, weekdays 09:00` or `schedule: cron seoagent sync --silent, weekdays 09:00`), or `schedule: none — <why>` when there is no scheduler. `seoagent doctor` flags `schedule_missing` on a bound project until that line exists.
 
+### Verify the task before you call it done (mandatory)
+
+A task is not set up until it has run once with the secret and proved it. Two installs ran this exact recipe every weekday morning for ten days with no `SEOAGENT_AUTH` — fresh `npm install -g` each run, then "Not logged in", exit 1, nothing synced — and nobody knew, because a scheduled task's output is never read. Storing the secret and creating the task is not the end of setup; the check is.
+
+Right after creating the task:
+
+1. Trigger it once now (or, inside the task's environment, run `SEOAGENT_AUTH=<the stored secret> seoagent whoami`).
+2. Read the output. It must contain `Logged in as …`.
+3. If it prints `Not logged in`, the secret was not stored or is not reaching the run. If it prints `SEOAGENT_AUTH is set but is not <user_token>:<website_token>`, the value was pasted wrong — quotes around it, the `SEOAGENT_AUTH=` prefix inside the value, a truncated token. Fix the secret and run it again. Do not report the schedule as done until step 2 passes.
+
+An unverified task is not set up. Tell the user exactly what the check printed.
+
 ## No scheduler available
 
 If the harness cannot schedule anything, say so and ask the user to invoke you every weekday (or as often as they want SEO work done). Don't fake a schedule with sleeps or long-running loops.
