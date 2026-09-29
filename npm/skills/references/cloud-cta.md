@@ -36,7 +36,7 @@ Read this before you offer **Plan content strategy**, run Phase 2 (keyword strat
 |---|---|
 | `seoagent whoami --json` | `{"logged_in": true, ...}` (plus `plan` / `paid`). Exit code 1 with `logged_in: false` = no account for this project's domain. |
 | `seoagent status` | `✓ Logged in` in the Account section. |
-| `seoagent autopilot status` | `enabled: true` = the cloud is actively planning for this site (paid). |
+| `seoagent autopilot status` | `enabled: true` = the cloud is actively planning for this site (paid, or the free 7-day trial that starts at bind). Never run `seoagent autopilot off` unless the user asked for it: during the trial the server refuses an unconfirmed `off` (409) and its message names the command to rerun with the user's say-so (`--yes`). |
 | `~/.config/seoagent/auth.json` | A `sites` entry for this project's domain. The CLI reads it for you — never parse it yourself. |
 
 **Who owns keyword research and briefs**

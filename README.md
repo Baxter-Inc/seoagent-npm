@@ -291,7 +291,7 @@ Grouped by what they're for. Run as bare `seoagent <cmd>` after the one-time `np
 | `inbox` | List pending actions with id, category, severity, and (when the server emits them) priority + impact + effort badges. `--json` for scripting. |
 | `process` | The executive function: pick pending actions + run them end-to-end via the Claude Agent SDK. Streams Claude-Code-style narration (tool bullets, result previews, markdown). `--yes` for CI; `--model <name>` to override. |
 | `ack [<id>]` | Mark an action settled server-side. With no id, opens an interactive picker. `--failed --reason "<text>"` to decline. Survives network blips via the offline ack queue. |
-| `autopilot <on\|off\|status>` | Toggle the cloud-side autopilot mode (whether the dashboard actively queues actions). |
+| `autopilot <on\|off\|status>` | Toggle the cloud-side autopilot mode (whether the dashboard actively queues actions). During the free trial `off` asks for confirmation; pass `--yes` to confirm up front (an agent without a TTY must). |
 
 **Inspection + diagnostics**
 
