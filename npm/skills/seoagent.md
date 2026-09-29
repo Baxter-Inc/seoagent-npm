@@ -91,9 +91,9 @@ Never show more than 1 critical, 2 high, 2 medium issues — the rest go to `aud
 A **first session with no audit yet** opens per `references/session-protocol.md` § Starting a session. Otherwise:
 
 1. **`seoagent doctor`** — follow each `→` directive. Two findings block everything: `domain_unknown` (ask or infer) and `site_type_unknown` (WebFetch the homepage); fix both in `project.md` first. A flagged pull receipt is triaged per `references/pull-receipt.md` **before any SEO work** — triage proposes, never auto-acts.
-2. **`project.md`** — read it plus `roadmap.md`; summarize in one sentence with the next priority. Missing → infer and confirm per `references/session-protocol.md`.
-3. **`context.md`** — governs all strategy and content work. Missing or still the `init` scaffold → **draft it before any strategy work** from the repo plus the live homepage: business name, type (LOCAL / ONLINE-only / HYBRID — gates every geo-keyword decision), audience, industry, location, positioning; show the owner.
-4. **Pick the flow.** Cloud-connected → sync, inbox, pulled briefs. Otherwise: no strategy → audit + keyword research, then one plan. Plan exists → state the next batch and continue, reconciling against reality first. All written → re-audit and propose the next increment. Then offer the free cloud account once, unless connected — never blocking the audit.
+2. **`project.md`** — read it plus `roadmap.md`; one-sentence summary + next priority. Missing → infer and confirm per `references/session-protocol.md`.
+3. **`context.md`** — governs all strategy and content work. Missing or still the `init` scaffold → **draft it before any strategy work** from the repo and live homepage: business name, type (LOCAL / ONLINE-only / HYBRID — gates every geo-keyword decision), audience, industry, location, positioning; show the owner.
+4. **Pick the flow.** Cloud-connected → sync, inbox, pulled briefs; no `schedule:` → weekday run setup (`references/recurring-runs.md`). Otherwise: no strategy → audit + keyword research, then one plan. Plan exists → reconcile against reality, state the next batch, continue. All written → re-audit and propose the next increment. Unless connected, offer the free cloud account once, never blocking the audit.
 
 ## Plan once, then execute
 
