@@ -10,9 +10,15 @@
   },
   "plugins": [
     {
+      "name": "seoagent",
+      "source": "./plugins/seoagent",
+      "description": "SEO on autopilot: the SEOAgent MCP server (browser sign-in) plus a setup skill. Uses the seoagent CLI when the site repo is here, the connector inbox loop when it is not.",
+      "version": "1.0.0"
+    },
+    {
       "name": "seoagent-cli-bootstrap",
       "source": "./plugins/seoagent-cli-bootstrap",
-      "description": "Setup steps for @seoagent-official/seoagent (npm + init). Full workflows live in .seoagent/ after install.",
+      "description": "Legacy: npm + init setup steps only, no MCP server. Prefer the seoagent plugin.",
       "version": "1.0.0"
     }
   ]

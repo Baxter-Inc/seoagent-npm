@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "seoagent": {
+      "type": "http",
+      "url": "https://seoagent.com/api/mcp"
+    }
+  }
+}

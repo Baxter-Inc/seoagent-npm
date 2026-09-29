@@ -1,0 +1,16 @@
+{
+  "name": "seoagent",
+  "version": "1.0.0",
+  "description": "SEO on autopilot. Connects the SEOAgent MCP server (browser sign-in) and a setup skill: the seoagent CLI when the site's repo is here, the connector inbox loop when it is not.",
+  "author": {
+    "name": "Baxter Inc",
+    "email": "alec@seoagent.com",
+    "url": "https://seoagent.com"
+  },
+  "homepage": "https://seoagent.com?ref=codex-plugin",
+  "repository": "https://github.com/Baxter-Inc/seoagent-npm",
+  "license": "MIT",
+  "keywords": ["seo", "agent-skill", "codex", "mcp", "ai-seo", "aeo", "geo"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
+}

@@ -5,6 +5,17 @@
   },
   "plugins": [
     {
+      "name": "seoagent",
+      "source": {
+        "source": "local",
+        "path": "./plugins/seoagent"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "Productivity"
+    },
+    {
       "name": "seoagent-cli-bootstrap",
       "source": {
         "source": "local",

@@ -1,0 +1,15 @@
+{
+  "name": "seoagent",
+  "displayName": "SEOAgent",
+  "description": "SEO on autopilot. Connects the SEOAgent MCP server (browser sign-in) and a setup skill: the seoagent CLI when the site's repo is here, the connector inbox loop when it is not.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Baxter Inc",
+    "email": "alec@seoagent.com",
+    "url": "https://seoagent.com"
+  },
+  "homepage": "https://seoagent.com?ref=claude-plugin",
+  "repository": "https://github.com/Baxter-Inc/seoagent-npm",
+  "license": "MIT",
+  "keywords": ["seo", "ai-seo", "aeo", "geo", "mcp", "content-strategy", "technical-seo", "keyword-research"]
+}
