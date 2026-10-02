@@ -27,6 +27,7 @@
 | `cli_draft_context` | Business context is missing while suggested keywords wait on the relevance judge — draft `.seoagent/context.md` | Safe (repo-local file) |
 | `cli_run_audit` | The full technical audit is stale (≥7 days) or has never run — re-run Skill Phase 1 and sync | Safe (read-only crawl + report) |
 | `cli_outreach_drafts_ready` | Outreach email drafts await the owner's review on the dashboard — tell the user, then ack | Safe (informational) |
+| `cli_submit_listing` | The owner approved a directory listing submission (or correction) on the dashboard — fill the directory's form **in a browser** with the facts given | **Outward-facing — owner-approved; stop at any account, CAPTCHA or payment** |
 
 ## Per-type procedure
 
@@ -139,3 +140,12 @@ Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the li
 - **Informational — nothing to change in this repo.** The backlinks autopilot drafted link-building emails, but only the owner can approve outreach, and the approval queue lives in the SEOAgent dashboard (the site's **Outreach** tab, drafts filter). Tell the user how many drafts await and where; each shows the prospect page, pitch angle, and the exact email text (edit / approve / dismiss).
 - Approved drafts return to this inbox as `cli_send_outreach_email` actions for delivery.
 - Acknowledge after surfacing it: `seoagent ack <action_id>`. Decline (`--failed --reason "not now; ..."`) if the user isn't interested — the reminder returns only when the awaiting count changes on a later weekly run.
+
+### `cli_submit_listing-<id>.md`
+
+- `Read` it. The frontmatter has `action_id`, `directory`, `mode` (`add` or `correct`) and `listing_id`; the body has the form URL, the business facts, and the verification the directory is expected to ask for.
+- **Needs a browser.** Nothing in this repo changes. If you have no browser tool, tell the user and leave the action pending — do not ack.
+- The owner already approved it (the **Submit for me** click on the Local tab). Enter **only** the facts given; leave optional fields empty when there is no fact; never invent amenities, rates or photos.
+- **Stop and decline** if the form asks for an account, a sign-in, a CAPTCHA, a payment, or any agreement beyond submitting the listing, or if a required field has no fact: `seoagent ack <action_id> --failed --reason "<what blocked you>"`. The reason becomes the owner's to-do on the dashboard.
+- Submitted: `seoagent ack <action_id> --url "<listing URL, if shown>"` → the listing goes to `submitted`; the next NAP audit marks it live once it appears.
+- The directory says the owner must verify (code, postcard, call, email): `seoagent ack <action_id> --verify "<what the owner must do>" --verify-type code|postcard|call|email` → the listing goes to `pending_owner_verification` and the dashboard shows the to-do. SEOAgent never receives the code.
