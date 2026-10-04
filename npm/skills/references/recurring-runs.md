@@ -24,6 +24,8 @@ If the harness cannot store a secret, say so and fall back to "No scheduler avai
 
 A run whose `seoagent sync` prints "Not logged in" (or "SEOAGENT_AUTH is set but is not `<user_token>:<website_token>`") and exits 1 did **nothing**: the secret is missing or was pasted wrong. Stop the loop, report that line verbatim, and fix the task's secret; do not retry, and never fall back to a setup code.
 
+An install (`npm install -g` or `npx …@latest`) that fails with `notarget` / `No matching version found` for the version `latest` already names is a release still propagating across the registry, not a broken package: wait 30s and retry once with `--prefer-online`. Report it only if the retry fails too.
+
 ## First setup: create ONE weekday task
 
 This happens in the **first cloud-connected session** — the one the user starts with "run SEOAgent" after the paste block stopped at the bind. Do it after the first findings are delivered and before the session ends. Never do it inside a scheduled run.
