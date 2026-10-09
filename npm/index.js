@@ -349,18 +349,18 @@ If you decide not to write it (off-strategy, duplicate, etc.), decline it:
 \`\`\`bash
 ${m(`ack ${e.id}`)} --failed --reason "skipped; ..."
 \`\`\`
-`}var Oy=20;function Ly(e,t,n=[]){let r=n.length>0?"the queries listed above":"the queries the page already surfaces for";switch(e){case"declining_clicks":return`**Refresh the content.** Update facts and examples, expand thin sections, and
+`}var Oy=20;function Ly(e,t,n=[],r){let o=n.length>0?"the queries listed above":"the queries the page already surfaces for";switch(e){case"declining_clicks":return`**Refresh the content.** Update facts and examples, expand thin sections, and
    improve depth so the page re-earns the ranking it is losing.`;case"rank_expansion":return`**Deepen it \u2014 this page is WINNING (or in striking distance).** Cover the
-   adjacent intent of ${r}, add sections for their variants,
+   adjacent intent of ${o}, add sections for their variants,
    and strengthen internal links from related pages. Never split the topic into a
-   new page; it would compete with this one.`;case"low_ctr":{let o=t?.recent_position,i=typeof o=="number"?o:Number(o);return Number.isFinite(i)&&i>Oy?`**Lift the ranking, not the title.** The page sits around position ${Math.round(i)}, and
+   new page; it would compete with this one.`;case"low_ctr":{let i=t?.recent_position,s=typeof i=="number"?i:Number(i);return r==="ranking"||r!=="snippet"&&Number.isFinite(s)&&s>Oy?`**Lift the ranking, not the title.** ${Number.isFinite(s)?`The page sits around position ${Math.round(s)}, and`:"The queries carrying this page sit deep enough that"}
    nobody scrolls deep enough to read the snippet, so rewriting the title and meta
    description wastes the update. Strengthen relevance and depth against
-   ${r}: fill the gaps a searcher on those
+   ${o}: fill the gaps a searcher on those
    queries expects, add the sections competitors cover and this page does not,
    and link to it from related pages. If the topic does not fit the business,
    decline the action instead.`:`**Rewrite the \`<title>\` and meta description** to be more compelling for
-   ${r}. The page ranks where the snippet is visible, so the body may be
+   ${o}. The page ranks where the snippet is visible, so the body may be
    fine and the snippet is what is losing the click. Check the result does not
    restate what another page of this site already says in its own snippet \u2014 two
    results making one claim on the same query is the usual cause at this depth.`}default:return"**Expand the page substantially and bring it up to date.**"}}function Ny(e){return e.length===0?"":`
@@ -398,7 +398,7 @@ ${Ny(i)}
 ## How to revise
 
 1. Find the page's source for \`${n??"(unknown URL)"}\` in this repo (or the CMS).
-2. ${Ly(r,o,i)}
+2. ${Ly(r,o,i,t.ctr_fix)}
 3. Follow the skill's **rewrite/revise protocol**. ${Qr(e,"diff")}
 
 ## How to close this out
