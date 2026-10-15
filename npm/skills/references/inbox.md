@@ -28,6 +28,7 @@
 | `cli_run_audit` | The full technical audit is stale (≥7 days) or has never run — re-run Skill Phase 1 and sync | Safe (read-only crawl + report) |
 | `cli_outreach_drafts_ready` | Outreach email drafts await the owner's review on the dashboard — tell the user, then ack | Safe (informational) |
 | `cli_submit_listing` | The owner approved a directory listing submission (or correction) on the dashboard — fill the directory's form **in a browser** with the facts given | **Outward-facing — owner-approved; stop at any account, CAPTCHA or payment** |
+| `cli_competitor_new_pages` | A competitor's sitemap listed new pages this week — review each and plan a better page only where one is possible; the plan goes to the cloud planner with the ack | Safe (planning only — no files; never copy) |
 
 ## Per-type procedure
 
@@ -150,3 +151,14 @@ Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the li
 - **Stop and decline** if the form asks for an account, a sign-in, a CAPTCHA, a payment, or any agreement beyond submitting the listing, or if a required field has no fact: `seoagent ack <action_id> --failed --reason "<what blocked you>"`. The reason becomes the owner's to-do on the dashboard.
 - Submitted: `seoagent ack <action_id> --url "<listing URL, if shown>"` → the listing goes to `submitted`; the next NAP audit marks it live once it appears.
 - The directory says the owner must verify (code, postcard, call, email): `seoagent ack <action_id> --verify "<what the owner must do>" --verify-type code|postcard|call|email` → the listing goes to `pending_owner_verification` and the dashboard shows the to-do. SEOAgent never receives the code.
+
+### `cli_competitor_new_pages-<id>.md`
+
+- `Read` it. The frontmatter has `action_id`, `competitor_domain`, `detected_week` and `new_page_count`; the body lists up to 20 of the new URLs (newest `lastmod` first) and says how many more there are.
+- **Planning, not writing.** Nothing is written or published from this action — the output is the plan and the skip reasons, sent with the ack.
+- **For each page:** open it (WebFetch or a browser tool) and name the **search it targets**. Check whether this site already covers that search — `pages.md`, the project's published content, `.seoagent/briefs/`. Covered → skip (a page of ours that answers it worse is an update, not a new page: say so in the skip reason).
+- **Plan only where this site can make a better page than theirs** — and name what ours will have that theirs does not (first-hand data, a working example from this product, a fuller or more current answer, a tool, an honest comparison). Can't name it, off-topic, or not content (careers, press, changelog) → skip with a one-line reason.
+- **The plan goes in the ack, not in `roadmap.md`.** Each `--plan` becomes a planned keyword in the cloud planner (judged a target, labelled a competitor gap); the planner writes its brief — with what ours adds — and queues the page when its turn comes, and it arrives in `briefs/` and the inbox like any other. Do not write the article in this session, and do not add a local roadmap item: a second plan duplicates the cloud's.
+- **Never copy their content** — text, headings, structure, examples or images. Their page shows a search is worth answering; the answer is ours.
+- A big batch (`new_page_count` far above the 20 listed) is usually one template — a programmatic set or a new section: open a sample and judge the set as one plan.
+- Close it out: `seoagent ack <action_id> --plan "<target search> | <their url> | <what ours adds>" --skip "<their url> | <reason>"`, one `--plan` per planned page and one `--skip` per skipped one. An entry the CLI cannot parse refuses the ack before anything is sent. Could not review them (fetch blocked, no web access) → `seoagent ack <action_id> --failed --reason "could not review: ..."`.
