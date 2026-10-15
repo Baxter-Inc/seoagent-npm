@@ -24,7 +24,9 @@ llms_owner: route                # optional: only value is `route`. Set it when 
 
 ## `.seoagent/context.md`
 
-Business context, audience, tone, banned topics, reference URLs. Read on every session.
+Business context, facts, audience, tone, banned topics, reference URLs. Read on every session.
+
+`# Facts` holds one product fact per line (price, plan, limit, feature, integration), each ending in `— source: <repo file or URL>`: `- Pro plan is $49/month — source: app/pricing/page.tsx`. `seoagent facts` diffs those sources against the commits since the last `seoagent facts --mark` (see `references/session-protocol.md` § Fact check against commits).
 
 ## `.seoagent/roadmap.md`
 

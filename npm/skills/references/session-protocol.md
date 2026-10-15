@@ -43,6 +43,28 @@ Cluster files in `.seoagent/strategy/clusters/` carry a per-article `status`. Wh
 
 Confirm the recorded CMS still has a supporting signal in the repo (its dep in `package.json` or its env var). If that signal is gone — the user moved off it — don't silently trust the stale value: flag it and run **"Re-detecting the publishing target"** in `references/publishing.md`. Skip this check when no `publishing.cms` is set.
 
+## Fact check against commits
+
+A page that states a price, a plan limit or a feature is only as current as the code it was read from. `.seoagent/context.md` keeps those facts under `# Facts`, one per line, each naming where it was read:
+
+```
+# Facts
+
+- Pro plan is $49/month, billed monthly — source: app/pricing/page.tsx
+- Free plan includes 3 projects — source: lib/plans.ts
+- Exports to QuickBooks and Xero — source: https://example.com/integrations
+```
+
+**Writing facts.** Read each one from the code or the live page that defines it, never from memory or marketing copy, and name that file or URL. A fact you cannot point to a source for stays out. Prefer the repo file over a URL: commits to it are what the check can see.
+
+**Checking them** (doctor flags `facts_stale`; run it every scheduled session either way):
+
+1. `seoagent facts` — lists each fact whose source file changed since the last check, with the commits that touched it.
+2. For each listed fact, re-read the source. If the value changed, update the fact line, then search the content and page files for the OLD value (the number, the plan name, the limit) and correct every page that still states it, in this session.
+3. `seoagent facts --mark` — records HEAD as checked. Run it only after step 2 is done; a mark before the pages are fixed hides the stale ones from every later session.
+
+`unchecked` (no baseline yet) means verify every repo-sourced fact once, then mark. URL-sourced facts are invisible to git: re-fetch them at each re-audit. A fact whose source no longer exists (renamed or deleted file) gets a new source or is removed. The product is right and the page is wrong: never change the product's code to match a page.
+
 ## Inferring domain and site type
 
 When `.seoagent/project.md` doesn't exist, or `domain`/`site_type` is `unknown`:

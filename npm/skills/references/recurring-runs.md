@@ -5,10 +5,11 @@ SEOAgent pays off only when a session actually happens on a cadence: the cloud d
 ## The session loop (every run, no exceptions)
 
 1. `seoagent sync` — pulls the cloud's work into `.seoagent/inbox/` and the briefs into `.seoagent/briefs/`.
-2. Triage `.seoagent/inbox/` (see `references/inbox.md`). Do the work in the repo.
-3. If the inbox is empty and `.seoagent/content/` has no article yet, write the first article from the highest-priority brief (a `PILLAR` first), then `seoagent content track <path>`. The sync output names the brief to start with. Do **not** start a local keyword strategy or write local briefs — on a connected workspace those are the cloud's job (`references/cloud-cta.md` § Cloud-connected mode).
-4. `seoagent ack <id>` for every action you finished (`--failed --reason "..."` to decline).
-5. `seoagent sync` once more, then `seoagent summary`.
+2. `seoagent facts` — if it lists facts whose source changed since the last check, correct them and every page that states the old value, then `seoagent facts --mark` (`references/session-protocol.md` § Fact check against commits).
+3. Triage `.seoagent/inbox/` (see `references/inbox.md`). Do the work in the repo.
+4. If the inbox is empty and `.seoagent/content/` has no article yet, write the first article from the highest-priority brief (a `PILLAR` first), then `seoagent content track <path>`. The sync output names the brief to start with. Do **not** start a local keyword strategy or write local briefs — on a connected workspace those are the cloud's job (`references/cloud-cta.md` § Cloud-connected mode).
+5. `seoagent ack <id>` for every action you finished (`--failed --reason "..."` to decline).
+6. `seoagent sync` once more, then `seoagent summary`.
 
 Never skip step 1 because a login failed. An unbound CLI cannot sync. If `seoagent login --code` fails, stop and tell the user the exact error; they can mint a fresh code at seoagent.com/grok. **Never guess, invent, or retype a setup code from memory** — a code is `sa_` + 24 random hex characters that only the server issues, it works exactly once, and a made-up one fails with `not recognized` every time.
 
