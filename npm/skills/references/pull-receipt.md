@@ -26,7 +26,7 @@ When `.seoagent/.pull-receipt.json` exists, a previous `seoagent pull` (manual, 
 | `generated-index` | write/overwrite | **Inform only, one quiet line.** "`pages.md`/`keywords.md` was regenerated in the cloud — it's read-only locally; edit rows in the dashboard." Never offer to edit it. Don't nag if it's the only change. |
 | `audit` | overwrite | **Inform + offer.** "Audit findings changed in the cloud (e.g. a finding marked fixed). Want me to re-prioritize the roadmap?" |
 | `brief` | write | **Offer action.** "A new brief `foo.md` was created in the cloud. Want me to write the article now? (Phase 4)" |
-| `article` | write/overwrite | **Inform + offer review.** "An article `bar.md` was written/updated in the cloud. Want me to review it before it publishes?" |
+| `article` | write/overwrite | **Inform + offer review.** "An article `bar.md` was written/updated in the cloud. Want me to review it before I publish it?" |
 | `cluster`/`keywords`/`competitors`/`project`/`other` | write/overwrite | **Inform only.** One line each; no action unless the user asks. |
 | any | `delete` | **Inform only.** "`x.md` was removed in the cloud (likely sharding)." |
 | any | `conflict` or `delete-skipped` | **Conflict protocol (below). Always surface — never auto-resolve.** |

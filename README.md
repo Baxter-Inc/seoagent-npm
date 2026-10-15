@@ -356,9 +356,8 @@ The free skill handles audits, strategy, briefs, articles, and persistent state 
 
 - **Real keyword data (DataForSEO)** — Actual search volumes, difficulty scores, and opportunity classification (easy-win / striking-distance / competitor-gap). Free login enriches your top ~25 keywords (`keywords`); paid lifts the cap and unlocks discovery of new targets (`--discover`) and competitor-gap analysis (`--competitors`).
 - **Deep crawling** — Firecrawl-powered JS rendering (finds issues in SPAs)
-- **AI-generated images + autopilot** — Hero + inline images created and uploaded to your CMS automatically
+- **Autopilot (paid)** — The cloud keeps watching your site (Search Console data when connected, live re-checks of open findings) and queues re-audits, new articles, refreshes and technical fixes for your coding agent to apply on `seoagent sync`. SEOAgent never publishes on its own.
 - **GSC integration** — Real clicks, impressions, CTR, position tracking
-- **CMS publishing** — WordPress, Ghost, Webflow, Shopify, Strapi
 - **Team collaboration** — Invite members, share strategy, coordinate publishing
 - **Cloud dashboard** — See everything Claude Code did at [seoagent.com](https://seoagent.com?ref=npm-readme-dashboard) (also free with any account)
 
