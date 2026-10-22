@@ -19,7 +19,7 @@
 | `cli_technical_fix` | Open technical-SEO issue (meta, schema, canonical, internal linking, …) to fix in a page's source | Safe/reversible |
 | `cli_new_content` | A content brief with no article written yet — write + publish it | Safe (new content) |
 | `cli_content_update` | An existing page flagged for revision (declining GSC clicks, low CTR, stale/thin) | Reversible |
-| `cli_sitemap_update` | GSC can't fetch a sitemap at `/sitemap.xml` — write/refresh the project's sitemap | Safe |
+| `cli_sitemap_update` | The live sitemap is missing, robots.txt does not point at it, or Google refused it — the file's `reasons` say which | Safe |
 | `cli_ai_files_update` | The AI-readable file layer (OKF bundle + `llms.txt`) is missing, unmanaged, or stale | Safe |
 | `cli_new_landing_page` | High-value keyword (`easy_win`/`competitor_gap`) with no page covering it — write a landing page | Safe (new content) |
 | `cli_draft_ready` | The cloud already wrote a complete article and synced it to `.seoagent/content/<slug>.md` — review and place it | Safe (new content) |
@@ -61,6 +61,7 @@ Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the li
 - **Read the full brief** under `.seoagent/` (briefs file or `strategy/` entry matching `brief_slug`) for the outline, word-count target, and internal-link plan.
 - Write the article following the skill's content-production protocol (Phase 4), then publish it where this project's content lives (repo `content/` or the connected CMS — you are the publishing engine). Follow the file's go-ahead step: **Standing approval** → publish, commit, ack; otherwise show the user the draft before publishing (interactive sessions can use the visual review loop — `references/draft-review.md`).
 - **If the action body has a "Screenshots to capture" section** (autopilot flagged this as a SaaS product), follow `references/screenshots.md` — capture real product screenshots from this repo's UI for the relevant sections instead of shipping illustration-only.
+- **Make sure the new URL is in the site's sitemap.** A framework sitemap built from the content directory usually lists it by itself — check that it does; a hand-kept `sitemap.xml` needs the URL added.
 - Acknowledge: `seoagent ack <action_id>` (or `--failed --reason "skipped; off-strategy"`).
 
 ### `cli_content_update-<id>.md`
@@ -77,11 +78,12 @@ Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the li
 
 ### `cli_sitemap_update-<id>.md`
 
-- `Read` it. The frontmatter has `action_id` + `sitemap_url`; the body lists the URLs SEOAgent knows (crawled + GSC-discovered — this **includes CMS-hosted blog articles your repo doesn't contain**).
-- **Find how the project serves its sitemap** (framework sitemap like Next.js `app/sitemap.ts` / `next-sitemap` / Astro integration, or a static `public/sitemap.xml`, or none yet). Prefer extending the framework sitemap so it stays current.
-- **Union** the repo's own routes (which the framework sitemap usually covers) with the URL list in the file (which adds off-repo CMS articles), dedup, and ensure the result is served at `sitemap_url`. Show the user the diff, or under **Standing approval** commit it. Deploy if needed — GSC fetches the live URL. See `references/sitemaps.md` for the generator-detection table.
-- **Verify with `seoagent sitemap`** once deployed — it should report 200, no private leakage, and the expected URL count.
-- Acknowledge: `seoagent ack <action_id>` (or `--failed --reason "sitemap already served"`). SEOAgent re-submits the sitemap to GSC on its schedule.
+- `Read` it. The frontmatter has `action_id`, `reasons`, `sitemap_url` and `robots_txt_url`. SEOAgent checked the live site before it queued the file, and Search Console is not needed for it. A file without `reasons` comes from an older server and means `missing`.
+- **`missing`** — no working sitemap at a robots.txt `Sitemap:` line, `/sitemap.xml`, `/sitemap-index.xml` or `/sitemap_index.xml`. Find how the project serves its sitemap (framework sitemap like Next.js `app/sitemap.ts` / `next-sitemap` / Astro integration, or a static `public/sitemap.xml`, or none yet); prefer extending the framework sitemap so it stays current. **Union** the repo's routes with the URL list in the file (it adds off-repo CMS articles), dedup, serve it at `sitemap_url`, and add an absolute `Sitemap:` line to robots.txt. See `references/sitemaps.md` for the generator-detection table.
+- **`robots_line`** — the sitemap works, but robots.txt does not point Google at it: no robots.txt, no absolute `Sitemap:` line (a relative `Sitemap: /sitemap.xml` is ignored), or a line naming a file that is gone. Edit robots.txt's **source** (static file or route) and add `Sitemap: <sitemap_url>`. Add no `Disallow` rules as part of this task.
+- **`google`** — Google refused the sitemap on SEOAgent's nightly submit, or counted errors in it; the file quotes Google's answer. Run `seoagent sitemap --url <sitemap_url>`, fix the sitemap's source, and check every `<loc>` is an absolute URL on this domain that answers 200.
+- Show the user the diff, or under **Standing approval** commit it. Deploy — Google reads the live files — then verify with `seoagent sitemap --url <sitemap_url>`.
+- Acknowledge: `seoagent ack <action_id>` (or `--failed --reason "already correct: ..."`). SEOAgent re-checks the live site every autopilot run and withdraws the task by itself once the problem is gone.
 
 ### `cli_ai_files_update-<id>.md`
 
@@ -99,6 +101,7 @@ Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the li
 - Write the article following the content-production protocol (Phase 4 — match the article type's quality rules, add internal links from related cluster pages, etc.). Follow the file's go-ahead step: **Standing approval** → publish, commit, ack; otherwise show the user the draft before publishing (interactive sessions can use the visual review loop — `references/draft-review.md`).
 - **If the action body has a "Screenshots to capture" section** (SaaS product), follow `references/screenshots.md` — a landing page for a SaaS product should lead with a real product screenshot in the hero + feature sections, captured from this repo's UI.
 - Publish where this project's content lives (repo `content/` or the connected CMS). Safe (new content). Without **Standing approval**, confirm the user wants this specific page before committing.
+- **Make sure the new URL is in the site's sitemap** (a framework sitemap usually lists it by itself — check; a hand-kept `sitemap.xml` needs it added).
 - Acknowledge: `seoagent ack <action_id>` (or `--failed --reason "already covered by /existing-page"`).
 
 ### `cli_draft_ready-<id>.md`
@@ -106,7 +109,7 @@ Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the li
 - `Read` it. The frontmatter has `action_id`, `article_slug`, `path`, `mode`, and (when drafted from a brief) `brief_slug`. The draft itself is at `.seoagent/<path>`.
 - **Believe the task's own delivery line, not the word count.** It says either "pulled in the same sync that delivered this task" or "**NOT delivered by this sync**". The second means the pull kept your local copy and the cloud draft never reached disk: read the local file, then run the `seoagent sync --force <path>` the task prints to take the cloud version for that one file. Never publish a file whose body is a `Tracked record` pointer stub — that is the tracking placeholder, not the article.
 - **Check `mode:` first.** It is the whole contract:
-  - **`mode: new`** — the slug is free. Review the draft (frontmatter carries title, meta description, status), then place it where this project's content renders: repo-native (mdx_sync) → copy/adapt into the repo's content directory and `seoagent content track` it; CMS → create the entry and track it; cloud-hosted → flip frontmatter `status` to `published` and sync.
+  - **`mode: new`** — the slug is free. Review the draft (frontmatter carries title, meta description, status), then place it where this project's content renders: repo-native (mdx_sync) → copy/adapt into the repo's content directory and `seoagent content track` it; CMS → create the entry and track it; cloud-hosted → flip frontmatter `status` to `published` and sync. Then make sure the new URL is in the site's sitemap.
   - **`mode: revision`** — that slug **already renders live on this site** (`replaces_path` names the file). **Do not place it as a new post and do not overwrite the live file.** `diff` the two, fold in only what is genuinely new or better, and keep the live article's URL, frontmatter and dates. If the draft adds nothing, decline — that is a real answer.
 - **AUTHOR RULE (the byline).** The draft's frontmatter carries `author`, `author_title`, `author_url`, `author_same_as` (and `author_key` once known) only when the site owner set a person author. The task file's **Byline** section has the full rule:
   - **No `author`:** write no author fields and change no template.
