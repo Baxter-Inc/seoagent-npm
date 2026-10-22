@@ -30,7 +30,9 @@ JSON-LD is the recommended format. Embed in `<script type="application/ld+json">
   "author": {
     "@type": "Person",
     "name": "Jane Doe",
-    "url": "https://example.com/authors/jane"
+    "jobTitle": "Founder, Acme",
+    "url": "https://www.linkedin.com/in/janedoe",
+    "sameAs": ["https://www.linkedin.com/in/janedoe", "https://janedoe.com"]
   },
   "datePublished": "2026-04-27",
   "dateModified": "2026-04-27",
@@ -48,6 +50,8 @@ JSON-LD is the recommended format. Embed in `<script type="application/ld+json">
 ```
 
 Required: `headline`, `author`, `datePublished`, `dateModified`, `image`, `publisher.logo`. Missing any of these and Google may reject the rich result.
+
+**The author comes from the article's frontmatter**, never from this example: `author` → `name`, `author_title` → `jobTitle`, `author_url` → `url`, `author_same_as` → `sameAs` (SEOAgent's cloud drafts carry these when the site owner added an author). Leave out a key the article does not have. With no `author`, the `author` is the publisher Organization: never invent a person. The visible byline links the name to the same `author_url` with `rel="author"`.
 
 ### FAQPage (add to articles with FAQ sections)
 

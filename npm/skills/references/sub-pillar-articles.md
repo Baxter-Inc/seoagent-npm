@@ -85,7 +85,7 @@ twitter:
   {
     "@type": "Article",
     "headline": "{Title}",
-    "author": { "@type": "Person", "name": "{Author}" },
+    "author": { "@type": "Person", "name": "{author}", "jobTitle": "{author_title}", "url": "{author_url}", "sameAs": {author_same_as} },
     "datePublished": "{ISO date}",
     "dateModified": "{ISO date}",
     "image": "https://{domain}/{hero}",
@@ -97,6 +97,8 @@ twitter:
   }
 ]
 ```
+
+**Author:** take it from the draft's frontmatter: `author` → `name`, `author_title` → `jobTitle`, `author_url` → `url`, `author_same_as` → `sameAs`; leave out a key the draft does not have. No `author` in the frontmatter → use the publisher Organization as the `author`. Never invent a person. The byline on the page follows the same fields (see the AUTHOR RULE in `references/inbox.md`).
 
 Add `HowTo` schema when the article is an action-oriented step-by-step (title starts with "How to..." or has a numbered checklist as the main content).
 

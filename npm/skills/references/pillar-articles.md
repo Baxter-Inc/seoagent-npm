@@ -94,7 +94,7 @@ Pillars almost always need both `Article` and `FAQPage`:
   {
     "@type": "Article",
     "headline": "{Title}",
-    "author": { "@type": "Person", "name": "{Author Name}" },
+    "author": { "@type": "Person", "name": "{author}", "jobTitle": "{author_title}", "url": "{author_url}", "sameAs": {author_same_as} },
     "datePublished": "{ISO date}",
     "dateModified": "{ISO date}",
     "image": "https://{domain}/{hero-image}",
@@ -112,6 +112,8 @@ Pillars almost always need both `Article` and `FAQPage`:
   }
 ]
 ```
+
+**Author:** take it from the draft's frontmatter: `author` → `name`, `author_title` → `jobTitle`, `author_url` → `url`, `author_same_as` → `sameAs`; leave out a key the draft does not have. No `author` in the frontmatter → use the publisher Organization as the `author`. Never invent a person. The byline on the page follows the same fields (see the AUTHOR RULE in `references/inbox.md`).
 
 If the pillar contains step-by-step processes, also add `HowTo` schema. If it contains a glossary section, add `DefinedTermSet`.
 

@@ -96,7 +96,7 @@ A listicle's defining schema is **`ItemList`** (in addition to `Article`). For t
   {
     "@type": "Article",
     "headline": "{Title}",
-    "author": { "@type": "Person", "name": "{Author}" },
+    "author": { "@type": "Person", "name": "{author}", "jobTitle": "{author_title}", "url": "{author_url}", "sameAs": {author_same_as} },
     "datePublished": "{ISO date}",
     "dateModified": "{ISO date}",
     "image": "https://{domain}/{hero}",
@@ -113,6 +113,8 @@ A listicle's defining schema is **`ItemList`** (in addition to `Article`). For t
   }
 ]
 ```
+
+**Author:** take it from the draft's frontmatter: `author` → `name`, `author_title` → `jobTitle`, `author_url` → `url`, `author_same_as` → `sameAs`; leave out a key the draft does not have. No `author` in the frontmatter → use the publisher Organization as the `author`. Never invent a person. The byline on the page follows the same fields (see the AUTHOR RULE in `references/inbox.md`).
 
 Use `itemListOrder` `…OrderAscending`/`…OrderDescending` for a true ranking; omit it (or use unordered) for an unranked "best of". See `references/schema-markup.md` for the full JSON-LD rules.
 
