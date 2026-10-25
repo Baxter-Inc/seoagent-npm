@@ -156,10 +156,19 @@ low: 3
 - [ ] Homepage title is 72 chars (target 50-60). Move primary keyword to start. (Confirmed)
   - Evidence: evidence.md § https://example.com — title: "…"
 
+## Medium
+- [ ] **2 blog URLs return HTTP 404** — internal links point at deleted posts. (Confirmed)
+  - URLs: https://example.com/blog/old-post, https://example.com/blog/older-post
+  - Linked from: /guides/seo-basics, /blog/launch
+  - Evidence: evidence.md § Pages NOT captured
+  - Recommendation: Repoint the links to live posts, or 301 each slug to the nearest live article.
+
 ## What's Working
 - HTTPS site-wide with HSTS
 - Mobile viewport on every page
 ```
+
+A finding about several pages lists **every one** under `- URLs:` (absolute URLs or site-root paths, comma-separated; wrapping is fine), and the pages that link to them under `- Linked from:` when you know them. The cloud copies both lists into the inbox action, so whoever fixes it does not search for them again. One page → `- URL:`.
 
 Findings use markdown checkboxes (`- [ ]` open, `- [x]` fixed). When the user says "I fixed X": flip the checkbox with `Edit`, append `[date] Fixed: {finding}` to `changelog.md`, run `seoagent sync`.
 

@@ -51,6 +51,7 @@ Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the li
 
 - `Read` it. The frontmatter has `action_id`, `issue` (`meta`|`schema`|`canonical`|`internal_link`|`other`), `severity`, and `page_url`. The body describes the recommended fix per issue type.
 - **Find the page's source** that renders `page_url` — the route/template/markdown under `app/`, `pages/`, `src/`, or `content/`. Match by URL path.
+- **No `page_url` but a `## Targets` section?** The finding names its URLs there, and under **Linked from** the pages that link to them when the audit knows. Work from that list: find their sources with one `grep -rn` over every slug or path, not one search per URL, and do not re-read `.seoagent/audit/` to find them.
 - Apply the fix in the source (use `Edit`/`Write`): meta → title/description (or the framework's metadata API/frontmatter); schema → JSON-LD; canonical → `<link rel="canonical">`; internal_link → add relevant internal links. Safe/reversible edits — no hard delete-confirmation needed. Follow the file's go-ahead step: **Standing approval** → apply, commit, ack; otherwise **show the user the diff** (confirm once per session, then proceed).
 - **Check the action file's "Related past declines" block first.** If it says the page was already ruled out (noindex, off-site canonical, not this site's page), decline with that reason and move on — do not re-fetch and re-derive it.
 - Acknowledge: `seoagent ack <action_id>` (or `--failed --reason "not applicable; ..."` to decline).
