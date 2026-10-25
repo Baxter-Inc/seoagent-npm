@@ -168,7 +168,7 @@ low: 3
 - Mobile viewport on every page
 ```
 
-A finding about several pages lists **every one** under `- URLs:` (absolute URLs or site-root paths, comma-separated; wrapping is fine), and the pages that link to them under `- Linked from:` when you know them. The cloud copies both lists into the inbox action, so whoever fixes it does not search for them again. One page → `- URL:`.
+A finding about several pages lists **every one** under `- URLs:` (absolute URLs or site-root paths, comma-separated; wrapping is fine), and the pages that link to them under `- Linked from:` when you know them (for URLs the crawl could not fetch, `audit/findings.md` lists them under `Linked from:` — copy that list). The cloud copies both lists into the inbox action, so whoever fixes it does not search for them again. One page → `- URL:`.
 
 Findings use markdown checkboxes (`- [ ]` open, `- [x]` fixed). When the user says "I fixed X": flip the checkbox with `Edit`, append `[date] Fixed: {finding}` to `changelog.md`, run `seoagent sync`.
 
