@@ -26,6 +26,8 @@ llms_owner: route                # optional: only value is `route`. Set it when 
 
 Business context, facts, audience, tone, banned topics, reference URLs. Read on every session.
 
+**Tone** = `# Content Tone`, unless it still holds the scaffold's `professional` (or is empty): then a tone rule in `# Writing Instructions` (saved from the owner's feedback, e.g. "Write in a natural, witty, breezy tone") is the tone. Never write in the scaffold's `professional` against the owner's tone rule.
+
 `# Facts` holds one product fact per line (price, plan, limit, feature, integration), each ending in `— source: <repo file or URL>`: `- Pro plan is $49/month — source: app/pricing/page.tsx`. `seoagent facts` diffs those sources against the commits since the last `seoagent facts --mark` (see `references/session-protocol.md` § Fact check against commits).
 
 ## `.seoagent/roadmap.md`
