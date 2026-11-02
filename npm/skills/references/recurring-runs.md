@@ -27,6 +27,22 @@ A run whose `seoagent sync` prints "Not logged in" (or "SEOAGENT_AUTH is set but
 
 An install (`npm install -g` or `npx …@latest`) that fails with `notarget` / `No matching version found` for the version `latest` already names is a release still propagating across the registry, not a broken package: wait 30s and retry once with `--prefer-online`. Report it only if the retry fails too.
 
+## Sandboxed agents: no network, no sync
+
+Some harnesses run commands in a sandbox with network access off. Codex does by default (CLI, IDE extension and app; Codex cloud during the agent phase). There every `seoagent` command that talks to the cloud fails the same way: `fetch failed`, `ENOTFOUND`, `EAI_AGAIN`, `ECONNREFUSED`, `Network error: …`, "Could not reach the server", or a sync that says "Could not verify which cloud site this login is connected to — sync skipped". The request never left the machine. **Never report it as SEOAgent returning a connection error**, and never re-run `init --code` or `login --code` over it: the login is fine, the network is not.
+
+1. Ask the user to let the command run outside the sandbox (Codex asks for this approval when its approval policy allows it; otherwise the user restarts Codex with network on), then re-run the same command.
+2. Before the session ends, give them the standing fix so later sessions and the weekday run don't hit it again. Tell them the change; never edit their harness config yourself.
+   - **Codex CLI / IDE / app**: add this to `~/.codex/config.toml`, then restart Codex. For one session only: `codex -c 'sandbox_workspace_write.network_access=true'`.
+
+     ```toml
+     [sandbox_workspace_write]
+     network_access = true
+     ```
+
+   - **Codex cloud**: turn on agent internet access in the environment's settings. An allowlist needs `seoagent.com`, the site's own domain (`seoagent crawl` fetches it) and `registry.npmjs.org` (installs).
+3. Check it took: `seoagent whoami` must print `Logged in as …`. Some Codex builds (the macOS sandbox, the desktop app) have been reported to ignore `network_access`. If it still fails after the restart, say so plainly: approve each run by hand, and keep the inbox fresh with the cron line under "How to schedule" (cron runs outside the sandbox).
+
 ## First setup: create ONE weekday task
 
 This happens in the **first cloud-connected session** — the one the user starts with "run SEOAgent" after the paste block stopped at the bind. Do it after the first findings are delivered and before the session ends. Never do it inside a scheduled run.
@@ -43,6 +59,8 @@ How to schedule, by harness:
   0 9 * * 1-5  cd /path/to/repo && seoagent sync --silent
   ```
 
+  A scheduled Codex run inherits Codex's sandbox and nobody is there to approve anything, so without the standing fix in "Sandboxed agents" above every sync in it fails. Apply that fix before you create the task.
+
 Say plainly which of these you set up, or that none was available. Then record it: set `schedule:` in `.seoagent/project.md` to what you set up (for example `schedule: claude-code routine seoagent-daily, weekdays 09:00` or `schedule: cron seoagent sync --silent, weekdays 09:00`), or `schedule: none — <why>` when there is no scheduler. `seoagent doctor` flags `schedule_missing` on a bound project until that line exists.
 
 ### Verify the task before you call it done (mandatory)
@@ -53,7 +71,7 @@ Right after creating the task:
 
 1. Trigger it once now (or, inside the task's environment, run `SEOAGENT_AUTH=<the stored secret> seoagent whoami`).
 2. Read the output. It must contain `Logged in as …`.
-3. If it prints `Not logged in`, the secret was not stored or is not reaching the run. If it prints `SEOAGENT_AUTH is set but is not <user_token>:<website_token>`, the value was pasted wrong — quotes around it, the `SEOAGENT_AUTH=` prefix inside the value, a truncated token. Fix the secret and run it again. Do not report the schedule as done until step 2 passes.
+3. If it prints `Not logged in`, the secret was not stored or is not reaching the run. If it prints `SEOAGENT_AUTH is set but is not <user_token>:<website_token>`, the value was pasted wrong — quotes around it, the `SEOAGENT_AUTH=` prefix inside the value, a truncated token. Fix the secret and run it again. If it prints a network error (`Network error: …`, `fetch failed`, `ENOTFOUND`), the run has no internet: see "Sandboxed agents" above. Do not report the schedule as done until step 2 passes.
 
 An unverified task is not set up. Tell the user exactly what the check printed.
 
