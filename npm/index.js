@@ -523,7 +523,8 @@ To fetch the cloud draft (this file only \u2014 other conflicts stay untouched):
 ${m(`sync --force ${o}`)}
 \`\`\`
 
-Read your local copy first if you have not: \`--force\` discards it.`:"",C=`- **Draft file**: \`.seoagent/${o??"(missing path)"}\` (${_})
+Read your local copy first if you have not: \`--force\` discards it.`:"",C=`- **Draft file**: \`.seoagent/${o??"(missing path)"}\` (${_})${n.owner_topic===!0?`
+- **The site owner chose this topic.** A rule against new posts or against topics SEOAgent picks does not stop this article.`:""}
 - **Primary keyword**: ${s??"(none)"}
 - **Word count**: ${a??"(unknown)"}${u?" \u2014 per the cloud; the file on disk does NOT hold this draft yet":""}${u?S:""}`,x=`## How to close this out
 
@@ -1243,7 +1244,7 @@ ${i}
 `);return r.length>Yp&&(r=`${r.slice(0,Yp).trimEnd()}
 [\u2026 orientation cut]`),`Repo orientation (read once for this run; do not re-read these files or re-list these folders unless you need more than what is here):
 ${r}
-`}var xS=new Set(["cli_new_content","cli_new_landing_page","cli_draft_ready","cli_content_update","cli_competitor_new_pages"]),_S="follow them in every page or article you write, place or edit for this action. If this action's own topic is one the owner avoids, make no change and end with `__DECLINED__: the owner's Topics to Avoid names this topic (<the topic>)`. If one of the owner's writing instructions forbids this kind of work (for example \"Do not create new landing pages for now\" on a new landing page), make no change and end with `__DECLINED__: the owner's rule says <the rule>`";function vS(e,t){let n=null;try{n=xp(Vo(Yo(e,".seoagent","context.md"),"utf-8"))}catch{n=null}let r=Ep(Rp(t),n),o=_p(r,_S);return o?`${o}
+`}var xS=new Set(["cli_new_content","cli_new_landing_page","cli_draft_ready","cli_content_update","cli_competitor_new_pages"]),_S="follow them in every page or article you write, place or edit for this action. If this action's own topic is one the owner avoids, make no change and end with `__DECLINED__: the owner's Topics to Avoid names this topic (<the topic>)`. If one of the owner's writing instructions forbids this kind of work (for example \"Do not create new landing pages for now\" on a new landing page), make no change and end with `__DECLINED__: the owner's rule says <the rule>`. When this action says the site owner chose this topic, a rule against new posts or against topics SEOAgent picks does not stop it: the owner gave the topic, so do the work";function vS(e,t){let n=null;try{n=xp(Vo(Yo(e,".seoagent","context.md"),"utf-8"))}catch{n=null}let r=Ep(Rp(t),n),o=_p(r,_S);return o?`${o}
 `:""}var $S="- When you add an article or page and this repo's existing ones each have their own hero / Open Graph image file (read two of them and their frontmatter), make one the same way: `seoagent generate-image --prompt \"<a short visual description of the article's topic, no text in the image>\" --size 1536x1024 --out <the same folder and file name pattern the existing ones use, with a .jpg extension>` (the hosted runner's images are JPEG), then reference it exactly as they do. Never save it under `.seoagent/`. One image per article. If the command fails, keep the article without an image and say so in your `__APPLIED__` line.",SS=new Set(["cli_draft_ready"]),RS=ko("prompt");function ES(e,t){return t&&ws({action_type:e.action_type})?`${uS}${Kp}
 `:`${ef}${cS}
 ${$S}
