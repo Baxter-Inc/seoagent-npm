@@ -127,7 +127,7 @@ Run `seoagent sync`.
 ### Rewriting a Landing Page
 
 Same protocol but:
-- **Fit the design, or suggest.** Follow `references/landing-pages.md` § Editing an existing designed page: every edit goes inside a section the page already has, and the plan adds no new H2, section, band or block. Anything that needs a new section goes in the diagnosis under `### Suggestions for the owner` (the proposed copy and where it would go) and is not built. The article patterns (definition block, answer-first opening, FAQ section) do not apply.
+- **Fit the design, or suggest.** Follow `references/landing-pages.md` § Editing an existing designed page: the plan changes only what a visitor does not read (title, meta description, schema, alt text, links) and adds no new H2, section, band or block. Every copy change and new section goes in the diagnosis under `### Suggestions for the owner` (the proposed copy and where it would go) and is not built. The article patterns (definition block, answer-first opening, FAQ section) do not apply.
 - Track conversion impact — note in changelog if there's a CRO concern
 - Don't ship the rewrite during a campaign in flight — coordinate with the user
 - Update OG card and Twitter card alt text (often forgotten)

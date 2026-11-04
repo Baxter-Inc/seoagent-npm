@@ -55,7 +55,7 @@ When revising a page that already exists — Phase 4b rewrites, `cli_content_upd
 - **Make the minimum effective edit.** Fix slop patterns, errors, and unclear passages. Leave strong human sentences alone. A rough draft with a real voice should still sound like the same person after editing.
 - **Keep the user's meaning.** Don't invent claims, examples, stats, or opinions. If something is unclear, ask.
 - **Keep useful edge.** Strong opinions, blunt language, humor, and honest admissions stay if they belong to the writer. Don't replace them with safer wording.
-- **Keep structure unless it hurts the piece.** If you reorganize, say why in the change summary. A designed page (the homepage, a landing, product or pricing page) keeps its sections exactly: no new section or block, per `references/landing-pages.md` § Editing an existing designed page.
+- **Keep structure unless it hurts the piece.** If you reorganize, say why in the change summary. A designed page (the homepage, a landing, product or pricing page) keeps its sections and its copy exactly: wording changes and new sections are suggestions for the owner, per `references/landing-pages.md` § Editing an existing designed page.
 - Empty qualifiers like "I think", "maybe", "to be honest" stay when they express real uncertainty or the writer's spoken rhythm.
 
 ## Self-check before showing a draft
