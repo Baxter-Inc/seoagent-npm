@@ -60,7 +60,7 @@ Run a structured diagnosis. Use this exact template — output it to the user be
 
 ## Plan (Y/N)
 1. Update {N} stats with 2026 figures
-2. Add new H2: "{section title}" linking to {sub_pillar}
+2. Add new H2: "{section title}" linking to {sub_pillar}   # articles only, never on a landing page
 3. Tighten {section} — currently {old word count}, target {new word count}
 4. Refresh hero image alt text + add OG card
 ```
@@ -127,11 +127,12 @@ Run `seoagent sync`.
 ### Rewriting a Landing Page
 
 Same protocol but:
+- **Fit the design, or suggest.** Follow `references/landing-pages.md` § Editing an existing designed page: every edit goes inside a section the page already has, and the plan adds no new H2, section, band or block. Anything that needs a new section goes in the diagnosis under `### Suggestions for the owner` (the proposed copy and where it would go) and is not built. The article patterns (definition block, answer-first opening, FAQ section) do not apply.
 - Track conversion impact — note in changelog if there's a CRO concern
 - Don't ship the rewrite during a campaign in flight — coordinate with the user
 - Update OG card and Twitter card alt text (often forgotten)
 - Update JSON-LD `Product` / `Offer` if pricing or feature claims changed
-- **Screenshot-gap pass (SaaS sites):** during the diagnosis (Step 3), scan the page for hero/feature sections that describe the product but show no real screenshot (illustration-only, stock, or empty). For each gap, capture a real product screenshot from this repo's UI per `references/screenshots.md` and fold it into the rewrite — this is how an *existing* SaaS landing page gets the screenshots it's missing.
+- **Screenshot-gap pass (SaaS sites):** during the diagnosis (Step 3), scan the page for hero/feature sections that describe the product but show no real screenshot (illustration-only, stock, or empty). For each gap, capture a real product screenshot from this repo's UI per `references/screenshots.md` and put it in that section's existing image slot — this is how an *existing* SaaS landing page gets the screenshots it's missing. No section has a slot for it? Suggest it; don't add a section to hold it.
 
 ### Rewriting Without an Existing Brief
 

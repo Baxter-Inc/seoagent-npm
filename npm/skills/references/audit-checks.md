@@ -201,7 +201,7 @@ Recommendation: "Add ~{target - current} words of substantive content. Target 80
 ### `keyword_not_in_first_100_words`
 Check: primary keyword (from brief if available, inferred from title otherwise) appears in body before word 100.
 Severity: `medium`
-Recommendation: "Move the primary keyword `{keyword}` into the first paragraph for AI-extractability."
+Recommendation: "Move the primary keyword `{keyword}` into the first paragraph for AI-extractability (on a designed page: into the existing hero copy)."
 
 ### `images_without_alt`
 Check: `evidence.md` — each page section's **images** line (`N total, M missing alt` + the first offending srcs) and the rollup's *Images missing alt* total. The crawl extracts `<img>` tags with no `alt` attribute from the server HTML (`alt=""` on decorative images counts as present). Do NOT conclude alt coverage from WebFetch or repo source — report the counts + srcs the evidence lists, per page.
@@ -211,7 +211,7 @@ Recommendation: "Add descriptive alt text to {N} images on {page} (starting with
 ### `missing_product_screenshots`
 Applies only when `project.md` has `site_type: saas` (or the repo renders a real product UI). Check: a landing / feature / how-to page that describes the product but has **no real product screenshot** in its hero or feature sections (illustration-only, stock photo, or no image where a UI shot belongs).
 Severity: `low` (a conversion + trust gap, not an indexation issue).
-Recommendation: "Add a real product screenshot to the hero + feature sections — read `references/screenshots.md` to capture them from the product's own code in this repo. Real UI shots out-convert AI illustrations on a SaaS page."
+Recommendation: "Add a real product screenshot to the hero + feature sections, in their existing image slots — read `references/screenshots.md` to capture them from the product's own code in this repo. Never add a new section to hold one. Real UI shots out-convert AI illustrations on a SaaS page."
 
 ### `internal_links_count`
 Check: number of `<a>` tags pointing to same-domain URLs in body.
@@ -260,7 +260,7 @@ Recommendation: "Robots.txt blocks AI crawlers ({list}). If you want to be cited
 ### `no_extractable_answer_block`
 Check: page has primary keyword in title/H1 but no paragraph in the first 200 words that directly answers the keyword's intent.
 Severity: `medium`
-Recommendation: "Lead with a definition or direct answer in the first paragraph (40-80 words) so AI search engines can extract it."
+Recommendation: "Lead with a definition or direct answer in the first paragraph (40-80 words) so AI search engines can extract it. On a designed page (the homepage, a landing, product or pricing page), put the answer in the existing hero sub-heading or the first section's copy; never insert a new paragraph or block between sections."
 
 ### `llms_txt_missing`
 Check: `WebFetch https://{domain}/llms.txt`. It fails the check if it 404s, or returns something that isn't markdown starting with an `#` H1 (a soft-404 / SPA shell).

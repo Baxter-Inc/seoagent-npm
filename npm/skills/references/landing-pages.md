@@ -2,6 +2,10 @@
 
 Use when writing or improving a sales / conversion / feature / pricing / homepage. Different from blog content — landing pages are conversion-focused, not authority-focused.
 
+**Editing a page that already exists? Read § Editing an existing designed page first.** The section order and word count below are for a NEW page; never add sections to an existing page to match them.
+
+**Every page uses the site's own design.** Before writing a new page or editing one, read the closest existing page of the same kind and what gives it its look: its components, the theme or Tailwind config, the global CSS, the fonts. Build with those, so the result looks like the rest of the site. Never introduce a font, color or style the site does not already use.
+
 ## When to Use
 
 - The user asks for a homepage, feature page, pricing page, product page, or campaign landing page
@@ -159,8 +163,18 @@ images:
       prompt: "..."
 ```
 
+## Editing an existing designed page
+
+The homepage and every product, feature, pricing and `/for/*` page are designed: each section is a component with its own layout. An SEO edit to one fits that design, or it goes to the owner as a suggestion.
+
+- **Fit an existing slot.** Rewrite the H1, a sub-heading or the hero and intro copy; tighten or extend copy inside an existing section; add questions to an existing FAQ (often a data array); add entries to an existing list or table; put links in existing copy. Use the page's own components, classes and styles.
+- **Never add a standalone section, band or block**: no "What is X?" band between the hero and the next section, no new FAQ block, no answer paragraph dropped between sections, no "Related pages" strip. The article rules (definition block, answer-first opening, FAQ section) are for articles; on a designed page the same intent goes into the hero sub-heading or the copy of a section that is already there.
+- **No slot fits? Suggest, don't build.** Give the owner the proposed copy and where it would go ("replace the sub-heading under the hero with: …"). For an inbox action or an unattended run, decline the action with a reason that starts `Suggestion:`; the hosted runner lists it under "Suggestions for you" in its pull request. In an interactive session, show it to the user and build it only if they ask.
+- **Don't change the layout to make room.** Reordering sections, new components and new visual styles are design work for the owner.
+- **Section Ordering** and **Word Count Target** above describe a new page. An existing page with fewer sections is not missing any, and short copy on a designed page is often intentional.
+
 ## Persistence
 
 Even though landing pages aren't in `strategy/clusters/`, persist the content to `.seoagent/content/{slug}.md` with `page_type: landing`. Add an entry to `changelog.md`. Run `seoagent sync`.
 
-If the user is editing an existing landing page rather than creating a new one, follow `references/rewrite-protocol.md` instead.
+If the user is editing an existing landing page rather than creating a new one, follow `references/rewrite-protocol.md` and § Editing an existing designed page above.
