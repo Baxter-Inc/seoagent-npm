@@ -27,8 +27,10 @@
 | `cli_draft_context` | Business context is missing while suggested keywords wait on the relevance judge — draft `.seoagent/context.md` | Safe (repo-local file) |
 | `cli_run_audit` | The full technical audit is stale (≥7 days) or has never run — re-run Skill Phase 1 and sync | Safe (read-only crawl + report) |
 | `cli_outreach_drafts_ready` | Outreach email drafts await the owner's review on the dashboard — tell the user, then ack | Safe (informational) |
-| `cli_submit_listing` | The owner approved a directory listing submission (or correction) on the dashboard — fill the directory's form **in a browser** with the facts given | **Outward-facing — owner-approved; stop at any account, CAPTCHA or payment** |
+| `cli_submit_listing` | The owner approved a directory listing submission (or correction) on the dashboard — fill the directory's form **in a browser** with the facts given. `kind: product` (G2, AlternativeTo, SaaSHub, …): prepare the listing from the repo and **ask the owner first** | **Outward-facing — owner-approved (local) or confirm-first (product); stop at any account, CAPTCHA or payment** |
 | `cli_competitor_new_pages` | A competitor's sitemap listed new pages this week — review each and plan a better page only where one is possible; the plan goes to the cloud planner with the ack | Safe (planning only — no files; never copy) |
+| `cli_build_tool` | The weekly plan found tools win a search: build the free tool it specifies (inputs, outputs, logic, the ranking tools to beat, where it lives) **in this site's own stack**, with its acceptance checks | Safe (new page + code; decline if the stack cannot host it) |
+| `cli_programmatic_set` | The weekly plan found a family of searches that share one template: build the template, its data source and **only the pilot pages** (10–20) | Safe (new pages; no thin near-duplicates) |
 
 ## Per-type procedure
 
@@ -161,6 +163,23 @@ Start by reading `.seoagent/inbox/README.md` (or `seoagent inbox`) to see the li
 - **Stop and decline** if the form asks for an account, a sign-in, a CAPTCHA, a payment, or any agreement beyond submitting the listing, or if a required field has no fact: `seoagent ack <action_id> --failed --reason "<what blocked you>"`. The reason becomes the owner's to-do on the dashboard.
 - Submitted: `seoagent ack <action_id> --url "<listing URL, if shown>"` → the listing goes to `submitted`; the next NAP audit marks it live once it appears.
 - The directory says the owner must verify (code, postcard, call, email): `seoagent ack <action_id> --verify "<what the owner must do>" --verify-type code|postcard|call|email` → the listing goes to `pending_owner_verification` and the dashboard shows the to-do. SEOAgent never receives the code.
+
+- **`kind: product` in the frontmatter** (a product directory: G2, Capterra, TrustRadius, AlternativeTo, SaaSHub, SourceForge): the weekly plan found competitors listed there and not this site. **Confirm first, every time**: prepare the listing from the repo (name, website, tagline, description, categories, pricing, the products it is an alternative to) and the plan's values, show it to the owner, and submit only on their yes in this session. No person in the session → do nothing and do not ack. Search the directory first: already listed → `--failed --reason "already listed: <url>"`. Each of these needs a vendor account in the owner's name: never create it, never accept terms for them; fill the form only in the owner's own signed-in browser, else hand them the prepared listing and `--verify "<what the owner must do>" --verify-type email`. Only true facts: never invent reviews, ratings, customer counts or integrations.
+
+### `cli_build_tool-<id>.md`
+
+- `Read` it. The frontmatter has `action_id`, `placement` and `target_keyword`; the body has the tool (name, inputs, outputs, how it works), the ranking tools it must beat (from a SERP check), the plan's why and moves, and the acceptance checks.
+- **Read the stack first**: framework, router, components, styles, whether a page can run client-side JS or call a server route. Cannot host it, or the logic needs data or a paid API the site does not have → `seoagent ack <action_id> --failed --reason "cannot build: ..."`.
+- Open the ranking tools. Ours must do the job at least as well and do what they do not. **Never copy their code, text or design.**
+- Logic in its own small module (unit tests when the repo has a test setup); the page from the site's own components; the tool above the fold, 150–400 words of supporting copy below; WebApplication JSON-LD; links from two relevant pages; the URL in the sitemap. Tick every acceptance check.
+- Close it out: `seoagent ack <action_id> --url "<live URL of the tool>"` (or `--awaiting-deploy`). A tool page is exempt from the stale/thin word-count rule.
+
+### `cli_programmatic_set-<id>.md`
+
+- `Read` it. The frontmatter has `action_id`, `url_pattern` and `pilot_size`; the body has the template (URL and title patterns), the data source, the pilot pages and the searches behind them.
+- **Ship the pilot only.** The rest of the set waits until SEOAgent has read the pilot's indexing, impressions and clicks.
+- Build the data first, one row per pilot page, with facts that make each page its own; a row without real data gets no page (say which in the ack). Then one template from the site's own components, sibling links and a hub page, every URL in the sitemap.
+- Close it out: `seoagent ack <action_id> --url "<hub or first pilot URL>" --reason "shipped N of M; left out: ..."`. No real data per page, or it would be thin → `--failed --reason "no set: ..."`.
 
 ### `cli_competitor_new_pages-<id>.md`
 
