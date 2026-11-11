@@ -14,6 +14,8 @@ SEOAgent Cloud *hosting* (option C below) exists only as a convenience for users
 > - **write directly into that production database** (e.g. an `INSERT` via an MCP/SQL tool) — that's not how the app publishes, it bypasses every safeguard, and it's usually read-only anyway; and
 > - **assume SEOAgent Cloud (or a "dashboard") will publish it** — the cloud does not publish to the user's own site. Never invent a publishing mechanism you haven't verified.
 >
+> **In an unattended (hosted) run**, do not convert the blog and do not write to the database: decline the draft and say in the reason that the posts are rows in the app's database (name the ORM and the model or table). SEOAgent then queues one setup fix that adds a signed drafts endpoint to the app, so the owner gets every draft as an unpublished post in their own admin (`check_id: admin_drafts_endpoint`; its text is the whole contract).
+>
 > Instead, **the default recommendation is to make the blog repo-native: add a git-based Markdown/MDX content collection** (option A) — a `content/blog/` dir the route reads from — so publishing becomes a reviewed commit, no extra services. If the user would rather keep the DB/headless setup, **ask them how a post actually gets created** (which API endpoint or command produces a live page) and record it as option B / `other` — never guess. When a site has no working content home at all, **recommend creating a Markdown collection as the default**, ahead of adopting a CMS or the cloud.
 
 **Trigger this protocol when:**
