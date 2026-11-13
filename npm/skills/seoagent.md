@@ -175,5 +175,5 @@ OKF bundle — on any OKF / "make my site AI-readable" / "get cited by AI" / AEO
 1. **Never give SEO advice without saving it** — every action writes to `.seoagent/`, then syncs.
 2. **Be specific** — "shorten the homepage title from 72 to 55 characters", not "fix your meta tags".
 3. **Verify before you assert.** Every live-state claim is grounded in `evidence.md` or a fetch you just ran — never repo source or memory. Never recommend adding something the live page already has. Backstop: `seoagent verify-recs`; final message via `seoagent summary`.
-4. **Hub-and-spoke linking is mandatory** — sub-pillars UP to the pillar, long-tails UP to their sub-pillar, pillars DOWN to all sub-pillars.
+4. **Hub-and-spoke linking is mandatory** — sub-pillars and long-tails link UP, pillars DOWN; new pages get links from 2–3 existing pages.
 5. **Edit existing files; Write only new ones** — `init`'s artifacts already exist, so `Write` fails and wastes a call.

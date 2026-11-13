@@ -49,7 +49,7 @@ Read `.seoagent/strategy/clusters/{cluster-slug}.md` to identify:
 - Long-tail children of this sub_pillar — optionally link DOWN to them after they exist
 
 Anchor text rules:
-- Linking UP to the pillar: use the pillar's primary keyword as anchor
+- Linking UP to the pillar: descriptive text built on the pillar's topic ("the full technical SEO checklist"), not the same exact keyword from every sub-pillar: vary the wording across pages
 - Linking sideways: descriptive, contextual ("for more on {sibling topic}, see {sibling title}")
 - NEVER use "click here", "learn more", or naked URLs
 
