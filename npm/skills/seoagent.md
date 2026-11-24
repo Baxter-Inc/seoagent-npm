@@ -97,7 +97,7 @@ A **first session with no audit yet** opens per `references/session-protocol.md`
 
 ## Plan once, then execute
 
-The flow is upfront work → **one plan** → batches, so the user makes one decision, not a dozen. On a fresh project, in one pass: audit, then GSC seed + keyword research + clusters, then write a content plan to `roadmap.md` as an ordered checkbox list — **depth-first**, each item role + slug + target keyword:
+The flow is upfront work → **one plan** → batches: one decision, not a dozen. On a fresh project, in one pass: audit, then GSC seed + keyword research + clusters, then write a content plan to `roadmap.md` as an ordered checkbox list — **depth-first**, each item role + slug + target keyword:
 
 ```
 Cluster order: developer-seo (ICP, easiest) → ai-search → ai-seo
@@ -105,14 +105,15 @@ Cluster order: developer-seo (ICP, easiest) → ai-search → ai-seo
 - [ ] SUB     nextjs-seo          — "next.js seo"
 ```
 
-Present it **once** for approval, then work a cluster at a time without asking `Continue?` between articles, ticking `[ ]`→`[x]`. At the **cluster boundary** stop, show the work, open one PR — the diff is the review surface. Mandatory stops only: plan approval, cluster boundaries, genuine ambiguity, destructive actions. `roadmap.md` IS the durable plan — a later session continues from the first unchecked item.
+Present it **once** for approval, then work a cluster at a time without asking `Continue?`, ticking `[ ]`→`[x]`. At the **cluster boundary** stop, show the work, open one PR. Mandatory stops only: plan approval, cluster boundaries, genuine ambiguity, destructive actions. **Headless or one-shot, nobody to approve? Stop at the plan:** no articles, no new pages. `roadmap.md` IS the durable plan — a later session continues from the first unchecked item.
 
 ## Session economy
 
-Full detail in `references/session-protocol.md` — required reading for any bounded session.
+Detail: `references/session-protocol.md`.
 
-- Target under ~60 turns and ~20 new files; batch bookkeeping into one changelog append, one roadmap update, one `seoagent sync`.
-- **End every audit/optimization session with `seoagent verify-recs`, then `seoagent summary`** — present the summary's output as your final message, not a from-memory restatement, relaying every `CORRECTION` line. No new workstreams after the summary.
+- Target under ~60 turns and ~20 new files: audit, fix confirmed findings in existing files, plan, wrap up. Batch bookkeeping into one changelog append, one roadmap update, one `seoagent sync`.
+- Verify edits with at most one build; never start a server or kill a process.
+- **End every audit/optimization session with `seoagent verify-recs`, then `seoagent summary`** — present its output as your final message, not from memory, relaying every `CORRECTION` line. No new workstreams after the summary.
 - The budget trims bookkeeping, **never findings completeness** — every confirmed finding in `findings.md` gets reported.
 
 ## Phase 1 — Technical SEO audit
@@ -137,11 +138,11 @@ Every finding or recommendation — in `audit/latest.md` and in chat — either 
 
 GSC data is the biggest quality lever; not connected → `seoagent gsc connect` (after login). Connected → **seed first with `seoagent keywords --seed`**; never run `--discover`/`--competitors` on an empty inventory (noise). Segment seeds against positioning from `context.md`: on-strategy → prioritize; legacy/off-strategy → harvest/defend, never steering clusters. Never invent numeric scores — H/M/L only when estimating. **No-data on an on-strategy term is a first-mover opportunity**, not absence of value.
 
-**Migration planning — the move no competitor makes.** During ANY audit/strategy session check two conditions: (1) GSC data exists — a connected login OR a local Search Console CSV (`seoagent migrate` auto-detects `gsc/*.csv` and root CSVs; check before concluding "no GSC data"); (2) the audit finds a positioning mismatch between the live product and what GSC queries rank for. **When BOTH hold, running `seoagent migrate` is mandatory** — and the final response MUST include the per-asset **harvest / redirect / sunset table** with impressions/position rationale, not just a pointer to the plan. Match without mismatch → "No migration needed." No GSC data → skip silently. Full protocol: `references/migration-planning.md`.
+**Migration planning.** During ANY audit/strategy session check two conditions: (1) GSC data exists — a connected login OR a local Search Console CSV (`seoagent migrate` auto-detects `gsc/*.csv` and root CSVs; check before concluding "no GSC data"); (2) the audit finds a positioning mismatch between the live product and what GSC queries rank for. **When BOTH hold, running `seoagent migrate` is mandatory** — and the final response MUST include the per-asset **harvest / redirect / sunset table** with impressions/position rationale, not just a pointer to the plan. Match without mismatch → "No migration needed." No GSC data → skip silently. Full protocol: `references/migration-planning.md`.
 
 Any strategy-level "grow organic traffic" answer ends with a short, sequenced **transition narrative** in the site's own terms: (1) Protect & harvest existing equity first, (2) Build the new-direction clusters depth-first, (3) Measure and iterate via GSC / `seoagent citations`.
 
-Clusters are hub-and-spoke: one PILLAR (2500–4000 words), 3–5 SUB_PILLARs (1200–1800), 8–10 LONG_TAILs (800–1200), every link funnelling authority UP to the pillar (`PILLAR | SUB_PILLAR | LONG_TAIL` matches the cloud schema). **Write the PILLAR first, then finish that cluster before opening the next** — one complete cluster signals topical authority.
+Clusters are hub-and-spoke: one PILLAR (2500–4000 words), 3–5 SUB_PILLARs (1200–1800), 8–10 LONG_TAILs (800–1200), every link funnelling authority UP to the pillar (`PILLAR | SUB_PILLAR | LONG_TAIL` matches the cloud schema). **Write the PILLAR first, then finish that cluster before opening the next**.
 
 Outputs: `strategy/clusters/{slug}.md`, `strategy/discovery.md` (all metrics), `competitors.md`, and `keywords.md` — **strict machine-parsed format: keyword phrases only after each label, never inline volume/KD/notes**. Then sync.
 
@@ -168,7 +169,7 @@ Then per article in priority order: read the cluster file for role and metadata;
 
 Re-audit: read `audit/latest.md`, re-run Phase 1, diff fixed / new / regressed (`[x]`→`[ ]`), preserving still-fixed checkboxes. Append the comparison to `changelog.md` and sync. Report as `## 📊 Since Last Audit` → `✅ Fixed (N)` / `🆕 New Issues (N)` / `⚠️ Regressions (N)` / `Stable`, then the standard options.
 
-OKF bundle — on any OKF / "make my site AI-readable" / "get cited by AI" / AEO/GEO ask: **read `references/open-knowledge-format.md` first**, fill `.seoagent/okf/` from `.seoagent/` artifacts **replacing every placeholder**, then `seoagent okf validate` and fix every error. Publishing is automatic — the next sync copies the bundle to `<public_dir>/.well-known/okf/` and regenerates `llms.txt` (never hand-write it). Then **tell the user to commit and deploy** — that step is theirs. Measure with `seoagent citations`.
+OKF bundle — on any OKF / "make my site AI-readable" / "get cited by AI" / AEO/GEO ask: **read `references/open-knowledge-format.md` first**, fill `.seoagent/okf/` from `.seoagent/` artifacts **replacing every placeholder**, then `seoagent okf validate` and fix every error. Publishing is automatic — the next sync copies the bundle to `<public_dir>/.well-known/okf/` and regenerates `llms.txt` (never hand-write it). Then **tell the user to commit and deploy**. Measure with `seoagent citations`.
 
 ## Rules
 
